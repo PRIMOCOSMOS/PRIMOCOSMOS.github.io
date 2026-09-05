@@ -22,10 +22,16 @@ The existing MMHVAE research tab mounts `Explorer.tsx`. `OrbitScene.tsx` is load
 
 ## Interaction and fallback
 
-Drag to orbit, two-finger/right-button pan, explicit zoom buttons, keyboard arrows and +/−. Camera presets preserve vertical encoder towers. Module focus centers the camera on the selection. The module directory exposes every block and all seven Gaussian heads per modality, with full operator details in a regular HTML inspector. Missing encoders are muted, but their labels remain legible. All four output branches always exist.
+Drag to orbit, two-finger/right-button pan, explicit zoom buttons, keyboard arrows and +/−. Camera presets preserve vertical encoder towers. Selecting a module unfolds `AnatomyScene.tsx` over a blurred, retained overview. Return to overview restores the exact underlying camera; Escape moves up the drill path. `anatomy.ts` defines actual operator dependencies, including residual bypasses, SE subgraphs, Gaussian parameter splitting, sampling and each of six independent output ResNet blocks. A layer view joins the upper sample, upsampling, decoder, prior, observed experts, PoE, posterior and lower level; z₁ shows all four output decoders. Small operator names appear on hover/selection, with a keyboard-accessible HTML sequence and tensor readout beneath the canvas.
+
+`glyphs.ts` uses feature planes, convolution kernels, separate depthwise channels, bell surfaces, intersecting PoE rings, sample crystals and scale frusta. Geometry and particles illustrate topology; labels give actual tensor shapes, not the number of decorative planes or dots. Missing encoders are muted. All four output branches always exist.
 
 Rendering pauses when offscreen or the document is hidden. Paused scenes render on demand. Reduced motion disables auto playback and moving particles. Context loss / WebGL failure offers the same HTML module directory. All Three.js resources, observers, events, and the animation frame are disposed on unmount. No weights are loaded and no medical image inference runs in the browser.
 
 ## Validation
 
-Run `npm run build`. Browser checks cover desktop/mobile overflow, all seven layer/head choices, source detail selection, observation guards, camera controls, tensor tables, formula rendering, temperature changes, tab unmount/remount, playback, keyboard input, and WebGL fallback. Local review artifacts belong in ignored `qa/`.
+Run `npm run verify:model`, `npm run build`, and `npm run verify:dist`. The model check validates 223 module/nested/layer graphs, dependency references, acyclic flow, nested destinations, observed-subset routing and code-specific defaults. Browser checks cover desktop/mobile overflow, pointer selection, nested SE and output ResNets, return navigation, formulas, motion, idle rendering, WebGL fallback, immediate persistence through reload, multiline text, import/export and storage failure. Local review artifacts belong in ignored `qa/`.
+
+## Persistent copy editing
+
+The shared `EditableContentProvider` covers the homepage, existing research notes and MMHVAE explanations, including selected-module and nested-operator prose. Input saves immediately under the existing `primocosmos-note-copy-v1` key; legacy edits remain compatible. Newlines are retained and pasted rich text is converted to plain text. JSON export/import supports manual backup and transfer. Storage errors retain the in-memory copy and offer export. Persistence is per browser/origin, not a server-side publication or automatic cross-device sync. Formula rendering and model topology remain separate from editable prose.

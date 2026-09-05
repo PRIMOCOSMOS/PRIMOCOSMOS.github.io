@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { LEVELS, MODALITIES, NODE_MAP, type ModelNode } from './model'
+import { glyphFor } from './anatomy'
+import { makeGlyph } from './glyphs'
 
 export interface SceneProps {
   selected: string; observed: string[]; target: string; level: number
@@ -60,13 +62,14 @@ export default function OrbitScene(props: SceneProps) {
     const yFor=(l:number)=>2.55+(l-1)*1.67
     const addNode=(id:string,pos:THREE.Vector3,size:[number,number,number],color:string,text?:string)=>{
       const node=NODE_MAP.get(id)!; const group=new THREE.Group();group.position.copy(pos)
-      const material=new THREE.MeshStandardMaterial({color:new THREE.Color(color).multiplyScalar(0.25),roughness:0.48,metalness:0.45,transparent:true})
-      const box=new THREE.Mesh(new THREE.BoxGeometry(...size),material);group.add(box)
+      const glyph=makeGlyph(glyphFor(node.kind),color)
+      const scale=['prior','sample','down'].includes(node.kind)?0.43:node.kind==='expert'?0.49:node.kind==='resnet'?0.23:node.kind==='poe'?0.7:node.kind==='output'?1.15:0.76
+      glyph.scale.setScalar(scale);group.add(glyph)
+      const box=new THREE.Mesh(new THREE.BoxGeometry(Math.max(size[0],.6),Math.max(size[1],.55),Math.max(size[2],.6)),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));group.add(box)
       const edge=new THREE.LineBasicMaterial({color,transparent:true,opacity:0.7})
-      group.add(new THREE.LineSegments(new THREE.EdgesGeometry(box.geometry),edge))
-      if(text){const sprite=label(text,color,Math.max(size[0],1.65),0.32);sprite.position.set(0,0.02,size[2]/2+0.18);group.add(sprite)}
+      if(text){const sprite=label(text,color,Math.max(size[0],1.65),0.32);sprite.position.set(0,scale*.74,size[2]/2+0.2);group.add(sprite)}
       group.traverse(obj=>{obj.userData.nodeId=id});hitObjects.push(box)
-      const materials:THREE.Material[]=[];group.traverse(obj=>{if('material'in obj)materials.push((obj as THREE.Mesh).material as THREE.Material)})
+      const materials:THREE.Material[]=[];group.traverse(obj=>{if('material'in obj&&obj!==box)materials.push((obj as THREE.Mesh).material as THREE.Material)})
       content.add(group);visuals.push({group,node,materials,edge});return group
     }
     const addRoute=(points:THREE.Vector3[],color:string,l:number,stage:number,mod?:string)=>{
@@ -81,15 +84,12 @@ export default function OrbitScene(props: SceneProps) {
       const railGeometry=new THREE.BufferGeometry().setFromPoints([v(x,1.9,z),v(x,14.5,z)])
       const rail=new THREE.Line(railGeometry,new THREE.LineBasicMaterial({color:c,transparent:true,opacity:0.2}));content.add(rail);decorations.push({object:rail,mod:m.id})
       const title=label(`${m.label} / ENCODER`,c,3,0.42);title.position.set(x,14.35,z);content.add(title);decorations.push({object:title,mod:m.id})
-      addNode(`${m.id}-input`,v(x,1.4,z),[2.45,0.12,1.35],c,`${m.label} · 1 × 192²`)
+      addNode(`${m.id}-input`,v(x,1.1,z),[2.45,0.12,1.35],c,`INPUT · ${m.label} · 192²`)
       addNode(`${m.id}-stem`,v(x,1.95,z),[2.05,0.15,0.9],c)
       addRoute([v(x,1.5,z),v(x,7,z),v(x,13.3,z)],c,0,0,m.id)
       LEVELS.forEach(level=>{
         const y=yFor(level.l),width=2.25-(level.l-1)*0.09
         addNode(`${m.id}-encoder-${level.l}`,v(x,y,z),[width,0.28,0.95],c,`E${level.l} · ${level.feature}ch`)
-        // Feature slabs reveal each residual cell's depth without tilting its tower.
-        const slab=new THREE.Mesh(new THREE.BoxGeometry(width,0.035,0.95),new THREE.MeshBasicMaterial({color:c,transparent:true,opacity:0.15}));slab.position.set(0,0.23,0)
-        visuals[visuals.length-1].group.add(slab);visuals[visuals.length-1].materials.push(slab.material)
         addNode(`${m.id}-expert-${level.l}`,v(x,y-0.5,z+0.65),[1.75,0.16,0.36],c,level.l===7?'FC · μ, a':`Q${level.l} · μ, a`)
         if(level.l<7)addNode(`${m.id}-down-${level.l}`,v(x,y+0.77,z),[0.35,0.15,0.35],c)
         addRoute([v(x,y,z),v(x,y-0.35,z+0.45),v(x,y-0.5,z+0.65)],c,level.l,2,m.id)
@@ -99,7 +99,7 @@ export default function OrbitScene(props: SceneProps) {
       const output=addNode(`${m.id}-output`,v(x,-0.3,z+1),[2.75,0.13,1.9],c,`${m.label} / DECODER`)
       output.children.filter(o=>o instanceof THREE.Sprite).forEach(o=>o.position.z=1.06)
       for(let i=1;i<=6;i++)addNode(`${m.id}-resnet-${i}`,v(x-1.02+(i-1)*0.408,0.05,z+0.7),[0.29,0.3,0.65],c)
-      addNode(`${m.id}-image`,v(x,-0.85,z+1.9),[1.6,0.08,0.65],c,'7×7 → 7×7 → x̂')
+      addNode(`${m.id}-image`,v(x,-1.25,z+1.9),[2.7,0.08,0.65],c,`OUTPUT · ${m.label} · x̂`)
       addRoute([v(0,yFor(1)-0.35,0.6),v(x*0.45,0.8,z+1),v(x,0.15,z+1)],c,1,3,m.id)
     })
     LEVELS.forEach(level=>{
@@ -133,7 +133,7 @@ export default function OrbitScene(props: SceneProps) {
     controls.addEventListener('change',draw)
     const resize=()=>{
       const w=container.clientWidth,h=container.clientHeight
-      renderer.setSize(w,h); const halfHeight=Math.max(9.4,12.1/(w/h))
+      renderer.setSize(w,h); const halfHeight=Math.max(10.2,12.5/(w/h))
       camera.left=-halfHeight*w/h;camera.right=halfHeight*w/h;camera.top=halfHeight;camera.bottom=-halfHeight;camera.updateProjectionMatrix();dirty=true
     }
     const observer=new ResizeObserver(resize);observer.observe(container);resize()

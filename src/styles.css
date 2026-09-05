@@ -2424,6 +2424,12 @@ footer > a:hover {
   opacity: 0.35;
 }
 
+.note-edit-toolbar--compact{margin-top:18px;padding-top:12px;gap:9px;max-width:100%}
+.note-edit-toolbar--compact .note-edit-actions{gap:6px}
+.note-edit-toolbar--compact .note-edit-actions button{font-size:10px;min-height:34px;letter-spacing:0;padding:6px 9px}
+.note-edit-toolbar--compact>div:first-child p{font-family:inherit;font-size:10px;line-height:1.7;max-width:none}
+[contenteditable=true]{overflow-wrap:anywhere;min-height:1.5em}
+
 [data-editable="active"] {
   outline: 1px dashed rgba(120, 184, 255, 0.62);
   outline-offset: 0.28rem;

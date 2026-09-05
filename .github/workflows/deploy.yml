@@ -25,6 +25,8 @@ jobs:
           cache: npm
       - name: Install dependencies
         run: npm ci
+      - name: Verify model topology
+        run: npm run verify:model
       - name: Build static site
         run: npm run build
       - name: Verify deployable artifact

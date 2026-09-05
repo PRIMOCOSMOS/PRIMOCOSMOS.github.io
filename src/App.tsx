@@ -270,6 +270,7 @@ function App() {
               <p className="cover-call">PRIMOCOSMOS</p>
               <h1 id="cover-title"><span>FIELD NOTES</span><span>FROM THE EDGE</span></h1>
               <EditableText className="cover-deck" textKey="cover-description">准研究生阶段的个人主页，记录科研阅读、方法实验与持续推进中的工作。当前开放板块聚焦 qMRI 与多模态医学影像建模。</EditableText>
+              <NoteEditToolbar compact />
               <a className="primary-action" href="#research">进入科研板块 <ArrowDown size={16} /></a>
             </div>
 
