@@ -7,8 +7,6 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
   group: pages
@@ -29,16 +27,26 @@ jobs:
         run: npm ci
       - name: Build static site
         run: npm run build
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
+      - name: Verify deployable artifact
+        run: npm run verify:dist
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: dist
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
       - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4
-        if: github.ref == 'refs/heads/main'
-        environment:
-          name: github-pages
-          url: ${{ steps.deployment.outputs.page_url }}

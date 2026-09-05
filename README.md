@@ -22,7 +22,11 @@ npm run preview
 
 ## GitHub Pages
 
-The workflow in `.github/workflows/deploy.yml` builds `dist/` and deploys it through GitHub Pages. In the repository settings, select **GitHub Actions** as the Pages source.
+The workflow in `.github/workflows/deploy.yml` builds and verifies `dist/`, then a separate deployment job publishes that artifact through GitHub Pages. In **Settings → Pages → Build and deployment → Source**, select **GitHub Actions**. Do not use **Deploy from a branch → main / (root)**: the root `index.html` is a Vite source entry and cannot run directly on a static host.
+
+The `github-pages` environment belongs to the deployment **job**, not a step. A misplaced environment makes the workflow invalid, allowing an existing branch-based Pages build to keep publishing the source tree instead.
+
+Before publishing, run `npm run build && npm run verify:dist`. A deployed homepage must reference compiled `/assets/*.js` and `/assets/*.css`, never `/src/main.tsx`. Preview the production artifact using `npm run preview`.
 
 ## Research-content boundary
 
