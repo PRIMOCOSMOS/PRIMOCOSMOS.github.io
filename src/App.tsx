@@ -1,11 +1,12 @@
-import { useState, type KeyboardEvent } from 'react'
+import { lazy, Suspense, useState, type KeyboardEvent } from 'react'
 import { ArrowDown, Github, Radio, ScanLine } from 'lucide-react'
-import { MMHVAEExplorer } from './components/MMHVAEExplorer'
 import { MMVAEPlusExplorer } from './components/MMVAEPlusExplorer'
 import { PnPCosmoExplorer } from './components/PnPCosmoExplorer'
 import { SignalField } from './components/SignalField'
 import { SourceLink } from './components/Primitives'
 import { EditableText, NoteEditToolbar } from './components/EditableContent'
+
+const MMHVAEExplorer = lazy(() => import('./components/MMHVAEExplorer').then(module => ({ default: module.MMHVAEExplorer })))
 
 type PaperId = 'mmhvae' | 'pnp' | 'mmvae'
 
@@ -91,7 +92,7 @@ function MMHVAENote() {
           <EditableText textKey="mmhvae-method-1">完整多模态图像记为 X=(X₁,…,Xₘ)，缺失指示向量 R 标记当前可见模态。潜变量 Z 被分为 Z₁,…,Z₇，从 1×1×256 的全局描述逐步展开到 192×192×8 的像素级描述。每个模态只配置一套单模态编码器；观测组合在每一层通过高斯乘积专家合并。</EditableText>
           <EditableText textKey="mmhvae-method-2">训练时从真实缺失模式 r 中采样子模式 r′，使用同一潜表示重建输入模态并合成未送入编码器的已知模态。KL 项约束层次后验，四个模态判别器利用数据集级样本约束生成分布。</EditableText>
         </div>
-        <MMHVAEExplorer />
+        <Suspense fallback={<p role="status">正在加载 MMHVAE 架构实验台…</p>}><MMHVAEExplorer /></Suspense>
       </section>
 
       <section className="note-block evaluation-note">
