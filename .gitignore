@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.vite/
+tmp/
+qa/
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+.impeccable/questions/
+.impeccable/sketches/
+.impeccable/direction-options.json

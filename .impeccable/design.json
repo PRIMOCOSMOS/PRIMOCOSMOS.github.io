@@ -1,0 +1,288 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-04T05:55:39.1699675Z",
+  "title": "Design System: PRIMOCOSMOS Multimodal Signal Lab",
+  "extensions": {
+    "colorMeta": {
+      "event-horizon-black": {
+        "role": "neutral",
+        "displayName": "Event-Horizon Black",
+        "canonical": "#05080b",
+        "tonalRamp": ["oklch(15% 0.010 242.7)", "oklch(27% 0.010 242.7)", "oklch(39% 0.010 242.7)", "oklch(51% 0.010 242.7)", "oklch(63% 0.010 242.7)", "oklch(75% 0.010 242.7)", "oklch(87% 0.010 242.7)", "oklch(95% 0.010 242.7)"]
+      },
+      "orbital-navy": {
+        "role": "neutral",
+        "displayName": "Orbital Navy",
+        "canonical": "#07111f",
+        "tonalRamp": ["oklch(15% 0.033 256.4)", "oklch(27% 0.033 256.4)", "oklch(39% 0.033 256.4)", "oklch(51% 0.033 256.4)", "oklch(63% 0.033 256.4)", "oklch(75% 0.033 256.4)", "oklch(87% 0.033 256.4)", "oklch(95% 0.033 256.4)"]
+      },
+      "notebook-black": {
+        "role": "neutral",
+        "displayName": "Notebook Black",
+        "canonical": "#05090d",
+        "tonalRamp": ["oklch(15% 0.012 240)", "oklch(27% 0.012 240)", "oklch(39% 0.012 240)", "oklch(51% 0.012 240)", "oklch(63% 0.012 240)", "oklch(75% 0.012 240)", "oklch(87% 0.012 240)", "oklch(95% 0.012 240)"]
+      },
+      "method-deck-navy": {
+        "role": "neutral",
+        "displayName": "Method-Deck Navy",
+        "canonical": "#071018",
+        "tonalRamp": ["oklch(15% 0.024 241)", "oklch(27% 0.024 241)", "oklch(39% 0.024 241)", "oklch(51% 0.024 241)", "oklch(63% 0.024 241)", "oklch(75% 0.024 241)", "oklch(87% 0.024 241)", "oklch(95% 0.024 241)"]
+      },
+      "architecture-night": {
+        "role": "neutral",
+        "displayName": "Architecture Night",
+        "canonical": "#071118",
+        "tonalRamp": ["oklch(15% 0.022 225)", "oklch(27% 0.022 225)", "oklch(39% 0.022 225)", "oklch(51% 0.022 225)", "oklch(63% 0.022 225)", "oklch(75% 0.022 225)", "oklch(87% 0.022 225)", "oklch(95% 0.022 225)"]
+      },
+      "diagram-bay-black": {
+        "role": "neutral",
+        "displayName": "Diagram-Bay Black",
+        "canonical": "#050b10",
+        "tonalRamp": ["oklch(15% 0.015 235)", "oklch(27% 0.015 235)", "oklch(39% 0.015 235)", "oklch(51% 0.015 235)", "oklch(63% 0.015 235)", "oklch(75% 0.015 235)", "oklch(87% 0.015 235)", "oklch(95% 0.015 235)"]
+      },
+      "active-tab-slate": {
+        "role": "neutral",
+        "displayName": "Active-Tab Slate",
+        "canonical": "#0c1820",
+        "tonalRamp": ["oklch(15% 0.024 229)", "oklch(27% 0.024 229)", "oklch(39% 0.024 229)", "oklch(51% 0.024 229)", "oklch(63% 0.024 229)", "oklch(75% 0.024 229)", "oklch(87% 0.024 229)", "oklch(95% 0.024 229)"]
+      },
+      "warm-schematic-paper": {
+        "role": "neutral",
+        "displayName": "Warm Schematic Paper",
+        "canonical": "#f2e9d8",
+        "tonalRamp": ["oklch(15% 0.025 83.4)", "oklch(27% 0.025 83.4)", "oklch(39% 0.025 83.4)", "oklch(51% 0.025 83.4)", "oklch(63% 0.025 83.4)", "oklch(75% 0.025 83.4)", "oklch(87% 0.025 83.4)", "oklch(95% 0.025 83.4)"]
+      },
+      "phosphor-tinted-ink": {
+        "role": "neutral",
+        "displayName": "Phosphor-Tinted Ink",
+        "canonical": "#eef2df",
+        "tonalRamp": ["oklch(15% 0.025 116.5)", "oklch(27% 0.025 116.5)", "oklch(39% 0.025 116.5)", "oklch(51% 0.025 116.5)", "oklch(63% 0.025 116.5)", "oklch(75% 0.025 116.5)", "oklch(87% 0.025 116.5)", "oklch(95% 0.025 116.5)"]
+      },
+      "muted-sensor-sage": {
+        "role": "neutral",
+        "displayName": "Muted Sensor Sage",
+        "canonical": "#a8b8b3",
+        "tonalRamp": ["oklch(15% 0.019 175.1)", "oklch(27% 0.019 175.1)", "oklch(39% 0.019 175.1)", "oklch(51% 0.019 175.1)", "oklch(63% 0.019 175.1)", "oklch(75% 0.019 175.1)", "oklch(87% 0.019 175.1)", "oklch(95% 0.019 175.1)"]
+      },
+      "faint-calibration-teal": {
+        "role": "neutral",
+        "displayName": "Faint Calibration Teal",
+        "canonical": "#738889",
+        "tonalRamp": ["oklch(15% 0.024 200.1)", "oklch(27% 0.024 200.1)", "oklch(39% 0.024 200.1)", "oklch(51% 0.024 200.1)", "oklch(63% 0.024 200.1)", "oklch(75% 0.024 200.1)", "oklch(87% 0.024 200.1)", "oklch(95% 0.024 200.1)"]
+      },
+      "observed-signal-lime": {
+        "role": "primary",
+        "displayName": "Observed-Signal Lime",
+        "canonical": "#d8ff45",
+        "tonalRamp": ["oklch(15% 0.204 121)", "oklch(27% 0.204 121)", "oklch(39% 0.204 121)", "oklch(51% 0.204 121)", "oklch(63% 0.204 121)", "oklch(75% 0.204 121)", "oklch(87% 0.204 121)", "oklch(95% 0.204 121)"]
+      },
+      "shared-latent-blue": {
+        "role": "secondary",
+        "displayName": "Shared-Latent Blue",
+        "canonical": "#78b8ff",
+        "tonalRamp": ["oklch(15% 0.122 252)", "oklch(27% 0.122 252)", "oklch(39% 0.122 252)", "oklch(51% 0.122 252)", "oklch(63% 0.122 252)", "oklch(75% 0.122 252)", "oklch(87% 0.122 252)", "oklch(95% 0.122 252)"]
+      },
+      "correction-orange": {
+        "role": "tertiary",
+        "displayName": "Correction Orange",
+        "canonical": "#ff5c35",
+        "tonalRamp": ["oklch(15% 0.205 34.6)", "oklch(27% 0.205 34.6)", "oklch(39% 0.205 34.6)", "oklch(51% 0.205 34.6)", "oklch(63% 0.205 34.6)", "oklch(75% 0.205 34.6)", "oklch(87% 0.205 34.6)", "oklch(95% 0.205 34.6)"]
+      },
+      "private-factor-violet": {
+        "role": "tertiary",
+        "displayName": "Private-Factor Violet",
+        "canonical": "#c896ff",
+        "tonalRamp": ["oklch(15% 0.154 305)", "oklch(27% 0.154 305)", "oklch(39% 0.154 305)", "oklch(51% 0.154 305)", "oklch(63% 0.154 305)", "oklch(75% 0.154 305)", "oklch(87% 0.154 305)", "oklch(95% 0.154 305)"]
+      },
+      "modality-one-coral": {
+        "role": "tertiary",
+        "displayName": "Modality-One Coral",
+        "canonical": "#ff8c66",
+        "tonalRamp": ["oklch(15% 0.155 37)", "oklch(27% 0.155 37)", "oklch(39% 0.155 37)", "oklch(51% 0.155 37)", "oklch(63% 0.155 37)", "oklch(75% 0.155 37)", "oklch(87% 0.155 37)", "oklch(95% 0.155 37)"]
+      },
+      "modality-two-lavender": {
+        "role": "tertiary",
+        "displayName": "Modality-Two Lavender",
+        "canonical": "#c6a6ff",
+        "tonalRamp": ["oklch(15% 0.125 298)", "oklch(27% 0.125 298)", "oklch(39% 0.125 298)", "oklch(51% 0.125 298)", "oklch(63% 0.125 298)", "oklch(75% 0.125 298)", "oklch(87% 0.125 298)", "oklch(95% 0.125 298)"]
+      },
+      "comparison-amber": {
+        "role": "tertiary",
+        "displayName": "Comparison Amber",
+        "canonical": "#e4cf45",
+        "tonalRamp": ["oklch(15% 0.150 102)", "oklch(27% 0.150 102)", "oklch(39% 0.150 102)", "oklch(51% 0.150 102)", "oklch(63% 0.150 102)", "oklch(75% 0.150 102)", "oklch(87% 0.150 102)", "oklch(95% 0.150 102)"]
+      },
+      "comparison-green": {
+        "role": "tertiary",
+        "displayName": "Comparison Green",
+        "canonical": "#68d6a4",
+        "tonalRamp": ["oklch(15% 0.125 160)", "oklch(27% 0.125 160)", "oklch(39% 0.125 160)", "oklch(51% 0.125 160)", "oklch(63% 0.125 160)", "oklch(75% 0.125 160)", "oklch(87% 0.125 160)", "oklch(95% 0.125 160)"]
+      },
+      "cool-telemetry-hairline": {
+        "role": "neutral",
+        "displayName": "Cool Telemetry Hairline",
+        "canonical": "rgba(203, 227, 213, 0.18)",
+        "tonalRamp": ["oklch(15% 0.032 160.2 / 0.18)", "oklch(27% 0.032 160.2 / 0.18)", "oklch(39% 0.032 160.2 / 0.18)", "oklch(51% 0.032 160.2 / 0.18)", "oklch(63% 0.032 160.2 / 0.18)", "oklch(75% 0.032 160.2 / 0.18)", "oklch(87% 0.032 160.2 / 0.18)", "oklch(95% 0.032 160.2 / 0.18)"]
+      },
+      "active-lime-hairline": {
+        "role": "primary",
+        "displayName": "Active Lime Hairline",
+        "canonical": "rgba(216, 255, 69, 0.34)",
+        "tonalRamp": ["oklch(15% 0.204 121 / 0.34)", "oklch(27% 0.204 121 / 0.34)", "oklch(39% 0.204 121 / 0.34)", "oklch(51% 0.204 121 / 0.34)", "oklch(63% 0.204 121 / 0.34)", "oklch(75% 0.204 121 / 0.34)", "oklch(87% 0.204 121 / 0.34)", "oklch(95% 0.204 121 / 0.34)"]
+      }
+    },
+    "typographyMeta": {
+      "display": {"displayName": "Cover Transmission", "purpose": "The two-line personal-cover signal."},
+      "headline": {"displayName": "Research Thesis", "purpose": "Research title and complete paper titles."},
+      "title": {"displayName": "Academic Block Title", "purpose": "Abstract, Method, Evaluation, and instrument subheads."},
+      "body": {"displayName": "Scientific Reading", "purpose": "Chinese translation, explanation, evidence, and caveats."},
+      "label": {"displayName": "Calibration Label", "purpose": "Uppercase statuses, coordinates, controls, axes, and measurements."},
+      "mono": {"displayName": "Micro Notation", "purpose": "Dense SVG implementation annotations and editing telemetry."},
+      "math": {"displayName": "Academic Formula", "purpose": "Equation fields use Cambria Math with STIX Two Math, Latin Modern Math, Times New Roman, and serif fallbacks."}
+    },
+    "shadows": [],
+    "motion": [
+      {"name": "dense-state", "value": "160ms ease-out", "purpose": "SVG observation, node focus, decoder target, and objective-route changes."},
+      {"name": "state-fast", "value": "180ms ease-out", "purpose": "Tab rail, disclosure chevron, skip link, and switch state transitions."},
+      {"name": "directional-shift", "value": "200ms ease-out", "purpose": "Diagram-operation changes and directional arrow travel."},
+      {"name": "navigation-sweep", "value": "220ms ease-out", "purpose": "Fixed-header underline reveal from left to right."},
+      {"name": "iteration-step", "value": "920ms", "purpose": "PnP-CoSMo CC/DC/CR automatic phase cadence when motion is allowed."},
+      {"name": "reduced-motion-collapse", "value": "0.01ms", "purpose": "Global transition and animation duration under prefers-reduced-motion; PnP transport becomes manual stepping."}
+    ],
+    "breakpoints": [
+      {"name": "console-rebalance", "value": "1080px"},
+      {"name": "cover-and-paper-stack", "value": "980px"},
+      {"name": "shared-region-stack", "value": "840px"},
+      {"name": "tab-scroll-and-ledger-stack", "value": "720px"},
+      {"name": "narrow-instrument", "value": "560px"}
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Research Entry",
+      "kind": "button",
+      "refersTo": "primary-action",
+      "description": "The sole high-emphasis cover action, rendered as a clipped lime instrument plate.",
+      "html": "<a class=\"ds-primary-action\" href=\"#research\">进入科研板块 <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 5v14M6 13l6 6 6-6\"/></svg></a>",
+      "css": ".ds-primary-action { display:inline-flex; align-items:center; gap:.65rem; min-height:2.9rem; padding:.8rem 1.15rem; color:var(--void); background:var(--lime); font:660 .84rem var(--display); text-decoration:none; clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px)); transition:background 180ms ease-out; } .ds-primary-action svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; } .ds-primary-action:hover { background:var(--paper); } .ds-primary-action:focus-visible { outline:2px solid var(--lime); outline-offset:4px; }"
+    },
+    {
+      "name": "Research Paper Tabs",
+      "kind": "nav",
+      "refersTo": "paper-tab-active",
+      "description": "Three mutually exclusive academic tabs with a lime active rail and horizontally scrolling narrow-screen treatment.",
+      "html": "<div class=\"ds-paper-tabs\" role=\"tablist\" aria-label=\"选择文献笔记\"><button class=\"is-active\" role=\"tab\" aria-selected=\"true\"><span>01 / H-MOPE</span><strong>MMHVAE</strong><small>Unified Cross-Modal Medical Image Synthesis</small><em>IEEE TPAMI</em></button><button role=\"tab\" aria-selected=\"false\" tabindex=\"-1\"><span>02 / C-S PNP</span><strong>PnP-CoSMo</strong><small>Guided Multi-contrast MRI Reconstruction</small><em>Medical Image Analysis</em></button><button role=\"tab\" aria-selected=\"false\" tabindex=\"-1\"><span>03 / S-P VAE</span><strong>MMVAE++</strong><small>Shared and Private Latent Factors</small><em>PMLR 240</em></button></div>",
+      "css": ".ds-paper-tabs { display:grid; grid-template-columns:repeat(3,1fr); overflow-x:auto; border:1px solid var(--line); background:#071018; } .ds-paper-tabs button { position:relative; display:grid; min-width:0; min-height:10.5rem; padding:1.2rem; border:0; border-right:1px solid var(--line); color:var(--muted); background:transparent; text-align:left; cursor:pointer; } .ds-paper-tabs button:last-child { border-right:0; } .ds-paper-tabs button::before { position:absolute; top:-1px; right:-1px; left:-1px; height:3px; background:var(--lime); content:\"\"; transform:scaleX(0); transform-origin:left; transition:transform 180ms ease-out; } .ds-paper-tabs button:hover,.ds-paper-tabs button.is-active { color:var(--paper); background:#0c1820; } .ds-paper-tabs button.is-active::before { transform:scaleX(1); } .ds-paper-tabs span,.ds-paper-tabs em { color:var(--lime); font:normal .62rem var(--display); letter-spacing:.1em; } .ds-paper-tabs strong { margin:.55rem 0; font:600 1rem var(--display); } .ds-paper-tabs small { color:var(--muted); font-size:.68rem; line-height:1.45; } .ds-paper-tabs em { align-self:end; margin-top:.8rem; color:var(--blue); } .ds-paper-tabs button:focus-visible { outline:2px solid var(--lime); outline-offset:4px; } @media(max-width:720px){.ds-paper-tabs{grid-template-columns:repeat(3,minmax(15rem,1fr));}}"
+    },
+    {
+      "name": "Editable Note Toolbar",
+      "kind": "custom",
+      "description": "A compact Research control that exposes editable explanatory copy, reports browser-local persistence, and offers a confirmed return to source defaults.",
+      "html": "<div class=\"ds-note-editor\"><p><i></i> 正文支持站内编辑</p><div><button type=\"button\">编辑正文</button><button type=\"button\" disabled>恢复默认</button></div></div>",
+      "css": ".ds-note-editor { display:grid; gap:.75rem; padding-top:.9rem; border-top:1px solid var(--line); } .ds-note-editor p { margin:0; color:var(--faint); font:.61rem/1.5 \"Cascadia Code\",monospace; } .ds-note-editor button { min-height:2.25rem; padding:.48rem .72rem; border:1px solid var(--line); color:var(--muted); background:#071018; } .ds-note-editor button:first-child { color:var(--void); border-color:var(--lime); background:var(--lime); } [contenteditable=true] { outline:1px dashed rgba(120,184,255,.62); outline-offset:.28rem; background:rgba(120,184,255,.055); caret-color:var(--lime); } [contenteditable=true]:focus { outline-color:var(--lime); background:rgba(216,255,69,.065); }"
+    },
+    {
+      "name": "Active Segmented Control",
+      "kind": "button",
+      "refersTo": "control-pill-active",
+      "description": "A compact modality or model toggle whose active fill is the scientific signal assigned to that variable.",
+      "html": "<button class=\"ds-control-pill is-active\" type=\"button\" aria-pressed=\"true\"><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12Z\"/><circle cx=\"12\" cy=\"12\" r=\"2.5\"/></svg>iUS</button>",
+      "css": ".ds-control-pill { display:inline-flex; align-items:center; gap:.45rem; min-width:2.75rem; min-height:2.75rem; padding:.52rem .78rem; border:1px solid var(--line); border-radius:999px; color:var(--muted); background:transparent; cursor:pointer; transition:color 180ms ease-out,border-color 180ms ease-out,background 180ms ease-out; } .ds-control-pill svg { width:14px; height:14px; fill:none; stroke:currentColor; } .ds-control-pill:hover { color:var(--ink); border-color:var(--blue); } .ds-control-pill.is-active { color:var(--void); border-color:var(--lime); background:var(--lime); } .ds-control-pill:focus-visible { outline:2px solid var(--lime); outline-offset:4px; }"
+    },
+    {
+      "name": "Range Readout",
+      "kind": "input",
+      "description": "A full-width native range field paired with machine-style label, output, and readable state summary.",
+      "html": "<div class=\"ds-range\"><div><label for=\"ds-temperature\">推理采样温度 T</label><output for=\"ds-temperature\">0.5</output></div><input id=\"ds-temperature\" type=\"range\" min=\"0.1\" max=\"1\" step=\"0.1\" value=\"0.5\"><p>结构稳定度 86 · 模态细节幅度 64</p></div>",
+      "css": ".ds-range { width:min(100%,36rem); color:var(--muted); } .ds-range>div { display:flex; justify-content:space-between; gap:1rem; font-size:.72rem; } .ds-range output { color:var(--lime); font:.74rem var(--display); } .ds-range input { width:100%; height:2.75rem; margin:0; accent-color:var(--lime); cursor:pointer; } .ds-range p { margin:.5rem 0 0; color:var(--muted); font:.64rem var(--display); letter-spacing:.04em; } .ds-range input:focus-visible { outline:2px solid var(--lime); outline-offset:4px; }"
+    },
+    {
+      "name": "Content Refinement Switch",
+      "kind": "input",
+      "description": "A labeled keyboard-operable switch for enabling the PnP content-refinement path.",
+      "html": "<label class=\"ds-switch\"><input type=\"checkbox\" checked><span aria-hidden=\"true\"></span>Content refinement</label>",
+      "css": ".ds-switch { display:inline-flex; align-items:center; gap:.7rem; min-height:2.75rem; color:var(--muted); font:.68rem var(--display); cursor:pointer; } .ds-switch input { position:absolute; width:2.75rem; height:2.75rem; opacity:0; pointer-events:none; } .ds-switch>span { position:relative; width:2.4rem; height:1.3rem; border:1px solid var(--faint); border-radius:999px; background:var(--void); } .ds-switch>span::after { position:absolute; top:.2rem; left:.2rem; width:.8rem; height:.8rem; border-radius:50%; background:var(--faint); content:\"\"; transition:transform 180ms ease-out,background 180ms ease-out; } .ds-switch input:checked+span { border-color:var(--lime); } .ds-switch input:checked+span::after { background:var(--lime); transform:translateX(1.05rem); } .ds-switch input:focus-visible+span { outline:2px solid var(--lime); outline-offset:3px; }"
+    },
+    {
+      "name": "Source Link",
+      "kind": "button",
+      "refersTo": "source-link",
+      "description": "A pill-shaped outbound citation control for DOI, full text, and repository destinations.",
+      "html": "<a class=\"ds-source-link\" href=\"#source\">DOI / TPAMI <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M14 3h7v7M10 14 21 3M21 14v7H3V3h7\"/></svg></a>",
+      "css": ".ds-source-link { display:inline-flex; align-items:center; gap:.45rem; min-height:2.75rem; padding:.52rem .78rem; border:1px solid var(--line); border-radius:999px; color:var(--muted); background:transparent; font-size:.71rem; text-decoration:none; transition:color 180ms ease-out,border-color 180ms ease-out,background 180ms ease-out; } .ds-source-link svg { width:14px; height:14px; fill:none; stroke:currentColor; } .ds-source-link:hover { color:var(--void); border-color:var(--blue); background:var(--blue); } .ds-source-link:focus-visible { outline:2px solid var(--lime); outline-offset:4px; }"
+    },
+    {
+      "name": "Architecture Console",
+      "kind": "custom",
+      "refersTo": "architecture-console",
+      "description": "The signature clipped housing for synchronized controls, readouts, legends, equations, and a scroll-safe 92rem model canvas.",
+      "html": "<section class=\"ds-architecture-console\"><div class=\"ds-console-toolbar\"><span>HIERARCHICAL PoE · L = 7</span><b>02 EXPERTS ONLINE</b></div><div class=\"ds-diagram-frame\" role=\"region\" tabindex=\"0\" aria-label=\"Architecture signal route\"><div class=\"ds-route\"><span>iUS</span><i></i><strong>Π</strong><i></i><span>z shared</span></div></div><div class=\"ds-diagram-caption\">横向滚动以保持模型拓扑与标签可读。</div></section>",
+      "css": ".ds-architecture-console { position:relative; padding:clamp(1rem,2.6vw,2.25rem); border:1px solid rgba(120,184,255,.28); color:var(--ink); background:#071118; clip-path:polygon(0 0,calc(100% - 20px) 0,100% 20px,100% 100%,20px 100%,0 calc(100% - 20px)); } .ds-architecture-console::before { position:absolute; top:0; right:3.2rem; width:5.5rem; height:3px; background:var(--lime); content:\"\"; } .ds-console-toolbar { display:flex; justify-content:space-between; gap:1rem; padding-bottom:1.2rem; border-bottom:1px solid var(--line); color:var(--muted); font:.68rem var(--display); letter-spacing:.08em; } .ds-console-toolbar b { color:var(--lime); font-weight:560; } .ds-diagram-frame { overflow-x:auto; border:1px solid var(--line); background:#050b10; scrollbar-color:var(--lime) #071018; } .ds-diagram-frame:focus-visible { outline:2px solid var(--lime); outline-offset:4px; } .ds-route { display:grid; grid-template-columns:7rem 8rem 4rem 8rem 8rem; align-items:center; min-width:92rem; min-height:10rem; padding:2rem; font:.72rem var(--display); } .ds-route span { padding:1rem; border:1px solid var(--line); background:#08131a; text-align:center; } .ds-route i { height:1px; background:var(--blue); } .ds-route strong { display:grid; place-items:center; width:3rem; height:3rem; margin:auto; border:1px solid var(--blue); border-radius:50%; color:var(--lime); } .ds-diagram-caption { padding:.9rem 1rem; border-top:1px solid var(--line); color:var(--muted); font-size:.69rem; }"
+    },
+    {
+      "name": "Equation Disclosure",
+      "kind": "custom",
+      "refersTo": "equation-disclosure",
+      "description": "A native disclosure pairing the mathematical mechanism with a plain-language Chinese explanation.",
+      "html": "<details class=\"ds-equation\" open><summary><span>层内高斯乘积专家</span><svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"m6 9 6 6 6-6\"/></svg></summary><div><code>q(z | x) ∝ p(z) · ∏ hⱼ(z | xⱼ)</code><p>观测模态贡献的概率精度与条件先验相乘。</p></div></details>",
+      "css": ".ds-equation { border-top:1px solid var(--line-strong); border-bottom:1px solid var(--line-strong); color:var(--paper); } .ds-equation summary { display:flex; justify-content:space-between; align-items:center; gap:1rem; padding:1rem 0; font-weight:620; cursor:pointer; list-style:none; } .ds-equation summary::-webkit-details-marker { display:none; } .ds-equation summary svg { width:18px; height:18px; fill:none; stroke:var(--lime); transition:transform 180ms ease-out; } .ds-equation[open] summary svg { transform:rotate(180deg); } .ds-equation>div { display:grid; grid-template-columns:minmax(0,1.1fr) minmax(12rem,.9fr); gap:2rem; padding:.5rem 0 1.5rem; } .ds-equation code { overflow-x:auto; padding:1.1rem; border:1px solid rgba(120,184,255,.28); color:var(--blue); background:#050a0e; font:.76rem/1.75 \"Cambria Math\",\"STIX Two Math\",\"Latin Modern Math\",\"Times New Roman\",serif; font-style:normal; letter-spacing:0; } .ds-equation p { margin:0; color:var(--muted); font-size:.82rem; line-height:1.75; } .ds-equation summary:focus-visible { outline:2px solid var(--lime); outline-offset:4px; } @media(max-width:840px){.ds-equation>div{grid-template-columns:1fr;}}"
+    },
+    {
+      "name": "Personal Field Index",
+      "kind": "card",
+      "refersTo": "telemetry-panel",
+      "description": "The clipped cover console that states the current research axis, archive size, and working mode.",
+      "html": "<aside class=\"ds-telemetry\"><h3><span></span> PERSONAL FIELD INDEX</h3><dl><div><dt>Current axis</dt><dd>qMRI · MULTIMODAL LEARNING</dd></div><div><dt>Open archive</dt><dd>RESEARCH NOTES / 003</dd></div><div><dt>Working mode</dt><dd>READ · MODEL · VERIFY</dd></div></dl></aside>",
+      "css": ".ds-telemetry { padding:clamp(1.25rem,2.4vw,2rem); border:1px solid var(--line-strong); color:var(--paper); background:rgba(5,12,17,.92); clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px)); } .ds-telemetry h3 { display:flex; align-items:center; gap:.6rem; margin:0 0 1.5rem; color:var(--lime); font:.7rem var(--display); letter-spacing:.12em; } .ds-telemetry h3 span { width:.45rem; height:.45rem; border:1px solid var(--lime); background:var(--lime); transform:rotate(45deg); } .ds-telemetry dl { margin:0; } .ds-telemetry dl div { display:grid; grid-template-columns:minmax(6rem,.7fr) 1.3fr; gap:1rem; padding:.85rem 0; border-top:1px solid var(--line); } .ds-telemetry dt { color:var(--muted); font-size:.7rem; } .ds-telemetry dd { margin:0; color:var(--paper); font:.65rem/1.5 var(--display); }"
+    },
+    {
+      "name": "Signal Key",
+      "kind": "chip",
+      "refersTo": "signal-key",
+      "description": "An unboxed line marker that binds a semantic signal color to a readable label.",
+      "html": "<span class=\"ds-signal-key\"><span aria-hidden=\"true\"></span>共享因素</span>",
+      "css": ".ds-signal-key { display:inline-flex; align-items:center; gap:.45rem; color:var(--muted); font-size:.68rem; white-space:nowrap; } .ds-signal-key>span { width:1.25rem; height:2px; background:var(--blue); }"
+    }
+  ],
+  "narrative": {
+    "northStar": "Deep-Space Telemetry Array",
+    "overview": "PRIMOCOSMOS is a dark science-fiction personal field station rather than a conventional portfolio. An independent, full-viewport cover introduces the identity through a live signal field, clipped orbital framing, a compact field-index console, and a three-cell archive status rail. Entering Research changes the pacing from cinematic identity to a rigorous, tabbed academic notebook without leaving the same material world.\n\nThe notebook is intentionally dense and operational. Three mutually exclusive paper tabs expose complete notes in a stable Abstract → Method → Evaluation sequence. The Method band expands beyond the reading column and gives each paper a browser-native model laboratory: large labeled SVG schematics, controls that alter observed modalities or gradient routes, generated MRI slices, trend plots, formula disclosures, and plain-language status readouts. Expressive details must explain identity, hierarchy, state, information flow, or evidence—not decorate empty space.",
+    "keyCharacteristics": [
+      "Separate cinematic personal cover and dense research notebook, joined by one phosphor-lime entry action.",
+      "Matte near-black and navy tonal decks, clipped instrument housings, one-pixel calibration rails, and almost no soft elevation.",
+      "Semantic signal colors: lime for observed/active/measurement state, blue for shared/reference structure, orange for correction or blocked gradients, and violet/coral/lavender for distinct latent factors.",
+      "One complete paper mounted at a time through a keyboard-operable, three-item tab bar.",
+      "Exhaustive interactive architectures whose controls, routes, captions, readouts, and equations stay synchronized.",
+      "Responsive reflow around fixed scientific topology: every dense model canvas stays horizontally scrollable and keyboard focusable."
+    ],
+    "rules": [
+      {"name": "The Signal-Is-Data Rule", "body": "Lime means observed, active, or measurement-anchored; blue means shared, referenced, or informational; orange means corrective, stopped, or risky; violet, coral, and lavender separate latent factors. Every chromatic state also needs a label, position, icon, stroke, or shape cue.", "section": "colors"},
+      {"name": "The Comparison-Only Rule", "body": "Amber and green belong to comparative plot series. Do not promote them into navigation, calls to action, focus, or general decoration.", "section": "colors"},
+      {"name": "The Phosphor Rarity Rule", "body": "Lime is the sharpest voice and stays sparse outside active states, focus, measurements, and the primary entry action.", "section": "colors"},
+      {"name": "The Four-Channel Type Rule", "body": "Tektur carries identity, headings, measurements, and machine voice; the Chinese system-sans stack carries explanation and evidence; Cascadia Code carries micro notation and editing telemetry; the conventional math stack carries equations.", "section": "typography"},
+      {"name": "The Readable Science Rule", "body": "Sustained prose keeps generous 1.7–1.88 line height and restrained widths even when the surrounding console is dense.", "section": "typography"},
+      {"name": "The Topology-First Responsive Rule", "body": "Reflow prose, metadata, controls, and evidence freely, but preserve the model graph itself through a keyboard-focusable horizontal viewport.", "section": "layout"},
+      {"name": "The One-Paper Rule", "body": "Keep exactly one tabpanel mounted. The tab row is orientation-stable—three columns on wide screens and one horizontal scroller on narrow screens—so comparison order never changes.", "section": "layout"},
+      {"name": "The Tonal-Deck Rule", "body": "Use controlled near-black steps, strokes, clipping, and inset fields; do not introduce drop shadows, luminous card halos, or floating white surfaces.", "section": "elevation"},
+      {"name": "The One-Glass Exception Rule", "body": "Backdrop blur belongs to the fixed header only, never to paper tabs, notes, telemetry panels, or model consoles.", "section": "elevation"},
+      {"name": "The Hard-Housing Rule", "body": "Structural containers are square or clipped; pill geometry belongs to touch targets, not content surfaces.", "section": "shapes"}
+    ],
+    "dos": [
+      "Do keep the cover and research notebook distinct in density while preserving one telemetry material language.",
+      "Do use signal colors according to scientific meaning and repeat every color-coded state in text, geometry, iconography, stroke, or position.",
+      "Do keep paper switching as an accessible tab interaction with Arrow, Home, and End behavior and exactly one mounted panel.",
+      "Do preserve every dense architecture as a 92rem internal canvas inside a focusable horizontal scroller.",
+      "Do keep the title stack on Tektur Variable, long Chinese reading on the system-sans stack, diagram micro notation on Cascadia Code, and formulas on the declared conventional math stack.",
+      "Do keep explanatory note copy editable through stable browser-local keys while structural labels, controls, formulas, and diagram topology remain fixed.",
+      "Do keep focus visible, expose status changes in adjacent text or live regions, include SVG title/description, and make reduced-motion transport explicit."
+    ],
+    "donts": [
+      "Don't turn the world into a generic neon gradient, glassmorphism dashboard, rounded SaaS card system, or shadow-based elevation stack.",
+      "Don't use lime, blue, orange, violet, coral, lavender, amber, or green interchangeably; every one has a defined data or comparison role.",
+      "Don't shrink, reorder, or redraw a scientific graph merely to fit a narrow viewport.",
+      "Don't round structural consoles, paper tabs, note blocks, or evidence ledgers; reserve pills for compact controls and source links.",
+      "Don't let an interactive diagram change without a readable label, caption, output, or status describing the new state.",
+      "Don't invent biography, affiliation, achievements, contacts, or additional research projects to fill the personal cover."
+    ]
+  }
+}
