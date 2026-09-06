@@ -89,14 +89,14 @@ function rawAnatomy(id: string, observed: string[] = MODALITIES.map(m=>m.id)): A
     else {add('zeros','先验均值 μp','tensor',dims(c/2,s),'先验概率头输出并 soft-clamp 后的均值。','mu_zi_p',undefined,null);add('ones','先验标准差 sp','tensor',dims(c/2,s),'先验概率头 log-scale 经 exp 得到的标准差。','exp(logvar_zi_p)',undefined,null)}
     add('prior','条件先验 pₗ','gaussian',node.shape,'torch.distributions.Normal 的第二参数为标准差。','Normal',undefined,'zeros');link('ones','prior','scale')
   } else if(node.kind==='poe') {
-    add('prior','先验 pₗ','gaussian',node.shape,'来自上一级潜变量的条件先验，或顶层 N(0,I)。','prior',`prior-${node.l}`,null)
+    add('prior','先验 pₗ','gaussian',node.shape,'来自上一级潜变量的条件先验，或顶层 N(0,I)。','prior',undefined,null)
     add('factors','观测残差专家','gaussian',`${observed.length} × (μⱼ, aⱼ)`,'仅将当前观测集合中的模态加入融合。','res_params',undefined,null)
     add('weight','倒数 scale 累加','poe',`1/sₚ + Σ exp(−aⱼ)`,'严格对应公开源码的 1/scale 权重，而不是理论 PoE 的 1/variance。','inv_sigma',undefined,'prior');link('factors','weight')
     add('weighted_mu','均值加权累加','sum','μₚ/sₚ + Σ μⱼexp(−aⱼ)','先验均值与各专家均值按倒数 scale 加权。','mu',undefined,'prior');link('factors','weighted_mu')
     add('normalize','归一化 μ / s','split',node.shape,'μ = 加权和 / 权重和；s = 1 / 权重和。','mu /= inv_sigma',undefined,'weight');link('weighted_mu','normalize')
     add('posterior','融合后验 qₗ','gaussian',node.shape,'Normal(μ, T·s)，温度缩放标准差。','Normal(mu, temp*sigma)')
   } else if(node.kind==='sample') {
-    add('q','后验 qₗ','gaussian',node.shape,'由 compute_full 得到的融合正态分布。','full',`poe-${node.l}`,null)
+    add('q','后验 qₗ','gaussian',node.shape,'由 compute_full 得到的融合正态分布。','full',undefined,null)
     add('eps','ε ~ N(0,I)','sample',node.shape,'重参数化中的随机噪声；点云仅表示随机性。','rsample noise',undefined,null)
     add('scale','T · s ⊙ ε','multiply',node.shape,'标准差和温度缩放噪声。','rsample',undefined,'eps');link('q','scale','scale')
     add('mean','μ + scaled ε','sum',node.shape,'加上均值，得到保留梯度路径的潜变量样本。','rsample',undefined,'scale');link('q','mean','loc')
@@ -130,7 +130,7 @@ function layerAnatomy(l:number,observed:string[]):AnatomyGraph {
   if(l<7){selected.add(`posterior-${l+1}`);selected.add(`sample-${l+1}`);if(l===6)selected.add('lift')}
   if(l>1)selected.add(l===7?'lift':`up-${l-1}`)
   else for(const m of MODALITIES){selected.add(`${m.id}-output`);selected.add(`${m.id}-image`)}
-  const parts:AnatomyPart[]=[...selected].map(id=>{const n=NODE_MAP.get(id)!,p=topology.positions.get(id)!;return {id,title:n.title,glyph:glyphFor(n.kind),shape:n.shape,detail:n.description,sourceName:id,child:id,mod:n.mod,position:[p[0],p[1]-levelY(l),p[2]]}})
+  const parts:AnatomyPart[]=[...selected].map(id=>{const n=NODE_MAP.get(id)!,p=topology.positions.get(id)!;return {id,title:n.title,glyph:glyphFor(n.kind),shape:n.shape,detail:n.description,sourceName:id,child:id,mod:n.mod,role:n.kind==='encoder'||n.l>l?'input':n.l<l||['output','image'].includes(n.kind)?'output':undefined,position:[p[0],p[1]-levelY(l),p[2]]}})
   const edges=topology.links.filter(e=>selected.has(e.from)&&selected.has(e.to)).map(e=>({from:e.from,to:e.to,label:e.label}))
   return {title:`z${l} · 三维层级推导`,parts,edges,tensor:NODE_MAP.get(`sample-${l}`)!.shape,note:'原位展示：上一级后验 → 采样 → 上采样 → Decoder → 生成特征。生成特征分为先验头与各模态 Concat / Q 两路，残差专家和先验在 PoE 汇合，再采样并进入下一级。'}
 }

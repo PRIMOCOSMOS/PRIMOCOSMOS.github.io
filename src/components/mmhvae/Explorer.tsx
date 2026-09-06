@@ -1,11 +1,12 @@
 import { EditableText, NoteEditToolbar, useEditableContent } from '../EditableContent'
 import { lazy, Suspense, useEffect, useMemo, useRef, useState, type CSSProperties } from 'react'
-import { ArrowDown, ArrowUpRight, BookOpen, Box, ChevronRight, Code2, Eye, EyeOff, Focus, Layers3, Maximize2, Minimize2, Pause, Play, RotateCcw, Search, ZoomIn, ZoomOut } from 'lucide-react'
+import { ArrowDown, ArrowUpRight, BookOpen, ChevronRight, Code2, Eye, EyeOff, Focus, Layers3, Maximize2, Minimize2, Pause, Play, RotateCcw, ZoomIn, ZoomOut } from 'lucide-react'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
-import { COMMIT, LEVELS, MODALITIES, NODES, NODE_MAP, STAGES, source, type ModelNode } from './model'
+import { COMMIT, LEVELS, MODALITIES, NODE_MAP, STAGES, source } from './model'
 import './mmhvae.css'
-import { anatomyFor } from './anatomy'
+import HierarchyBrowser from './HierarchyBrowser'
+import { atomId, canonicalPath, graphFor, navName } from './navigation'
 const OrbitScene=lazy(()=>import('./OrbitScene'))
 function ShapeLegend(){
   return <div className="mm-shape-legend" aria-label="三维形态图例">
@@ -20,21 +21,6 @@ function MathFormula({formula}:{formula:string}) {
   const html=useMemo(()=>katex.renderToString(formula,{displayMode:true,throwOnError:false,strict:'ignore',trust:false,output:'htmlAndMathml'}),[formula])
   return <div className="mm-math" tabIndex={0} aria-label="数学公式，可横向滚动" dangerouslySetInnerHTML={{__html:html}} />
 }
-function Inspector({node,onSelect}:{node:ModelNode;onSelect:(id:string)=>void}) {
-  const color=MODALITIES.find(m=>m.id===node.mod)?.color??'#78b8ff'
-  return <aside className="mm-inspector" style={{'--module-color':color} as CSSProperties} aria-label="所选模块实现细节">
-    <div className="mm-inspector-title"><Box size={17}/><span>模块解剖</span><span>{node.shared?'共享参数':node.mod?'模态独立':'实现细节'}</span></div>
-    <h4>{node.title}</h4>
-    <div className="mm-shape"><span>张量 / 通道</span><strong>{node.shape}</strong><small>空间张量按 C × H × W 标注，省略批次 B</small></div>
-    <EditableText textKey={`mm-description-${node.id}`} className="mm-description">{node.description}</EditableText>
-    <ol className="mm-operators">{node.operations.map((op,i)=><li key={op}><span>{String(i+1).padStart(2,'0')}</span><p>{op}</p></li>)}</ol>
-    <MathFormula formula={node.formula}/>
-    {node.kind==='encoder'&&<button className="mm-inspector-next" onClick={()=>onSelect(`${node.mod}-expert-${node.l}`)}>追踪 Gaussian head <ChevronRight size={16}/></button>}
-    {node.kind==='expert'&&<button className="mm-inspector-next" onClick={()=>onSelect(`poe-${node.l}`)}>追踪 PoE 融合 <ChevronRight size={16}/></button>}
-    {node.kind==='poe'&&<button className="mm-inspector-next" onClick={()=>onSelect(`sample-${node.l}`)}>追踪重参数化采样 <ChevronRight size={16}/></button>}
-    <a className="mm-source-link" href={source(node.file,node.line)} target="_blank" rel="noreferrer"><Code2 size={14}/><span>{node.file}:{node.line}</span><ArrowUpRight size={14}/></a>
-  </aside>
-}
 const THEORY=String.raw`\begin{aligned}\Lambda_l&=\Sigma_{p,l}^{-1}+\sum_{j\in r}\Sigma_{j,l}^{-1}\\\Sigma_l&=\Lambda_l^{-1}\\\mu_l&=\Sigma_l\left(\Sigma_{p,l}^{-1}\mu_{p,l}+\sum_{j\in r}\Sigma_{j,l}^{-1}\mu_{j,l}\right)\end{aligned}`
 const IMPLEMENTATION=String.raw`\begin{aligned}w_l&=s_{p,l}^{-1}+\sum_{j\in r}e^{-a_{j,l}}\\s_l&=w_l^{-1}\\\mu_l&=s_l\left(\mu_{p,l}/s_{p,l}+\sum_{j\in r}\mu_{j,l}e^{-a_{j,l}}\right)\\q_l&=\mathcal N\!\left(\mu_l,\operatorname{diag}((T s_l)^2)\right)\end{aligned}`
 
@@ -48,19 +34,22 @@ export function MMHVAEExplorer() {
   const [playing,setPlaying]=useState(()=>!window.matchMedia('(prefers-reduced-motion: reduce)').matches),[step,setStep]=useState(5)
   const [reducedMotion,setReducedMotion]=useState(()=>window.matchMedia('(prefers-reduced-motion: reduce)').matches)
   const [near,setNear]=useState(false),[inView,setInView]=useState(false),[expanded,setExpanded]=useState(false)
-  const [formulaTab,setFormulaTab]=useState<'code'|'theory'>('code'),[search,setSearch]=useState(''),[directory,setDirectory]=useState('layer')
-  const root=useRef<HTMLDivElement>(null),sceneWrap=useRef<HTMLDivElement>(null)
+  const [formulaTab,setFormulaTab]=useState<'code'|'theory'>('code')
+  const root=useRef<HTMLDivElement>(null),sceneWrap=useRef<HTMLDivElement>(null),viewer=useRef<HTMLDivElement>(null)
   const stage=step===0?0:step===1?1:step<9?2:3
-  const node=NODE_MAP.get(selected)!
-  const [detailPath,setDetailPath]=useState<string[]>([]),[activePart,setActivePart]=useState<string|null>(null),[detailMotion,setDetailMotion]=useState(true)
-  const [detailZoom,setDetailZoom]=useState(1)
-  const detailId=detailPath.at(-1)
-  const anatomy=useMemo(()=>detailId?anatomyFor(detailId,observed):null,[detailId,observed])
-  const part=anatomy?.parts.find(p=>p.id===activePart)
-  const openDetail=(id:string)=>{setDetailPath([id]);setActivePart(null);setDetailZoom(1);setPlaying(false)}
-  const closeDetail=()=>{setDetailPath([]);setActivePart(null)}
-  const drill=(id:string)=>{setDetailPath(path=>[...path,id]);setActivePart(null);setDetailZoom(1);const n=NODE_MAP.get(id.split('/')[0]);if(n){setSelected(n.id);setLevel(n.l)}}
-  useEffect(()=>{if(!detailId)return;const back=(e:KeyboardEvent)=>{if(e.key==='Escape'&&!(e.target as HTMLElement).isContentEditable){e.preventDefault();setDetailPath(path=>path.slice(0,-1));setActivePart(null)}};window.addEventListener('keydown',back);return()=>window.removeEventListener('keydown',back)},[detailId])
+  const [location,setLocation]=useState('root'),[detailMotion,setDetailMotion]=useState(true)
+  const [detailZoom,setDetailZoom]=useState(1),[fullscreenNotice,setFullscreenNotice]=useState('')
+  const detailPath=canonicalPath(location)
+  const anatomy=useMemo(()=>graphFor(location,observed),[location,observed])
+  const detailId=anatomy?location:undefined
+  const activePart=location.startsWith('atom:')?anatomy?.parts.find(p=>!p.role)?.id??null:null
+  const openDetail=(id:string)=>{setLocation(id);setDetailZoom(1);setPlaying(false);const n=NODE_MAP.get(id.split('/')[0]);if(n){setSelected(n.id);setLevel(n.l)}}
+  const closeDetail=()=>{setLocation('root')}
+  const enterPart=(id:string)=>{const p=anatomy?.parts.find(part=>part.id===id);if(!p)return;if(p.child)openDetail(p.child);else if(!location.startsWith('atom:'))openDetail(atomId(location,id))}
+  const back=()=>{const path=canonicalPath(location);openDetail(path.at(-2)??'root')}
+  useEffect(()=>{const keyboard=(e:KeyboardEvent)=>{if(e.key==='Escape'&&!(e.target as HTMLElement).isContentEditable&&!expanded){e.preventDefault();back()}};window.addEventListener('keydown',keyboard);return()=>window.removeEventListener('keydown',keyboard)},[location,expanded])
+  useEffect(()=>{const changed=()=>{setExpanded(document.fullscreenElement===viewer.current);setFullscreenNotice('')};document.addEventListener('fullscreenchange',changed);return()=>document.removeEventListener('fullscreenchange',changed)},[])
+  const fullscreen=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await viewer.current?.requestFullscreen();}catch{setFullscreenNotice('当前浏览器限制了全屏。请在 Edge 或 Chrome 的独立标签页中使用全屏按钮。')}}
   useEffect(()=>{if(editing)setPlaying(false)},[editing])
   const select=(id:string)=>{const n=NODE_MAP.get(id)!;setSelected(id);setLevel(n.l);openDetail(id);setStep(['input','stem','encoder','down'].includes(n.kind)?0:['output','resnet','image','discriminator'].includes(n.kind)?9:n.l===7?1:9-n.l)}
   useEffect(()=>{
@@ -80,12 +69,8 @@ export function MMHVAEExplorer() {
   },[step,playing,observed,target])
   const toggle=(id:string)=>setObserved(prev=>prev.includes(id)?prev.length===1?prev:prev.filter(m=>m!==id):[...prev,id])
   const jumpStage=(index:number)=>{setPlaying(false);setStep([0,1,5,9][index]);select(index===0?`${observed[0]}-encoder-1`:index===1?'poe-7':index===2?`poe-${level}`:`${target}-output`)}
-  const modules=useMemo(()=>NODES.filter(n=>{
-    const category=directory==='layer'?n.l===level:directory==='core'?!n.mod:directory==='outputs'?['output','resnet','image','discriminator'].includes(n.kind):n.mod===directory
-    return category&&(!search||`${n.title} ${n.kind} ${n.shape}`.toLowerCase().includes(search.toLowerCase()))
-  }),[directory,level,search])
   const gaussianPath=(t:number)=>Array.from({length:121},(_,i)=>{const x=i/120*6-3;return`${i===0?'M':'L'}${12+i*1.9},${100-78*Math.exp(-x*x/(2*t*t))}`}).join(' ')
-  const showInspector=()=>root.current?.querySelector('.mm-inspector')?.scrollIntoView({behavior:reducedMotion?'instant':'smooth',block:'start'})
+  const showInspector=()=>root.current?.querySelector('.mm-browser')?.scrollIntoView({behavior:reducedMotion?'instant':'smooth',block:'start'})
   return <div ref={root} className={`architecture-console mm-lab${expanded?' mm-lab--expanded':''}`} id="mmhvae-orbit-lab">
     <header className="mm-lab-heading"><div><h3>MMHVAE <span>轨道架构实验台</span></h3><EditableText textKey="mm-copy-c9410968f3">四个观测世界，一套层次生成空间。沿信号进入模型的每一个模块。</EditableText></div><a href={source('network/mhvae.py',18)} target="_blank" rel="noreferrer"><Code2 size={15}/> MHVAE2D <ArrowUpRight size={14}/></a></header>
     <NoteEditToolbar compact />
@@ -95,38 +80,33 @@ export function MMHVAEExplorer() {
       <fieldset><legend>追踪输出 <span>模型同时生成四个模态</span></legend><div className="mm-output-buttons">{MODALITIES.map(m=><button type="button" key={m.id} aria-pressed={target===m.id} onClick={()=>{setTarget(m.id);select(`${m.id}-output`)}}>{m.label}</button>)}</div></fieldset>
     </div>
     <div className="mm-workbench"><div className="mm-scene-column">
-      <div className="mm-view-toolbar"><div role="group" aria-label="相机预设">{([['orbit','轨道'],['front','正视'],['top','俯视']] as const).map(([v,label])=><button key={v} aria-pressed={view===v} onClick={()=>{closeDetail();setView(v);setReset(n=>n+1);setZoom(1)}}>{label}</button>)}</div><div>
+      <div ref={viewer} className="mm-viewer"><div className="mm-view-toolbar"><div role="group" aria-label="相机预设">{([['orbit','轨道'],['front','正视'],['top','俯视']] as const).map(([v,label])=><button key={v} aria-pressed={view===v} onClick={()=>{closeDetail();setView(v);setReset(n=>n+1);setZoom(1)}}>{label}</button>)}</div><div>
         <button title="聚焦所选模块" aria-label="聚焦所选模块" onClick={()=>{openDetail(selected)}}><Focus size={16}/></button>
         <button title="放大" aria-label="放大模型" onClick={()=>detailId?setDetailZoom(z=>Math.min(z+.2,2.4)):setZoom(z=>Math.min(z+0.2,2.4))}><ZoomIn size={16}/></button><button title="缩小" aria-label="缩小模型" onClick={()=>detailId?setDetailZoom(z=>Math.max(z-.2,.6)):setZoom(z=>Math.max(z-0.2,0.6))}><ZoomOut size={16}/></button>
         <button title="重置视角" aria-label="重置视角" onClick={()=>{closeDetail();setView('orbit');setReset(n=>n+1);setZoom(1);setSpread(0);setIsolate(false)}}><RotateCcw size={16}/></button>
-        <button title={expanded?'收起工作台':'展开工作台'} aria-label={expanded?'收起工作台':'展开工作台'} aria-pressed={expanded} onClick={()=>setExpanded(v=>!v)}>{expanded?<Minimize2 size={16}/>:<Maximize2 size={16}/>}</button>
+        <button title={expanded?'退出全屏':'全屏观看'} aria-label={expanded?'退出全屏':'全屏观看'} aria-pressed={expanded} onClick={fullscreen}>{expanded?<Minimize2 size={16}/>:<Maximize2 size={16}/>}</button>
       </div></div>
       <div className={`mm-scene-wrap${anatomy?' has-anatomy':''}`} ref={sceneWrap}>
         <div className="mm-scene-status"><span className={playing?'mm-live-dot is-playing':'mm-live-dot'}/>{playing?'信号流播放中':'自由探索'}<span>2D 网络 / 3D 拓扑</span></div>
-        {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={26}/><span>正在构建七层模型空间…</span></div>}><OrbitScene selected={selected} observed={observed} target={target} level={level} isolate={isolate} spread={spread} playing={playing&&inView&&!detailId} stage={stage} temperature={temperature} view={view} reset={reset} zoom={zoom} focus={focus} reducedMotion={reducedMotion} onSelect={select} detailId={detailId} detailGraph={anatomy} activePart={activePart} detailMotion={detailMotion&&inView&&!editing} detailZoom={detailZoom} onPart={setActivePart}/></Suspense>:<div className="mm-loading">三维模型将在进入视野后加载</div>}
+        {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={26}/><span>正在构建七层模型空间…</span></div>}><OrbitScene selected={selected} observed={observed} target={target} level={level} isolate={isolate} spread={spread} playing={playing&&inView&&!detailId} stage={stage} temperature={temperature} view={view} reset={reset} zoom={zoom} focus={focus} reducedMotion={reducedMotion} onSelect={select} detailId={detailId} detailGraph={anatomy} activePart={activePart} detailMotion={detailMotion&&inView&&!editing} detailZoom={detailZoom} onPart={enterPart}/></Suspense>:<div className="mm-loading">三维模型将在进入视野后加载</div>}
         {anatomy&&<div className="mm-anatomy-overlay">
-          <div className="mm-anatomy-nav"><button onClick={closeDetail}><RotateCcw size={14}/>返回总览</button><div aria-label="拆解路径">{detailPath.map((id,i)=><button key={`${id}-${i}`} aria-current={i===detailPath.length-1?'location':undefined} onClick={()=>{setDetailPath(path=>path.slice(0,i+1));setActivePart(null)}}>{i>0&&<ChevronRight size={12}/>}<span>{id.startsWith('layer-')?`z${id.slice(6)} 推导`:id.includes('/se/')?'SE 门控':NODE_MAP.get(id)?.title??id}</span></button>)}</div><button aria-label={detailMotion?'暂停内部数据流':'播放内部数据流'} onClick={()=>setDetailMotion(v=>!v)}>{detailMotion?<Pause size={14}/>:<Play size={14}/>}</button></div>
-          <div className="mm-anatomy-hint"><span>同一空间 · 保留原模块轮廓</span><span>输入来自何处 / 输出流向何处 · Esc 返回</span></div>
+          <div className="mm-anatomy-nav"><button onClick={back}><RotateCcw size={14}/>返回上一级</button><div aria-label="拆解路径">{detailPath.map((id,i)=><button key={`${id}-${i}`} aria-current={i===detailPath.length-1?'location':undefined} onClick={()=>openDetail(id)}>{i>0&&<ChevronRight size={12}/>}<span>{navName(id,observed)}</span></button>)}</div><button aria-label={detailMotion?'暂停内部数据流':'播放内部数据流'} onClick={()=>setDetailMotion(v=>!v)}>{detailMotion?<Pause size={14}/>:<Play size={14}/>}</button></div>
+          <div className="mm-anatomy-hint"><span>点击组件继续深入 · 拖动观察立体结构</span><span>边界外：输入来源 / 输出去向</span></div>
         </div>}
         <div className="mm-scene-foot"><span>拖动旋转 · 点击模块 · 双指平移</span><span>Encoder ↑ <i/> 生成路径 ↓</span></div>
       </div>
-      {anatomy&&<section className="mm-anatomy-readout" aria-label="内部算子与张量">
-        <div className="mm-anatomy-caption"><strong>{anatomy.title}</strong><span>{anatomy.parts.length} 个算子 / 张量节点</span></div>
-        <EditableText textKey={`mm-anatomy-note-${detailId}`}>{anatomy.note}</EditableText>
-        <div className="mm-part-list" aria-label="内部算子序列">{anatomy.parts.map((p,i)=><button key={p.id} aria-pressed={activePart===p.id} onClick={()=>setActivePart(p.id)}><small>{p.role==='input'?'IN':p.role==='output'?'OUT':String(i+1).padStart(2,'0')}</small>{p.title}{p.child&&<ChevronRight size={12}/>}</button>)}</div>
-        {part?<div className="mm-part-detail" aria-live="polite"><div><span className="mm-part-source">{part.sourceName}</span><h4>{part.title}</h4><EditableText textKey={`mm-part-${detailId}-${part.id}`}>{part.detail}</EditableText>{part.child&&<button className="mm-drill-button" onClick={()=>drill(part.child!)}>继续拆解 {part.title}<ChevronRight size={15}/></button>}</div><div className="mm-tensor-readout"><div className="mm-tensor-stack" aria-hidden="true"><i/><i/><i/><i/></div><span>张量 / 参数变化</span><strong>{part.shape}</strong><small>C 通道 · H 高度 · W 宽度<br/>层片数为示意；B 为 batch 维</small></div></div>:<p className="mm-part-prompt">选择图中节点或上方算子，查看参数、张量变化与下一层结构。</p>}
-      </section>}
+      {fullscreenNotice&&<p role="status" className="mm-fullscreen-notice">{fullscreenNotice}</p>}
+      </div>
+      <HierarchyBrowser id={location} observed={observed} onNavigate={openDetail}/>
       <div className="mm-layer-entry"><span>z{level} · 上一级样本 → 条件先验 + 残差专家 → PoE → 采样</span><button onClick={()=>openDetail(`layer-${level}`)}><Layers3 size={15}/>展开本层完整推导<ChevronRight size={14}/></button></div>
       <div className="mm-level-bar"><span><Layers3 size={15}/> 潜变量层</span><div role="group" aria-label="选择潜变量层">{LEVELS.map(v=><button key={v.l} aria-pressed={level===v.l} onClick={()=>select(`poe-${v.l}`)}>z<sub>{v.l}</sub><small>{v.size===1?'global':`${v.size}²`}</small></button>)}</div><button className="mm-isolate" aria-pressed={isolate} onClick={()=>setIsolate(v=>!v)}><Focus size={15}/>{isolate?'显示全模型':'隔离本层'}</button></div>
       <div className="mm-playback"><button className="mm-play-button" aria-label={playing?'暂停信号流':'播放信号流'} onClick={()=>{closeDetail();setPlaying(v=>!v);setSpread(0);setIsolate(false)}}>{playing?<Pause size={16}/>:<Play size={16}/>}</button><div className="mm-stage-buttons" role="group" aria-label="信号流阶段">{STAGES.map((s,i)=><button key={s.title} aria-pressed={stage===i} onClick={()=>jumpStage(i)}><span>{i+1}</span>{s.title}</button>)}</div></div>
       <EditableText textKey={`mm-stage-description-${stage}`} className="mm-stage-description" aria-live="polite">{STAGES[stage].description}</EditableText>
-    </div><Inspector node={node} onSelect={select}/></div>
+    </div></div>
     <div className="mm-under-scene"><div className="mm-legend">{MODALITIES.map(m=><span key={m.id}><i style={{background:m.color}}/>{m.label}</span>)}<span><i style={{background:'#ebdfb9'}}/>PoE 融合</span><span><i className="mm-legend-shared"/>同层 Q / P 共享权重</span></div><label className="mm-spread-control">塔间展开<input aria-label="调整编码塔间距" type="range" min="0" max="1" step="0.1" value={spread} onChange={e=>{setSpread(Number(e.target.value));setPlaying(false)}}/><span>{spread>0?'模块检视 · 连线暂隐':'连接视图'}</span></label></div>
 
     <ShapeLegend/>
-    <section className="mm-directory" id="mm-module-directory"><div className="mm-section-heading"><div><h4>每一个 block，都可追溯。</h4><EditableText textKey="mm-copy-a38e3c3820">选择模块展开真实算子顺序。外围 Q 副本表示不同模态调用，同层共享参数。</EditableText></div><label className="mm-search"><Search size={15}/><input type="search" placeholder="查找模块或尺寸" aria-label="查找模块或尺寸" value={search} onChange={e=>setSearch(e.target.value)}/></label></div>
-      <div className="mm-directory-tabs" role="group" aria-label="模块目录筛选">{[['layer',`当前层 z${level}`],['core','中央生成路径'],...MODALITIES.map(m=>[m.id,`${m.label} 编码塔`]),['outputs','输出与训练']].map(([id,label])=><button key={id} aria-pressed={directory===id} onClick={()=>setDirectory(id)}>{label}</button>)}</div>
-      <div className="mm-node-grid">{modules.length?modules.map(n=><button key={n.id} aria-pressed={selected===n.id} onClick={()=>{select(n.id);sceneWrap.current?.scrollIntoView({behavior:reducedMotion?'instant':'smooth',block:'start'})}}><span className="mm-node-kind">{n.kind}</span><strong>{n.title}</strong><small>{n.shape}</small><ChevronRight size={14}/></button>):<EditableText textKey="mm-copy-66642d8801" className="mm-no-results">当前分类没有匹配模块。尝试搜索 Encoder、Gaussian 或 128。</EditableText>}</div>
+    <section className="mm-directory">
       <details className="mm-shapes"><summary>查看完整张量尺寸与模块数量 <ChevronRight size={16}/></summary><div className="mm-table-scroll"><table><caption>train.py 默认配置 · base_features=16 · max_features=128 · pools=6</caption><thead><tr><th>潜变量</th><th>编码特征 C×H×W</th><th>Gaussian 参数</th><th>潜变量 C×H×W</th><th>连接</th></tr></thead><tbody>{LEVELS.map(v=><tr key={v.l}><th>z{v.l}</th><td>{v.feature} × {v.encoderSize} × {v.encoderSize}</td><td>{v.l===7?'Linear 1152 → 512':`BlockQ ${2*v.feature} → ${v.feature}`} → split</td><td>{v.channels} × {v.size} × {v.size}</td><td>{v.l===7?'FC → 128×3×3':v.l===1?'四个图像解码器':'Bilinear ×2 → Conv'}</td></tr>)}</tbody></table></div><EditableText textKey="mm-copy-d523fad9f5">独立编码塔：4 ×（1 stem + 7 BlockEncoder + 6 下采样 Conv）。共享核心：1 bottleneck_down、1 bottleneck_up、6 Upsample、6 BlockDecoder、6 BlockQ、6 可学习 prior head；z₇ 先验固定。输出：4 ×（6 ResnetBlock + 2 Conv 7×7）。</EditableText></details>
     </section>
 

@@ -61,3 +61,30 @@ for (const level of LEVELS) {
   }
 }
 console.log(`Verified ${visited.size} MMHVAE module, nested-block and layer graphs.`)
+
+const anatomyURL = moduleURL(anatomySource)
+const navigationURL = moduleURL(compile(await readFile(new URL('../src/components/mmhvae/navigation.ts', import.meta.url), 'utf8')).replace("'./model'", JSON.stringify(modelURL)).replace("'./anatomy'", JSON.stringify(anatomyURL)).replace("'./topology'", JSON.stringify(topologyURL)))
+const { childrenOf, canonicalPath, graphFor, navName, atomInfo, principle } = await import(navigationURL)
+const { detailLayout } = await import(moduleURL(compile(await readFile(new URL('../src/components/mmhvae/detailLayout.ts', import.meta.url), 'utf8'))))
+const indexed = new Set(), queue = ['root'], observed = MODALITIES.map(m => m.id)
+while(queue.length) {
+  const id = queue.shift(); if(indexed.has(id)) continue; indexed.add(id)
+  assert(indexed.size < 10000, 'Containment hierarchy must terminate')
+  assert(navName(id, observed), `Missing readable name: ${id}`)
+  const children = childrenOf(id, observed), graph = graphFor(id, observed)
+  for(const child of children) { assert.equal(canonicalPath(child).at(-2), id, `Inconsistent parent of ${child}`); queue.push(child) }
+  if(!graph) continue
+  for(const compact of [false,true]) {
+  const layout = detailLayout(graph,compact)
+  for(const part of graph.parts) {
+    const pos = layout.positions.get(part.id)
+    assert(pos.every(Number.isFinite), `${id}: invalid position`)
+    if(part.role) assert(pos.some((v,i)=>v<layout.min[i]-2||v>layout.max[i]+2), `${id}: context inside module`)
+    else assert(pos.every((v,i)=>v>=layout.min[i]&&v<=layout.max[i]), `${id}: child outside module`)
+  }
+  }
+  const atom = atomInfo(id, observed)
+  if(atom) { assert.equal(children.length, 0); assert(principle(atom.part).formula) }
+}
+for(const n of NODES) assert(indexed.has(n.id), `Missing module in containment index: ${n.id}`)
+console.log(`Verified ${indexed.size} hierarchy entries, atomic explanations and outside context rails.`)
