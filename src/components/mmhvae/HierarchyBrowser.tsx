@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ArrowLeft, ChevronRight, Folder, Box, FileText, ArrowUpRight, Search } from 'lucide-react'
 import katex from 'katex'
+import { MathLabel } from './MathLabel'
 import { EditableText } from '../EditableContent'
 import { NODE_MAP, source } from './model'
 import { atomInfo, canonicalPath, childrenOf, graphFor, isFolder, navName, partName, principle, parameterLabel } from './navigation'
@@ -19,14 +20,14 @@ export default function HierarchyBrowser({id,observed,onNavigate}:{id:string;obs
   return <section className="mm-browser" id="mm-module-directory" aria-label="模型层级资源管理器" data-location={id}>
     <div className="mm-browser-toolbar"><button aria-label="返回上一级" disabled={path.length===1} onClick={()=>navigate(path.at(-2)!)}><ArrowLeft size={17}/></button><nav aria-label="模型层级路径">{path.map((key,i)=><span key={key}>{i>0&&<ChevronRight size={12}/>}<button aria-current={key===id?'location':undefined} onClick={()=>navigate(key)}>{navName(key,observed)}</button></span>)}</nav></div>
     <div className="mm-browser-layout"><aside className="mm-browser-tree" aria-label="模型组成目录">{tree('root')}</aside><div className="mm-browser-content">
-      <header><div><h4>{navName(id,observed)}</h4><span>{atom?'原子运算 · 最深层级':`${children.length} 个直接组成部分`}{node&&!atom?` · ${parameterLabel(node)}`:''}</span></div>{graph&&<strong className="mm-browser-shape">{graph.tensor}</strong>}</header>
+      <header><div><h4><MathLabel value={navName(id,observed)}/></h4><span>{atom?'原子运算 · 最深层级':`${children.length} 个直接组成部分`}{node&&!atom?` · ${parameterLabel(node)}`:''}</span></div>{graph&&<strong className="mm-browser-shape"><MathLabel value={graph.tensor} math/></strong>}</header>
       <div className="mm-browser-explanation"><h5>原理与设计目的</h5><EditableText textKey={atom?`mm-purpose-${id}`:node&&!isSE?`mm-description-${node.id}`:`mm-purpose-${id}`}>{purpose}</EditableText><Equation value={formula}/>
       {atom?<><h5>运算与数据结构</h5><EditableText textKey={`mm-part-${atom.parent}-${atom.part.id}`}>{atom.part.detail}</EditableText><code>{atom.part.sourceName}</code></>:graph?<><h5>实现与数据流</h5><EditableText textKey={`mm-anatomy-note-${id}`}>{graph.note}</EditableText></>:null}
       {node&&<a className="mm-inline-source" href={source(node.file,node.line)} target="_blank" rel="noreferrer">{node.file}:{node.line}<ArrowUpRight size={13}/></a>}</div>
       {!!children.length&&<><div className="mm-browser-list-heading"><h5>内部组成</h5><label><Search size={14}/><input aria-label="筛选当前层子模块" placeholder="在这一层查找" value={query} onChange={e=>setQuery(e.target.value)}/></label></div><div className="mm-browser-files" aria-label="当前层子模块">
-      {children.filter(key=>navName(key,observed).toLowerCase().includes(query.toLowerCase())).map(key=>{const a=atomInfo(key,observed),n=NODE_MAP.get(key),compound=childrenOf(key,observed).length>0;return <button key={key} onClick={()=>navigate(key)} data-entry={key}>{compound?<Folder size={17}/>:<Box size={17}/>}<span><strong>{navName(key,observed)}</strong><small>{a?.part.sourceName??(n?`${n.kind} · ${parameterLabel(n)}`:'结构分组')}</small></span><span className="mm-file-shape">{a?.part.shape??n?.shape??''}</span><ChevronRight size={15}/></button>})}
+      {children.filter(key=>navName(key,observed).toLowerCase().includes(query.toLowerCase())).map(key=>{const a=atomInfo(key,observed),n=NODE_MAP.get(key),compound=childrenOf(key,observed).length>0;return <button key={key} onClick={()=>navigate(key)} data-entry={key}>{compound?<Folder size={17}/>:<Box size={17}/>}<span><strong><MathLabel value={navName(key,observed)}/></strong><small>{a?.part.sourceName??(n?`${n.kind} · ${parameterLabel(n)}`:'结构分组')}</small></span><span className="mm-file-shape"><MathLabel value={a?.part.shape??n?.shape??''} math/></span><ChevronRight size={15}/></button>})}
       {query&&!children.some(key=>navName(key,observed).toLowerCase().includes(query.toLowerCase()))&&<p>这一层没有匹配项。清空搜索可显示全部子模块。</p>}</div></>}
-      {!!graph?.parts.some(p=>p.role)&&<div className="mm-browser-connections"><h5>边界外的连接</h5><p>连接表示数据去向，不属于当前模块的内部组成。</p>{graph.parts.filter(p=>p.role).map(p=><button key={p.id} disabled={!p.child} onClick={()=>p.child&&navigate(p.child)}><span>{p.role==='input'?'输入来自':'输出流向'}</span><strong>{partName(p)}</strong><small>{p.shape}</small><ArrowUpRight size={14}/></button>)}</div>}
+      {!!graph?.parts.some(p=>p.role)&&<div className="mm-browser-connections"><h5>边界外的连接</h5><p>连接表示数据去向，不属于当前模块的内部组成。</p>{graph.parts.filter(p=>p.role).map(p=><button key={p.id} disabled={!p.child} onClick={()=>p.child&&navigate(p.child)}><span>{p.role==='input'?'输入来自':'输出流向'}</span><strong><MathLabel value={partName(p)}/></strong><small><MathLabel value={p.shape} math/></small><ArrowUpRight size={14}/></button>)}</div>}
     </div></div>
   </section>
 }

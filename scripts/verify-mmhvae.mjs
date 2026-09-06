@@ -88,3 +88,16 @@ while(queue.length) {
 }
 for(const n of NODES) assert(indexed.has(n.id), `Missing module in containment index: ${n.id}`)
 console.log(`Verified ${indexed.size} hierarchy entries, atomic explanations and outside context rails.`)
+
+for(const id of ['encoders','encoder:us','encoder:flair','core','outputs']) {
+  const graph=graphFor(id,observed)
+  assert.equal(graph.layout,'overview')
+  for(const compact of [false,true])for(const [key,point] of detailLayout(graph,compact).positions)assert.deepEqual(point,topology.positions.get(key),`${id}: overview coordinates changed`)
+}
+for(const id of ['us-encoder-4','decoder-4','decoder-4/se/768','flair-output','flair-resnet-2','poe-4','sample-4']) {
+  const graph=graphFor(id,observed),layout=detailLayout(graph)
+  const spine=layout.spine.map(key=>layout.positions.get(key))
+  assert(spine.length>1)
+  spine.forEach((point,i)=>{assert.equal(point[0],0);assert.equal(point[2],0);if(i)assert(point[1]<spine[i-1][1],`${id}: trunk must descend`)})
+}
+console.log('Verified vertical computational trunks and exact overview subset coordinates.')

@@ -7,7 +7,7 @@ export interface AnatomyPart {
   child?: string; sourceName: string; color?: string; position?: Point3; mod?: string; role?: 'input' | 'output'
 }
 export interface AnatomyEdge { from: string; to: string; label?: string; residual?: boolean }
-export interface AnatomyGraph { title: string; parts: AnatomyPart[]; edges: AnatomyEdge[]; tensor: string; note: string }
+export interface AnatomyGraph { layout?: 'overview'; origin?: Point3; title: string; parts: AnatomyPart[]; edges: AnatomyEdge[]; tensor: string; note: string }
 
 const dims = (c: number, s: number) => `${c} × ${s} × ${s}`
 export const glyphFor = (kind: string): Glyph => ({ input:'image', image:'image', stem:'conv', down:'conv', feature:'tensor', concat:'concat', priorhead:'conv', factor:'gaussian', posterior:'gaussian', encoder:'network', decoder:'network', resnet:'network', output:'network', expert:'network', prior:'gaussian', poe:'poe', sample:'sample', up:'up', lift:'linear', discriminator:'network' } as Record<string,Glyph>)[kind] ?? 'tensor'

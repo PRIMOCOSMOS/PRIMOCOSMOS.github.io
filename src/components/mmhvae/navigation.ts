@@ -47,10 +47,16 @@ export function childrenOf(id:string,observed:string[]):string[]{
 }
 export function graphFor(id:string,observed:string[]):AnatomyGraph|null {
   if(isFolder(id)) {
-    if(!id.startsWith('encoder:'))return null
-    const ids=childrenOf(id,observed),top=modelTopology()
-    return {title:navName(id,observed),tensor:'1 × 192² → 128 × 3²',note:'独立编码权重逐级提取观测信息；每层特征另一路进入对应概率估计。',parts:ids.map(key=>{const n=NODE_MAP.get(key)!;return {id:key,child:key,title:moduleName(n),glyph:glyphFor(n.kind),shape:n.shape,detail:n.description,sourceName:key,mod:n.mod}}),edges:top.links.filter(e=>ids.includes(e.from)&&ids.includes(e.to)),}
+    if(['root','training'].includes(id))return null
+    const top=modelTopology(),ids=[...top.positions.keys()].filter(key=>{
+      const n=NODE_MAP.get(key)!
+      if(id==='core')return !n.mod
+      if(id==='outputs')return ['output','image'].includes(n.kind)
+      return ['input','stem','encoder','down'].includes(n.kind)&&(id==='encoders'||n.mod===id.split(':')[1])
+    })
+    return {layout:'overview',origin:[0,0,0],title:navName(id,observed),tensor:id==='core'?'256 → 8 × 192²':id==='outputs'?'4 × (1 × 192²)':'1 × 192² → 128 × 3²',note:'保持总览中的相对位置、方向与连接；镜头聚焦当前结构子集。点击其中的模块进一步进入内部组成。',parts:ids.map(key=>{const n=NODE_MAP.get(key)!;return {id:key,child:key,title:moduleName(n),glyph:glyphFor(n.kind),shape:n.shape,detail:n.description,sourceName:key,mod:n.mod,position:top.positions.get(key)}}),edges:top.links.filter(e=>ids.includes(e.from)&&ids.includes(e.to))}
   }
+
   const atom=atomInfo(id,observed)
   if(!atom)return anatomyFor(id,observed)
   const parent=anatomyFor(atom.parent,observed),part={...atom.part,child:undefined,position:undefined}

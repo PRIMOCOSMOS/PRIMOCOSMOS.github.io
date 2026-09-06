@@ -37,3 +37,9 @@ Run `npm run verify:model`, `npm run build`, and `npm run verify:dist`. The mode
 ## Persistent copy editing
 
 The shared `EditableContentProvider` covers the homepage, existing research notes and MMHVAE explanations, including selected-module and nested-operator prose. Input saves immediately under the existing `primocosmos-note-copy-v1` key; legacy edits remain compatible. Newlines are retained and pasted rich text is converted to plain text. JSON export/import supports manual backup and transfer. Storage errors retain the in-memory copy and offer export. Persistence is per browser/origin, not a server-side publication or automatic cross-device sync. Formula rendering and model topology remain separate from editable prose.
+
+## Vertical microscope layout and mathematical annotations
+
+`detailLayout.ts` extracts the longest computational dependency path as a vertical trunk, with parallel operators arranged around it and external context rails aligned to the connected stages. This rule applies on both desktop and mobile. Encoder towers, the encoder group, the shared core and output branches use `layout: overview` and the exact global topology coordinates; selecting these structures crops and focuses the existing organization. Layer-level relative positions use a uniform scale, preserving their axes and proportions.
+
+`MathLabel.tsx` renders mathematical label fragments and tensor dimensions with local KaTeX HTML + MathML. `OrbitScene.tsx` projects these DOM annotations from their Three.js anchors; text keeps a fixed readable size and participates in collision handling. Labels support clicking and keyboard activation. Overview headings identify all four encoder towers, the conditional-generation core, latent levels and input/output groups. Detailed mathematical explanations remain in the unified hierarchy browser.
