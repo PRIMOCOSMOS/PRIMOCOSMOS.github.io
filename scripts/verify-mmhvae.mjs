@@ -6,9 +6,13 @@ import ts from 'typescript'
 const compile = source => ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext } }).outputText
 const moduleURL = source => `data:text/javascript;base64,${Buffer.from(source).toString('base64')}`
 const modelURL = moduleURL(compile(await readFile(new URL('../src/components/mmhvae/model.ts', import.meta.url), 'utf8')))
-const anatomySource = compile(await readFile(new URL('../src/components/mmhvae/anatomy.ts', import.meta.url), 'utf8')).replace("'./model'", JSON.stringify(modelURL))
+const topologyURL = moduleURL(compile(await readFile(new URL('../src/components/mmhvae/topology.ts', import.meta.url), 'utf8')).replace("'./model'", JSON.stringify(modelURL)))
+const anatomySource = compile(await readFile(new URL('../src/components/mmhvae/anatomy.ts', import.meta.url), 'utf8')).replace("'./model'", JSON.stringify(modelURL)).replace("'./topology'", JSON.stringify(topologyURL))
 const { NODES, LEVELS, MODALITIES } = await import(modelURL)
 const { anatomyFor } = await import(moduleURL(anatomySource))
+const { modelTopology } = await import(topologyURL)
+const topology = modelTopology()
+for (const link of topology.links) assert(topology.positions.has(link.from) && topology.positions.has(link.to), `Missing topology endpoint: ${link.from} → ${link.to}`)
 const visited = new Set()
 const pending = [...NODES.map(node => node.id), ...LEVELS.map(level => `layer-${level.l}`)]
 while (pending.length) {
@@ -46,10 +50,14 @@ assert.equal(anatomyFor('layer-1').parts.filter(part => part.id.endsWith('-outpu
 assert(anatomyFor('decoder-4').parts.some(part => part.detail.includes('groups=768')))
 assert(anatomyFor('sample-7').parts.some(part => part.shape === 'B × 256'))
 assert(anatomyFor('poe-4').parts.some(part => part.detail.includes('1/scale')))
+assert(anatomyFor('decoder-4/se/768').parts.filter(part => part.role === 'input').every(part => part.shape.startsWith('768')))
+assert(anatomyFor('flair-resnet-6').parts.some(part => part.role === 'output' && part.sourceName.endsWith('.convt2') && part.shape.startsWith('8 ×')))
 for (const level of LEVELS) {
   for (const observed of [['us'], ['t2', 'cet1', 'flair'], MODALITIES.map(mod => mod.id)]) {
     const graph = anatomyFor(`layer-${level.l}`, observed)
-    assert.equal(graph.parts.filter(part => part.id.endsWith('-q')).length, observed.length)
+    assert.equal(graph.parts.filter(part => part.id.includes('-expert-')).length, observed.length)
+    assert(graph.parts.every(part => part.position?.length === 3))
+    if (level.l < 7) for (const key of [`posterior-${level.l+1}`, `sample-${level.l+1}`, `up-${level.l}`, `decoder-${level.l}`, `feature-${level.l}`, `prior-head-${level.l}`, `prior-${level.l}`, `poe-${level.l}`, `posterior-${level.l}`, `sample-${level.l}`]) assert(graph.parts.some(part => part.id === key), `Missing layer stage: ${key}`)
   }
 }
 console.log(`Verified ${visited.size} MMHVAE module, nested-block and layer graphs.`)

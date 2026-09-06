@@ -1,220 +1,167 @@
 import { useEffect, useRef, useState } from 'react'
-import * as THREE from 'three'
+import * as T from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
 import { LEVELS, MODALITIES, NODE_MAP, type ModelNode } from './model'
-import { glyphFor } from './anatomy'
-import { makeGlyph } from './glyphs'
+import { glyphFor, type AnatomyGraph, type AnatomyPart } from './anatomy'
+import { makeGlyph, disposeGroup } from './glyphs'
+import { modelTopology, levelY } from './topology'
 
 export interface SceneProps {
-  selected: string; observed: string[]; target: string; level: number
-  isolate: boolean; spread: number; playing: boolean; stage: number
-  temperature: number; view: 'orbit' | 'front' | 'top'; reset: number; zoom: number; focus: number
-  reducedMotion: boolean; onSelect: (id: string) => void
+  selected:string; observed:string[]; target:string; level:number; isolate:boolean; spread:number
+  playing:boolean; stage:number; temperature:number; view:'orbit'|'front'|'top'; reset:number; zoom:number; focus:number
+  reducedMotion:boolean; onSelect:(id:string)=>void
+  detailId?:string; detailGraph:AnatomyGraph|null; activePart:string|null; detailMotion:boolean; detailZoom:number; onPart:(id:string)=>void
 }
-type Visual = { group: THREE.Group; node: ModelNode; materials: THREE.Material[]; edge: THREE.LineBasicMaterial }
-type Route = { curve: THREE.CatmullRomCurve3; line: THREE.Line; particle: THREE.Mesh; mod?: string; l: number; stage: number }
+type Visual={node:ModelNode;group:T.Group;label?:T.Sprite;materials:Map<T.Material,number>;hit:T.Mesh;origin:T.Vector3}
+type Flow={from:string;to:string;curve:T.CatmullRomCurve3;line:T.Line;arrow:T.Mesh;dot:T.Mesh;label?:T.Sprite;l?:number;mod?:string}
+type PartVisual={part:AnatomyPart;group:T.Group;dest:T.Vector3;label:T.Sprite;dim:T.Sprite;hit:T.Mesh}
+const vector=(p:[number,number,number])=>new T.Vector3(...p)
 
-export default function OrbitScene(props: SceneProps) {
-  const host = useRef<HTMLDivElement>(null)
-  const latest = useRef(props)
-  latest.current = props
-  const [error,setError] = useState(false)
-  const [hover,setHover] = useState('')
-  useEffect(()=>{
-    const container = host.current!
-    let renderer: THREE.WebGLRenderer
-    try { renderer = new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'}) }
-    catch { setError(true); return }
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio,1.75))
-    renderer.setClearColor('#060d13',1)
-    renderer.outputColorSpace=THREE.SRGBColorSpace
-    container.appendChild(renderer.domElement)
-    renderer.domElement.setAttribute('aria-label','MMHVAE 三维模型，可拖动旋转；键盘左右旋转、上下倾斜，加减号缩放。模块也可通过下方目录选择。')
-    renderer.domElement.setAttribute('role','img')
-    renderer.domElement.tabIndex=0
-    const scene=new THREE.Scene()
-    const camera=new THREE.OrthographicCamera(-15,15,10,-10,0.1,180)
-    camera.position.set(0,15,36)
-    const controls=new OrbitControls(camera,renderer.domElement)
-    controls.target.set(0,7,0)
-    controls.enableDamping=true; controls.dampingFactor=0.09
-    controls.minPolarAngle=0.15; controls.maxPolarAngle=Math.PI/2-0.04
-    controls.minZoom=0.65; controls.maxZoom=2.8
-    controls.enablePan=true; controls.enableZoom=false
-    // Leave wheel scrolling to the research notebook; explicit controls handle zoom.
-    scene.add(new THREE.AmbientLight('#b4cbe1',1.2))
-    const light=new THREE.DirectionalLight('#e4f3ff',1.5);light.position.set(-6,20,15);scene.add(light)
-    const rim=new THREE.DirectionalLight('#6e9dba',1.4);rim.position.set(8,10,-10);scene.add(rim)
-    const content=new THREE.Group();scene.add(content)
-    const visuals:Visual[]=[]; const hitObjects:THREE.Object3D[]=[];const textures:THREE.Texture[]=[];const routes:Route[]=[]
-    const decorations:{object:THREE.Object3D;mod?:string;l?:number}[]=[]
-    const label=(text:string,color:string,width:number,height=0.34)=>{
-      const canvas=document.createElement('canvas');canvas.height=72
-      const ctx=canvas.getContext('2d')!;ctx.font='500 54px "Segoe UI", sans-serif'
-      canvas.width=Math.ceil(ctx.measureText(text).width+24)
-      ctx.fillStyle='rgba(6,14,20,0.92)';ctx.fillRect(0,0,canvas.width,72)
-      ctx.fillStyle=color;ctx.font='500 54px "Segoe UI", sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(text,canvas.width/2,36)
-      const texture=new THREE.CanvasTexture(canvas);texture.colorSpace=THREE.SRGBColorSpace;textures.push(texture)
-      const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:texture,transparent:true,depthTest:false}))
-      const aspect=canvas.width/72,labelHeight=Math.min(height*1.3,width/aspect)
-      sprite.scale.set(labelHeight*aspect,labelHeight,1);sprite.renderOrder=5;return sprite
+export default function OrbitScene(props:SceneProps){
+ const host=useRef<HTMLDivElement>(null),latest=useRef(props);latest.current=props
+ const [error,setError]=useState(false),[hover,setHover]=useState('')
+ useEffect(()=>{
+  const container=host.current!;let renderer:T.WebGLRenderer
+  try{renderer=new T.WebGLRenderer({antialias:true,alpha:true,powerPreference:'low-power'})}catch{setError(true);return}
+  renderer.setPixelRatio(Math.min(devicePixelRatio,1.65));renderer.setClearColor('#060e15',1);renderer.outputColorSpace=T.SRGBColorSpace;container.appendChild(renderer.domElement)
+  renderer.domElement.tabIndex=0;renderer.domElement.setAttribute('role','img');renderer.domElement.setAttribute('aria-label','MMHVAE 同一三维场景：拖动旋转，点击模块原位展开，方向键旋转，加减号缩放。')
+  const scene=new T.Scene(),overview=new T.Group();scene.add(overview)
+  scene.add(new T.AmbientLight('#c5e0ec',1.6));const sun=new T.DirectionalLight('#e4f6ff',2.4);sun.position.set(-20,70,50);scene.add(sun)
+  const rim=new T.DirectionalLight('#75accc',1.3);rim.position.set(20,20,-40);scene.add(rim)
+  const camera=new T.PerspectiveCamera(42,1,.1,600),controls=new OrbitControls(camera,renderer.domElement)
+  controls.enableDamping=true;controls.enableZoom=false;controls.dampingFactor=.09;controls.minPolarAngle=.18;controls.maxPolarAngle=1.5
+  const topology=modelTopology(),visuals=new Map<string,Visual>(),overviewFlows:Flow[]=[],decorations:T.Object3D[]=[]
+  const label=(value:string,color:string,height=.7,width=6)=>{
+   const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d')!;ctx.font='500 44px "Segoe UI",sans-serif';canvas.width=Math.ceil(ctx.measureText(value).width+24);canvas.height=64
+   ctx.fillStyle='#06121ae8';ctx.fillRect(0,0,canvas.width,64);ctx.font='500 44px "Segoe UI",sans-serif';ctx.fillStyle=color;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(value,canvas.width/2,32)
+   const map=new T.CanvasTexture(canvas);map.colorSpace=T.SRGBColorSpace;const sprite=new T.Sprite(new T.SpriteMaterial({map,transparent:true,depthTest:false}));const h=Math.min(height,width/(canvas.width/64));sprite.scale.set(h*canvas.width/64,h,1);sprite.renderOrder=8;return sprite
+  }
+  const colorFor=(node:ModelNode)=>MODALITIES.find(m=>m.id===node.mod)?.color??(node.kind==='poe'?'#ebdfb9':node.kind==='sample'?'#d8ff45':'#8bc6ec')
+  const addFlow=(parent:T.Group,from:string,to:string,a:T.Vector3,b:T.Vector3,color:string,caption?:string,residual=false):Flow=>{
+   const dir=b.clone().sub(a).normalize(),start=a.clone().addScaledVector(dir,.64),end=b.clone().addScaledVector(dir,-.65),mid=start.clone().lerp(end,.5)
+   if(residual){mid.x+=3.4;mid.z+=2.5}else if(Math.abs(a.x-b.x)>2){mid.z+=.85}
+   const curve=new T.CatmullRomCurve3([start,mid,end]),line=new T.Line(new T.BufferGeometry().setFromPoints(curve.getPoints(32)),new T.LineBasicMaterial({color,transparent:true,opacity:.45}))
+   const arrow=new T.Mesh(new T.ConeGeometry(.12,.35,8),new T.MeshBasicMaterial({color,transparent:true}));arrow.position.copy(end);arrow.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),curve.getTangent(1).normalize())
+   const dot=new T.Mesh(new T.SphereGeometry(.09,6,6),new T.MeshBasicMaterial({color:'#dcff90',transparent:true}));parent.add(line,arrow,dot)
+   let tag:T.Sprite|undefined;if(caption){tag=label(caption,color,.45,5);tag.position.copy(mid).add(new T.Vector3(.7,.25,0));parent.add(tag)}
+   return {from,to,curve,line,arrow,dot,label:tag}
+  }
+  for(const [id,point] of topology.positions){
+   const node=NODE_MAP.get(id)!,color=colorFor(node),group=new T.Group(),glyph=makeGlyph(glyphFor(node.kind),color),large=['encoder','output','input','image'].includes(node.kind)
+   glyph.scale.setScalar(large?1.65:.85);group.position.copy(vector(point));group.add(glyph)
+   const tag=label(['input','image'].includes(node.kind)?`${node.kind==='input'?'INPUT':'OUTPUT'} / ${MODALITIES.find(m=>m.id===node.mod)!.label}`:node.short,color,large?.9:.68,large?6:4.5);tag.position.set(large?2.6:1.65,.25,.4);group.add(tag)
+   const materials=new Map<T.Material,number>();group.traverse(o=>{const m=o as T.Mesh;if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(mat=>materials.set(mat,mat.opacity))})
+   const hit=new T.Mesh(new T.BoxGeometry(large?3.4:1.6,large?1.5:1.3,large?3.4:1.6),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.userData.id=id;group.add(hit)
+   overview.add(group);visuals.set(id,{node,group,label:tag,materials,hit,origin:group.position.clone()})
+  }
+  for(const e of topology.links){const n=NODE_MAP.get(e.from)!;const f=addFlow(overview,e.from,e.to,vector(topology.positions.get(e.from)!),vector(topology.positions.get(e.to)!),e.mod?colorFor(n):'#81b4ca');f.l=e.l;f.mod=e.mod;overviewFlows.push(f)}
+  for(const m of MODALITIES){const p=topology.positions.get(`${m.id}-encoder-7`)!,tag=label(`${m.label} / ENCODER`,m.color,1.25,10);tag.position.set(p[0],p[1]+3,p[2]);overview.add(tag);decorations.push(tag)}
+  for(const v of LEVELS){const tag=label(`z${v.l}   ${v.l===7?'256-vector':`${v.channels} × ${v.size}²`}`,'#e4ead6',1.1,8);tag.position.set(5,levelY(v.l)-.3,1);overview.add(tag);decorations.push(tag)}
+  const floor=new T.GridHelper(62,16,'#3c5c6a','#18313e');floor.position.y=-6;overview.add(floor);decorations.push(floor)
+  let detail:T.Group|null=null,cage:T.LineSegments|null=null,parts:PartVisual[]=[],detailFlows:Flow[]=[],connectors:Flow[]=[]
+  let detailKey:AnatomyGraph|null=null,detailStart=0,anchor=new T.Vector3(),detailExtent=new T.Vector3(),detailCenter=new T.Vector3(),hoverPart=''
+  const anchors=new Map<string,T.Vector3>()
+  type CameraPose={position:T.Vector3;target:T.Vector3;zoom:number}
+  let saved:CameraPose|null=null,tween:{from:CameraPose;to:CameraPose;start:number}|null=null,lastView='',lastReset=-1,lastZoom=1,lastDetailZoom=1
+  const pose=():CameraPose=>({position:camera.position.clone(),target:controls.target.clone(),zoom:camera.zoom})
+  const transition=(to:CameraPose)=>{tween={from:pose(),to,start:performance.now()};controls.enabled=false}
+  const fit=(center:T.Vector3,size:T.Vector3,zoom=1,overviewView=false)=>{
+   const direction=new T.Vector3(overviewView?.25:.3,overviewView?1.05:.48,1).normalize(),right=new T.Vector3(0,1,0).cross(direction).normalize(),up=direction.clone().cross(right).normalize(),tan=Math.tan(T.MathUtils.degToRad(camera.fov/2))
+   let distance=0
+   for(const x of [-1,1])for(const y of [-1,1])for(const z of [-1,1]){const p=new T.Vector3(x*size.x/2,y*size.y/2,z*size.z/2);distance=Math.max(distance,Math.abs(p.dot(up))/tan+p.dot(direction),Math.abs(p.dot(right))/(tan*camera.aspect)+p.dot(direction))}
+   return {position:center.clone().addScaledVector(direction,distance*1.13),target:center.clone(),zoom}
+  }
+  const overviewPose=()=>fit(new T.Vector3(0,52,0),new T.Vector3(70,122,34),1,true)
+  const initial=overviewPose();camera.position.copy(initial.position);controls.target.copy(initial.target);controls.update()
+  const clearDetail=()=>{if(detail){scene.remove(detail);disposeGroup(detail)}detail=null;parts=[];detailFlows=[];connectors=[];cage=null}
+  const buildDetail=(graph:AnatomyGraph,id:string)=>{
+   let nextAnchor=anchors.get(id)?.clone()
+   if(!nextAnchor){const nested=parts.find(p=>p.part.child===id);nextAnchor=nested&&detail?nested.group.position.clone().add(detail.position):id.startsWith('layer-')?new T.Vector3(0,levelY(Number(id.slice(6))),0):visuals.get(id.split('/')[0])?.origin.clone()??visuals.get(`${NODE_MAP.get(id.split('/')[0])?.mod}-output`)?.origin.clone()??new T.Vector3(0,levelY(latest.current.level),0);anchors.set(id,nextAnchor.clone())}
+   anchor.copy(nextAnchor);clearDetail();detail=new T.Group();detail.position.copy(anchor);scene.add(detail);detailStart=performance.now()
+   const depth=new Map(graph.parts.map(p=>[p.id,0])),remaining=new Set(graph.parts.map(p=>p.id))
+   for(let pass=0;pass<graph.parts.length&&remaining.size;pass++)for(const p of graph.parts){if(!remaining.has(p.id))continue;const incoming=graph.edges.filter(e=>e.to===p.id&&!e.residual);if(incoming.every(e=>!remaining.has(e.from))){depth.set(p.id,incoming.length?1+Math.max(...incoming.map(e=>depth.get(e.from)!)):0);remaining.delete(p.id)}}
+   const maxDepth=Math.max(...depth.values()),atDepth=new Map<number,AnatomyPart[]>()
+   graph.parts.forEach(p=>{const d=depth.get(p.id)!;atDepth.set(d,[...(atDepth.get(d)??[]),p])})
+   for(const [i,p] of graph.parts.entries()){
+    const d=depth.get(p.id)!,siblings=atDepth.get(d)!,index=siblings.indexOf(p),theta=index/siblings.length*Math.PI*2-Math.PI/4
+    const dest=p.position?vector(p.position):new T.Vector3(siblings.length>1?Math.cos(theta)*3.3:0,(maxDepth/2-d)*1.75,siblings.length>1?Math.sin(theta)*3.3:0)
+    const color=MODALITIES.find(m=>m.id===p.mod)?.color??(p.role==='input'?'#91ddf5':p.role==='output'?'#dcff91':p.glyph==='poe'?'#eaddb5':'#9dc9dd')
+    const group=new T.Group(),glyph=makeGlyph(p.glyph,color);glyph.scale.setScalar(p.position?1:1.3);group.add(glyph)
+    const actual=p.child?NODE_MAP.get(p.child):undefined
+    const short=actual?({feature:`生成特征 g${actual.l}`,priorhead:`先验头 P${actual.l}`,prior:`先验 p${actual.l}`,poe:`PoE / z${actual.l}`,posterior:`后验 q${actual.l}`,sample:`z${actual.l} / rsample`,up:'Upsample ×2',decoder:'BlockDecoder',concat:`${MODALITIES.find(m=>m.id===actual.mod)?.label} / Concat`,expert:`${MODALITIES.find(m=>m.id===actual.mod)?.label} / Q${actual.l}`,factor:`${MODALITIES.find(m=>m.id===actual.mod)?.label} / μ,a`,encoder:`${MODALITIES.find(m=>m.id===actual.mod)?.label} / E${actual.l} skip`} as Record<string,string>)[actual.kind]??actual.short:p.title
+    const portName=p.sourceName.endsWith('.convt2')?`${MODALITIES.find(m=>m.id===p.mod)?.label} / convt2 7×7`:actual?`${MODALITIES.find(m=>m.id===actual.mod)?.label??'共享'} ${actual.kind==='down'?`Down ${actual.l}`:actual.kind==='encoder'?`Encoder ${actual.l}`:actual.kind==='concat'?`Concat ${actual.l}`:actual.short}`:p.title
+    const caption=p.role?`${p.role==='input'?'IN':'OUT'} / ${portName}`:p.position?short:`${String(i+1).padStart(2,'0')} ${p.title}`
+    const tag=label(caption,color,p.position ? .8 : .64,p.role?6.5:5.5);tag.position.set(p.position?(dest.x<-.5?-2.8:2.8):2.3,.35,.4);group.add(tag)
+    const dim=label(p.shape,'#b3cbd4',.49,5.4);dim.position.set(p.position?(dest.x<-.5?-2.8:2.8):2.3,-.28,.4);group.add(dim)
+    const hit=new T.Mesh(new T.BoxGeometry(2.6,1.5,2.6),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.userData.part=p.id;group.add(hit);detail.add(group);parts.push({part:p,group,dest,label:tag,dim,hit})
+   }
+   const coords=new Map(parts.map(p=>[p.part.id,p.dest]))
+   for(const e of graph.edges)detailFlows.push(addFlow(detail,e.from,e.to,coords.get(e.from)!,coords.get(e.to)!,e.residual?'#e8ad7c':graph.parts.find(p=>p.id===e.from)?.role==='input'?'#87cbe6':'#84b0ba',e.label,e.residual))
+   const bounds=new T.Box3().setFromPoints(parts.map(p=>p.dest));bounds.expandByVector(new T.Vector3(3.2,1.6,3.2));bounds.getSize(detailExtent)
+   cage=new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(1,1,1)),new T.LineBasicMaterial({color:'#c4dae1',transparent:true,opacity:.25}));cage.position.copy(bounds.getCenter(new T.Vector3()));detail.add(cage)
+   // The retained original volume stays at the clicked world position, inside its expanded envelope.
+   const original=new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(3.4,1.5,3.4)),new T.LineBasicMaterial({color:'#d5e7ed',transparent:true,opacity:.48}));detail.add(original)
+   const originLabel=label('原模块轮廓','#bfd2db',.52,5);originLabel.position.set(-2.5,0,0);detail.add(originLabel)
+   for(const p of parts.filter(p=>p.part.role&&p.part.child)){
+    const actual=visuals.get(p.part.child!);if(!actual)continue
+    const outside=actual.origin.clone().sub(anchor),inside=p.dest
+    const f=p.part.role==='input'?addFlow(detail,`origin-${p.part.id}`,p.part.id,outside,inside,'#7cc9df','外部输入'):addFlow(detail,p.part.id,`target-${p.part.id}`,inside,outside,'#bedc85','流向原模型')
+    connectors.push(f)
+   }
+   const center=bounds.getCenter(new T.Vector3()).add(anchor);detailCenter.copy(center);transition(fit(detailCenter,detailExtent,latest.current.detailZoom))
+   renderer.domElement.dataset.anatomy='in-place-3d';renderer.domElement.dataset.depthRange=String(bounds.max.z-bounds.min.z)
+  }
+  let dirty=true,visible=true,frame=0,lastTime=0,elapsed=0,signature=''
+  const mark=()=>{dirty=true};controls.addEventListener('change',mark)
+  let firstSize=true
+  const resize=()=>{const w=container.clientWidth,h=container.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();if(detail){transition(fit(detailCenter,detailExtent,latest.current.detailZoom))}else if(firstSize){const next=overviewPose();camera.position.copy(next.position);controls.target.copy(next.target)}firstSize=false;dirty=true}
+  const ro=new ResizeObserver(resize);ro.observe(container);resize()
+  const io=new IntersectionObserver(([e])=>{visible=e.isIntersecting;dirty=true},{rootMargin:'80px'});io.observe(container)
+  const ray=new T.Raycaster(),pointer=new T.Vector2();let down=[0,0]
+  const pick=(e:PointerEvent)=>{const r=renderer.domElement.getBoundingClientRect();pointer.set((e.clientX-r.left)/r.width*2-1,1-(e.clientY-r.top)/r.height*2);ray.setFromCamera(pointer,camera);return ray.intersectObjects(detail?parts.map(p=>p.hit):[...visuals.values()].filter(v=>v.group.visible).map(v=>v.hit))[0]?.object.userData}
+  const pointerdown=(e:PointerEvent)=>{down=[e.clientX,e.clientY]}
+  const pointerup=(e:PointerEvent)=>{if(Math.hypot(e.clientX-down[0],e.clientY-down[1])<5){const hit=pick(e);if(hit?.part)latest.current.onPart(hit.part);else if(hit?.id)latest.current.onSelect(hit.id)}}
+  const move=(e:PointerEvent)=>{if(e.buttons)return;const hit=pick(e);hoverPart=hit?.part??'';setHover(hit?.part?parts.find(p=>p.part.id===hit.part)?.part.title??'':hit?.id?NODE_MAP.get(hit.id)!.title:'');renderer.domElement.style.cursor=hit?'pointer':'grab';dirty=true}
+  const leave=()=>{hoverPart='';setHover('');dirty=true}
+  const key=(e:KeyboardEvent)=>{const offset=camera.position.clone().sub(controls.target),s=new T.Spherical().setFromVector3(offset);if(e.key==='ArrowLeft')s.theta-=.12;else if(e.key==='ArrowRight')s.theta+=.12;else if(e.key==='ArrowUp')s.phi=Math.max(.2,s.phi-.1);else if(e.key==='ArrowDown')s.phi=Math.min(1.5,s.phi+.1);else if(['+','='].includes(e.key))camera.zoom=Math.min(3,camera.zoom*1.1);else if(e.key==='-')camera.zoom=Math.max(.5,camera.zoom/1.1);else return;e.preventDefault();camera.position.copy(controls.target).add(new T.Vector3().setFromSpherical(s));camera.updateProjectionMatrix();dirty=true}
+  for(const [name,fn] of [['pointerdown',pointerdown],['pointerup',pointerup],['pointermove',move],['pointerleave',leave],['keydown',key]] as const)renderer.domElement.addEventListener(name,fn as EventListener)
+  const lost=(e:Event)=>{e.preventDefault();setError(true)};renderer.domElement.addEventListener('webglcontextlost',lost)
+  const animate=(now:number)=>{
+   frame=requestAnimationFrame(animate);const dt=Math.min((now-lastTime)/1000,.05);lastTime=now;if(!visible||document.hidden)return
+   const p=latest.current
+   if(p.detailGraph!==detailKey){
+    const previous=detailKey;detailKey=p.detailGraph
+    if(p.detailGraph&&p.detailId){if(!previous)saved=pose();buildDetail(p.detailGraph,p.detailId);lastDetailZoom=p.detailZoom}
+    else{clearDetail();anchors.clear();if(saved)transition(saved);saved=null;delete renderer.domElement.dataset.anatomy;delete renderer.domElement.dataset.depthRange}
+    signature='';dirty=true
+   }
+   if(lastView!==p.view||lastReset!==p.reset){lastView=p.view;lastReset=p.reset;if(!detail){const next=overviewPose();if(p.view==='front')next.position.copy(next.target).add(new T.Vector3(0,0,150));if(p.view==='top')next.position.copy(next.target).add(new T.Vector3(0,150,10));transition(next)}dirty=true}
+   if(!detail&&lastZoom!==p.zoom){lastZoom=p.zoom;camera.zoom=p.zoom;camera.updateProjectionMatrix();dirty=true}
+   if(detail&&lastDetailZoom!==p.detailZoom){lastDetailZoom=p.detailZoom;camera.zoom=p.detailZoom;camera.updateProjectionMatrix();if(tween)tween.to.zoom=p.detailZoom;dirty=true}
+   if(tween){const t=p.reducedMotion?1:Math.min((now-tween.start)/850,1),k=t*t*(3-2*t);camera.position.lerpVectors(tween.from.position,tween.to.position,k);controls.target.lerpVectors(tween.from.target,tween.to.target,k);camera.zoom=T.MathUtils.lerp(tween.from.zoom,tween.to.zoom,k);camera.updateProjectionMatrix();dirty=true;if(t===1){tween=null;controls.enabled=true}}
+   const sig=[p.selected,p.observed.join(),p.level,p.isolate,p.spread,p.playing,p.stage,p.activePart,p.detailMotion,p.detailId,hoverPart].join('|')
+   if(sig!==signature||dirty){signature=sig;dirty=true
+    for(const v of visuals.values()){
+     const observed=!v.node.mod||p.observed.includes(v.node.mod)||['output','image'].includes(v.node.kind),local=v.node.l===p.level
+     v.group.visible=!!detail||!p.isolate||local||['input','image','output'].includes(v.node.kind)
+     for(const [mat,base] of v.materials)mat.opacity=base*(detail?.07:observed?1:.19)
+     if(v.label)v.label.visible=!detail&&(p.isolate&&local||['input','image'].includes(v.node.kind))
+     if(v.node.mod)v.group.position.x=v.origin.x*(1+p.spread*.12)
     }
-    const yFor=(l:number)=>2.55+(l-1)*1.67
-    const addNode=(id:string,pos:THREE.Vector3,size:[number,number,number],color:string,text?:string)=>{
-      const node=NODE_MAP.get(id)!; const group=new THREE.Group();group.position.copy(pos)
-      const glyph=makeGlyph(glyphFor(node.kind),color)
-      const scale=['prior','sample','down'].includes(node.kind)?0.43:node.kind==='expert'?0.49:node.kind==='resnet'?0.23:node.kind==='poe'?0.7:node.kind==='output'?1.15:0.76
-      glyph.scale.setScalar(scale);group.add(glyph)
-      const box=new THREE.Mesh(new THREE.BoxGeometry(Math.max(size[0],.6),Math.max(size[1],.55),Math.max(size[2],.6)),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));group.add(box)
-      const edge=new THREE.LineBasicMaterial({color,transparent:true,opacity:0.7})
-      if(text){const sprite=label(text,color,Math.max(size[0],1.65),0.32);sprite.position.set(0,scale*.74,size[2]/2+0.2);group.add(sprite)}
-      group.traverse(obj=>{obj.userData.nodeId=id});hitObjects.push(box)
-      const materials:THREE.Material[]=[];group.traverse(obj=>{if('material'in obj&&obj!==box)materials.push((obj as THREE.Mesh).material as THREE.Material)})
-      content.add(group);visuals.push({group,node,materials,edge});return group
+    decorations.forEach(d=>d.visible=!detail&&!p.isolate)
+    for(const f of overviewFlows){const active=(!f.mod||p.observed.includes(f.mod)||f.to.includes('output')||f.to.includes('image'))&&(!p.isolate||f.l===p.level||f.l===0),focused=f.l===p.level
+     f.line.visible=!detail&&active&&p.spread===0;(f.line.material as T.LineBasicMaterial).opacity=focused?.65:.12;f.arrow.visible=f.line.visible&&(focused||!f.mod);f.dot.visible=f.line.visible&&p.playing&&(focused||p.stage===0&&f.mod!==undefined)&&!p.reducedMotion
     }
-    const addRoute=(points:THREE.Vector3[],color:string,l:number,stage:number,mod?:string)=>{
-      const curve=new THREE.CatmullRomCurve3(points)
-      const line=new THREE.Line(new THREE.BufferGeometry().setFromPoints(curve.getPoints(36)),new THREE.LineBasicMaterial({color,transparent:true,opacity:0.22}))
-      const particle=new THREE.Mesh(new THREE.SphereGeometry(0.065,6,6),new THREE.MeshBasicMaterial({color}))
-      content.add(line,particle);routes.push({curve,line,particle,l,stage,mod})
-    }
-    const v=(x:number,y:number,z:number)=>new THREE.Vector3(x,y,z)
-    MODALITIES.forEach(m=>{
-      const x=m.x,z=m.z,c=m.color
-      const railGeometry=new THREE.BufferGeometry().setFromPoints([v(x,1.9,z),v(x,14.5,z)])
-      const rail=new THREE.Line(railGeometry,new THREE.LineBasicMaterial({color:c,transparent:true,opacity:0.2}));content.add(rail);decorations.push({object:rail,mod:m.id})
-      const title=label(`${m.label} / ENCODER`,c,3,0.42);title.position.set(x,14.35,z);content.add(title);decorations.push({object:title,mod:m.id})
-      addNode(`${m.id}-input`,v(x,1.1,z),[2.45,0.12,1.35],c,`INPUT · ${m.label} · 192²`)
-      addNode(`${m.id}-stem`,v(x,1.95,z),[2.05,0.15,0.9],c)
-      addRoute([v(x,1.5,z),v(x,7,z),v(x,13.3,z)],c,0,0,m.id)
-      LEVELS.forEach(level=>{
-        const y=yFor(level.l),width=2.25-(level.l-1)*0.09
-        addNode(`${m.id}-encoder-${level.l}`,v(x,y,z),[width,0.28,0.95],c,`E${level.l} · ${level.feature}ch`)
-        addNode(`${m.id}-expert-${level.l}`,v(x,y-0.5,z+0.65),[1.75,0.16,0.36],c,level.l===7?'FC · μ, a':`Q${level.l} · μ, a`)
-        if(level.l<7)addNode(`${m.id}-down-${level.l}`,v(x,y+0.77,z),[0.35,0.15,0.35],c)
-        addRoute([v(x,y,z),v(x,y-0.35,z+0.45),v(x,y-0.5,z+0.65)],c,level.l,2,m.id)
-        addRoute([v(x,y-0.5,z+0.65),v(x*0.55,y-0.5,z*0.4+0.3),v(0,y-0.12,0.65)],c,level.l,level.l===7?1:2,m.id)
-        if(level.l<7)addRoute([v(0,y+0.7,-0.1),v(x*0.55,y+0.48,z-0.8),v(x,y-0.5,z+0.65)],'#769bad',level.l,2,m.id)
-      })
-      const output=addNode(`${m.id}-output`,v(x,-0.3,z+1),[2.75,0.13,1.9],c,`${m.label} / DECODER`)
-      output.children.filter(o=>o instanceof THREE.Sprite).forEach(o=>o.position.z=1.06)
-      for(let i=1;i<=6;i++)addNode(`${m.id}-resnet-${i}`,v(x-1.02+(i-1)*0.408,0.05,z+0.7),[0.29,0.3,0.65],c)
-      addNode(`${m.id}-image`,v(x,-1.25,z+1.9),[2.7,0.08,0.65],c,`OUTPUT · ${m.label} · x̂`)
-      addRoute([v(0,yFor(1)-0.35,0.6),v(x*0.45,0.8,z+1),v(x,0.15,z+1)],c,1,3,m.id)
-    })
-    LEVELS.forEach(level=>{
-      const y=yFor(level.l),l=level.l
-      addNode(`poe-${l}`,v(0,y,0.5),[2.15,0.3,1.22],'#ebdfb9',`PoE · z${l}`)
-      const dims=label(`${level.channels} × ${level.size}²`,'#adc0c5',1.75,0.26);dims.position.set(0,y-0.4,1.05);content.add(dims);decorations.push({object:dims,l})
-      addNode(`prior-${l}`,v(-1.5,y,0),[0.52,0.32,0.62],'#78b8ff',l===7?'N(0,I)':`P${l}`)
-      addNode(`sample-${l}`,v(1.5,y,0),[0.45,0.4,0.45],'#d8ff45',`z${l}`)
-      addRoute([v(-1.5,y,0),v(-0.75,y,0.4),v(0,y,0.5),v(1.5,y,0)],'#d8ff45',l,l===7?1:2)
-      if(l<7){
-        addNode(`up-${l}`,v(-0.62,y+0.95,-0.5),[0.85,0.16,0.58],'#78b8ff')
-        addNode(`decoder-${l}`,v(0.55,y+0.76,-0.22),[1.2,0.2,0.76],'#78b8ff',`D${l} · ×6`)
-        addRoute([l===6?v(0,13.65,-0.5):v(1.5,yFor(l+1),0),v(1.85,y+1.25,-0.8),v(-0.62,y+0.95,-0.5),v(0.55,y+0.76,-0.22),v(-1.5,y,0)],'#78b8ff',l,2)
-      }
-    })
-    addNode('lift',v(0,13.65,-0.5),[1.9,0.15,0.9],'#78b8ff','FC → 128 × 3²')
-    addRoute([v(1.5,yFor(7),0),v(1.6,13.5,-0.4),v(0,13.65,-0.5)],'#78b8ff',7,1)
-    const coreLabel=label('HIERARCHICAL FUSION','#f2e9d8',4.5,0.38);coreLabel.position.set(0,14.5,0);content.add(coreLabel)
-    // Orbital calibration follows the topology; the network remains the focal object.
-    const floor=new THREE.Group();floor.position.y=-1.5;scene.add(floor)
-    ;[4,7.5,11.7].forEach(radius=>{
-      const points=Array.from({length:129},(_,i)=>v(Math.cos(i/128*Math.PI*2)*radius,0,Math.sin(i/128*Math.PI*2)*radius*0.57))
-      floor.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points),new THREE.LineBasicMaterial({color:'#274454',transparent:true,opacity:0.5})))
-    })
-    for(let i=0;i<64;i++){
-      const a=i/64*Math.PI*2,r=11.7
-      floor.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([v(Math.cos(a)*r,0,Math.sin(a)*r*0.57),v(Math.cos(a)*(r+0.15),0,Math.sin(a)*(r+0.15)*0.57)]),new THREE.LineBasicMaterial({color:'#476270',transparent:true,opacity:i%4===0?0.65:0.3})))
-    }
-    let visible=true,dirty=true,frame=0,lastTime=0,elapsed=0,lastSignature='',lastView='',lastReset=-1,lastZoom=1,lastFocus=0
-    const draw=()=>{dirty=true}
-    controls.addEventListener('change',draw)
-    const resize=()=>{
-      const w=container.clientWidth,h=container.clientHeight
-      renderer.setSize(w,h); const halfHeight=Math.max(10.2,12.5/(w/h))
-      camera.left=-halfHeight*w/h;camera.right=halfHeight*w/h;camera.top=halfHeight;camera.bottom=-halfHeight;camera.updateProjectionMatrix();dirty=true
-    }
-    const observer=new ResizeObserver(resize);observer.observe(container);resize()
-    const intersection=new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;dirty=true},{rootMargin:'80px'});intersection.observe(container)
-    const raycaster=new THREE.Raycaster();const pointer=new THREE.Vector2();let downX=0,downY=0
-    const pick=(event:PointerEvent)=>{const rect=renderer.domElement.getBoundingClientRect();pointer.set((event.clientX-rect.left)/rect.width*2-1,-(event.clientY-rect.top)/rect.height*2+1);raycaster.setFromCamera(pointer,camera);return raycaster.intersectObjects(hitObjects).find(hit=>hit.object.parent?.visible)?.object.userData.nodeId as string|undefined}
-    const pointerdown=(e:PointerEvent)=>{downX=e.clientX;downY=e.clientY}
-    const pointerup=(e:PointerEvent)=>{if(Math.hypot(e.clientX-downX,e.clientY-downY)<5){const id=pick(e);if(id)latest.current.onSelect(id)}}
-    const pointermove=(e:PointerEvent)=>{if(e.buttons)return;const id=pick(e);setHover(id?NODE_MAP.get(id)!.title:'');renderer.domElement.style.cursor=id?'pointer':'grab'}
-    const leave=()=>setHover('')
-    const keydown=(e:KeyboardEvent)=>{
-      const offset=camera.position.clone().sub(controls.target)
-      const spherical=new THREE.Spherical().setFromVector3(offset)
-      if(e.key==='ArrowLeft')spherical.theta-=0.12
-      else if(e.key==='ArrowRight')spherical.theta+=0.12
-      else if(e.key==='ArrowUp')spherical.phi=Math.max(0.2,spherical.phi-0.1)
-      else if(e.key==='ArrowDown')spherical.phi=Math.min(1.5,spherical.phi+0.1)
-      else if(e.key==='+'||e.key==='=')camera.zoom=Math.min(2.8,camera.zoom*1.1)
-      else if(e.key==='-')camera.zoom=Math.max(0.65,camera.zoom/1.1)
-      else return
-      e.preventDefault();camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical));camera.updateProjectionMatrix();controls.update();dirty=true
-    }
-    renderer.domElement.addEventListener('pointerdown',pointerdown);renderer.domElement.addEventListener('pointerup',pointerup);renderer.domElement.addEventListener('pointermove',pointermove);renderer.domElement.addEventListener('pointerleave',leave);renderer.domElement.addEventListener('keydown',keydown)
-    const lost=(e:Event)=>{e.preventDefault();setError(true)};renderer.domElement.addEventListener('webglcontextlost',lost)
-    const animate=(now:number)=>{
-      frame=requestAnimationFrame(animate)
-      if(!visible||document.hidden){lastTime=now;return}
-      const p=latest.current,dt=Math.min((now-lastTime)/1000,0.05);lastTime=now
-      if(p.playing&&!p.reducedMotion)elapsed+=dt
-      const signature=[p.selected,p.observed.join(),p.target,p.level,p.isolate,p.spread,p.stage,p.playing,p.temperature,p.view,p.reset].join('|')
-      if(signature!==lastSignature){
-        lastSignature=signature;dirty=true
-        const selectedNode=NODE_MAP.get(p.selected)
-        for(const visual of visuals){
-          const {node,group,edge}=visual
-          const active=!node.mod||p.observed.includes(node.mod)||['output','resnet','image'].includes(node.kind)
-          const focused=!p.isolate||node.l===p.level||node.kind==='input'
-          group.visible=focused
-          const selected=node.id===p.selected
-          const opacity=active?1:0.2
-          for(const mat of visual.materials)mat.opacity=mat instanceof THREE.SpriteMaterial?(active?1:0.72):mat instanceof THREE.LineBasicMaterial?(selected?1:0.55)*opacity:opacity
-          edge.color.set(selected?'#ffffff':node.mod?MODALITIES.find(m=>m.id===node.mod)!.color:['poe'].includes(node.kind)?'#ebdfb9':['sample'].includes(node.kind)?'#d8ff45':'#78b8ff')
-          group.scale.setScalar(selected?1.09:1)
-          if(node.mod){const modality=MODALITIES.find(m=>m.id===node.mod)!;group.position.x=modality.x*(1+p.spread*0.12)+(node.kind==='resnet'?(-1.02+(Number(node.id.split('-').at(-1))-1)*0.408):0)}
-        }
-        for(const decoration of decorations){
-          const {object,mod,l}=decoration
-          object.visible=!p.isolate||l===undefined||l===p.level
-          if(mod){const m=MODALITIES.find(m=>m.id===mod)!;object.position.x=object instanceof THREE.Sprite?m.x*(1+p.spread*0.12):m.x*p.spread*0.12}
-        }
-        for(const route of routes){
-          const active=(!route.mod||p.observed.includes(route.mod)||route.stage===3)&&(!p.isolate||route.l===p.level||route.l===0)
-          const highlighted=route.l===p.level||route.stage===p.stage&&p.playing&&(p.stage===0||p.stage===3)
-          route.line.visible=active&&p.spread===0
-          ;(route.line.material as THREE.LineBasicMaterial).opacity=highlighted?0.5:0.055
-          route.particle.visible=active&&p.playing&&route.stage===p.stage&&(route.l===p.level||p.stage===0||p.stage===3)&&!p.reducedMotion&&p.spread===0
-        }
-        // Exploded towers expose modules; connections return in the aligned view.
-        if(selectedNode&&selectedNode.mod&&['output','resnet','image'].includes(selectedNode.kind))dirty=true
-      }
-      if(lastView!==p.view||lastReset!==p.reset){
-        lastView=p.view;lastReset=p.reset;camera.zoom=1;controls.target.set(0,7,0)
-        camera.position.set(...(p.view==='front'?[0,7,38]:p.view==='top'?[0,35,12]:[0,15,36]) as [number,number,number]);camera.updateProjectionMatrix();controls.update();dirty=true
-      }
-      controls.update()
-      if(lastZoom!==p.zoom){lastZoom=p.zoom;camera.zoom=p.zoom;camera.updateProjectionMatrix();dirty=true}
-      if(lastFocus!==p.focus){lastFocus=p.focus;const visual=visuals.find(v=>v.node.id===p.selected);if(visual){const offset=camera.position.clone().sub(controls.target);controls.target.copy(visual.group.position);camera.position.copy(controls.target).add(offset);camera.zoom=2.4;camera.updateProjectionMatrix();controls.update();dirty=true}}
-      if(p.playing&&!p.reducedMotion){routes.forEach((route,i)=>{if(route.particle.visible)route.particle.position.copy(route.curve.getPointAt((elapsed*(route.stage===0?0.16:0.4)+i*0.113)%1))});dirty=true}
-      if(dirty){renderer.render(scene,camera);dirty=false}
-    }
-    frame=requestAnimationFrame(animate)
-    return()=>{
-      cancelAnimationFrame(frame);observer.disconnect();intersection.disconnect();controls.dispose()
-      renderer.domElement.removeEventListener('pointerdown',pointerdown);renderer.domElement.removeEventListener('pointerup',pointerup);renderer.domElement.removeEventListener('pointermove',pointermove);renderer.domElement.removeEventListener('pointerleave',leave);renderer.domElement.removeEventListener('keydown',keydown);renderer.domElement.removeEventListener('webglcontextlost',lost)
-      const geometries=new Set<THREE.BufferGeometry>(),materials=new Set<THREE.Material>()
-      scene.traverse(obj=>{if('geometry'in obj)geometries.add((obj as THREE.Mesh).geometry);if('material'in obj){const mat=(obj as THREE.Mesh).material;(Array.isArray(mat)?mat:[mat]).forEach(m=>materials.add(m))}})
-      geometries.forEach(g=>g.dispose());materials.forEach(m=>m.dispose());textures.forEach(t=>t.dispose());renderer.dispose();renderer.domElement.remove()
-    }
-  },[])
-  return <div className="mm-orbit-host" ref={host}>
-    {error&&<div className="mm-webgl-fallback"><h4>当前浏览器无法显示三维场景</h4><p>完整架构仍可阅读：使用下方「模块目录」逐层查看所有 Encoder、Gaussian head、生成块和公式。</p><a href="#mm-module-directory">打开模块目录</a></div>}
-    {hover&&!error&&<div className="mm-hover-label">{hover}<span>点击查看内部算子</span></div>}
-  </div>
+    for(const v of parts){const active=v.part.id===(hoverPart||p.activePart),major=!!v.part.role||!!v.part.position||['tensor','image','gaussian','network','poe','sample','se'].includes(v.part.glyph);v.label.visible=major||active;v.dim.visible=major||active;v.group.scale.setScalar(active?1.12:1)}
+    for(const f of [...detailFlows,...connectors]){const active=!p.activePart||f.from===p.activePart||f.to===p.activePart;(f.line.material as T.LineBasicMaterial).opacity=active?.67:.16;f.arrow.visible=true;f.dot.visible=p.detailMotion&&!p.reducedMotion&&active;if(f.label)f.label.visible=active&&(!!p.activePart||connectors.includes(f)||f.from.startsWith('external')||f.to.startsWith('external'))}
+   }
+   if(detail){const t=p.reducedMotion?1:Math.min((now-detailStart)/900,1),k=1-(1-t)**3
+    if(t<1||parts.some(v=>!v.group.userData.arrived)){for(const v of parts){v.group.position.copy(v.dest).multiplyScalar(v.part.position?1:k);v.group.userData.arrived=t===1}if(cage)cage.scale.copy(detailExtent).multiplyScalar(.08+.92*k);dirty=true}
+   }
+   if((detail?p.detailMotion:p.playing)&&!p.reducedMotion){elapsed+=dt;for(const [i,f] of (detail?[...detailFlows,...connectors]:overviewFlows).entries())if(f.dot.visible)f.dot.position.copy(f.curve.getPointAt((elapsed*.36+i*.17)%1));dirty=true}
+   controls.update();if(dirty){renderer.domElement.dataset.camera=JSON.stringify([...camera.position.toArray(),...controls.target.toArray(),camera.zoom]);renderer.render(scene,camera);dirty=false}
+  };frame=requestAnimationFrame(animate)
+  return()=>{cancelAnimationFrame(frame);ro.disconnect();io.disconnect();controls.dispose();disposeGroup(scene);renderer.dispose();renderer.domElement.remove()}
+ },[])
+ return <div className="mm-orbit-host" ref={host}>{error&&<div className="mm-webgl-fallback"><h4>当前浏览器无法显示三维场景</h4><p>下方模块目录与内部算子序列仍可查看完整结构、来源、去向和公式。</p><a href="#mm-module-directory">打开模块目录</a></div>}{hover&&!error&&<div className="mm-hover-label">{hover}<span>{props.detailGraph?'选择算子查看数据与连接':'点击原位拆解 · 镜头将移入模块'}</span></div>}</div>
 }

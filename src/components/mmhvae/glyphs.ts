@@ -15,8 +15,9 @@ export function makeGlyph(kind: Glyph, color: string) {
     const bell=mesh(new T.LatheGeometry(points,32));bell.rotation.x=.32;ring(.78).rotation.x=Math.PI/2;line([[0,-.5,0],[0,.85,0]])
     for(const r of [.28,.5,.7]){const contour=ring(r);contour.rotation.x=Math.PI/2;contour.position.y=Math.exp(-r*r*7)*1.15-.45}
   }else if(kind==='poe'){
-    [0,Math.PI/3,-Math.PI/3].forEach(a=>{const r=ring(.67);r.rotation.y=a;r.rotation.x=.4})
-    mesh(new T.IcosahedronGeometry(.22,1));line([[-1,.6,0],[0,0,0],[1,0,0]]);line([[-1,-.6,0],[0,0,0]])
+    ring(.67).rotation.x=Math.PI/2
+    mesh(new T.CylinderGeometry(.38,.38,.14,32))
+    line([[-.2,.13,0],[.2,.13,0]]);line([[0,.13,-.2],[0,.13,.2]])
   }else if(kind==='sample'){
     mesh(new T.OctahedronGeometry(.47));ring(.78).rotation.y=.55
     for(let i=0;i<13;i++){const a=i*2.399;mesh(new T.SphereGeometry(.035,5,5),Math.cos(a)*(.55+i*.02),Math.sin(a)*(.55+i*.02),Math.sin(i)*.3)}
@@ -49,6 +50,7 @@ export function makeGlyph(kind: Glyph, color: string) {
     if(kind==='conv')mesh(new T.BoxGeometry(.3,.3,.07),.2,.1,.32)
     if(kind==='network')line([[-.7,0,0],[-.7,.7,0],[.85,.7,0],[.85,0,.3]])
   }
+  if(['tensor','image','conv','network','norm'].includes(kind))g.rotation.x=-Math.PI/2
   return g
 }
 

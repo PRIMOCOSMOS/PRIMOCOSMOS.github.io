@@ -1,17 +1,18 @@
 import { LEVELS, MODALITIES, NODE_MAP } from './model'
+import { modelTopology, levelY, type Point3 } from './topology'
 
 export type Glyph = 'tensor' | 'image' | 'conv' | 'depthwise' | 'norm' | 'activation' | 'linear' | 'pool' | 'se' | 'concat' | 'split' | 'gaussian' | 'poe' | 'sample' | 'up' | 'sum' | 'multiply' | 'network'
 export interface AnatomyPart {
   id: string; title: string; glyph: Glyph; shape: string; detail: string
-  child?: string; sourceName: string; color?: string; position?: [number, number]; mod?: string
+  child?: string; sourceName: string; color?: string; position?: Point3; mod?: string; role?: 'input' | 'output'
 }
 export interface AnatomyEdge { from: string; to: string; label?: string; residual?: boolean }
 export interface AnatomyGraph { title: string; parts: AnatomyPart[]; edges: AnatomyEdge[]; tensor: string; note: string }
 
 const dims = (c: number, s: number) => `${c} × ${s} × ${s}`
-export const glyphFor = (kind: string): Glyph => ({ input:'image', image:'image', stem:'conv', down:'conv', encoder:'network', decoder:'network', resnet:'network', output:'network', expert:'gaussian', prior:'gaussian', poe:'poe', sample:'sample', up:'up', lift:'linear', discriminator:'network' } as Record<string,Glyph>)[kind] ?? 'tensor'
+export const glyphFor = (kind: string): Glyph => ({ input:'image', image:'image', stem:'conv', down:'conv', feature:'tensor', concat:'concat', priorhead:'conv', factor:'gaussian', posterior:'gaussian', encoder:'network', decoder:'network', resnet:'network', output:'network', expert:'network', prior:'gaussian', poe:'poe', sample:'sample', up:'up', lift:'linear', discriminator:'network' } as Record<string,Glyph>)[kind] ?? 'tensor'
 
-export function anatomyFor(id: string, observed: string[] = MODALITIES.map(m=>m.id)): AnatomyGraph {
+function rawAnatomy(id: string, observed: string[] = MODALITIES.map(m=>m.id)): AnatomyGraph {
   if (id.startsWith('layer-')) return layerAnatomy(Number(id.slice(6)), observed)
   const [root, scope, channelOverride] = id.split('/')
   const node = NODE_MAP.get(root)!
@@ -43,6 +44,16 @@ export function anatomyFor(id: string, observed: string[] = MODALITIES.map(m=>m.
     act('sigmoid','Sigmoid')
     add('view','Broadcast','tensor',`${c} → ${c} × 1 × 1`,'reshape 成 B×C×1×1，广播到空间维度。','view')
     add('gate','通道加权','multiply',dims(c,s),'原特征 x 乘以广播后的门控系数。','x * se');link('input','gate','原特征',true);end()
+  } else if(node.kind==='concat') {
+    tensor('condition','生成特征 gₗ',c,s,null);tensor('input',`${node.mod} · Encoder skip`,c,s,null)
+    add('cat','Concat · dim=1','concat',`${c} + ${c} → ${2*c} × ${s}²`,'上一级样本经过上采样和 BlockDecoder 后得到 gₗ，再与本模态 skip 沿通道拼接。','torch.cat',undefined,'input');link('condition','cat','gₗ')
+  } else if(node.kind==='feature') {
+    tensor('input','BlockDecoder 输出',c,s,null);add('out','条件特征 gₗ','tensor',dims(c,s),'同一张量分流到先验头 P 和各模态的 Concat。','out')
+  } else if(node.kind==='priorhead') {
+    tensor('input','生成特征 gₗ',c,s,null);add('pz','WeightNorm Conv 1×1','conv',`${c} → ${c} ch`,'共享 pz[i]，bias=False。','pz[i]');add('split','chunk(2)','split',`${c} → ${c/2} + ${c/2}`,'分离均值与 log-scale。','chunk');add('mu','clamp μ','activation',`${c/2} ch`,'10 tanh(μ/10)。','soft_clamp',undefined,'split');add('scale','clamp a → exp','activation',`${c/2} ch`,'10 tanh(a/10)，再 exp 得到标准差。','soft_clamp',undefined,'split')
+  } else if(node.kind==='factor'||node.kind==='posterior') {
+    add('mu','均值 μ','tensor',node.shape,'均值张量。','loc',undefined,null);add('scale',node.kind==='factor'?'log-scale a':'标准差 T·s','tensor',node.shape,node.kind==='factor'?'残差专家以 log-scale 保存，不在这里采样。':'融合后的标准差乘以温度。','scale',undefined,null)
+    add('distribution',node.kind==='factor'?'残差 Expert':'融合后验 qₗ','gaussian',node.shape,node.description,'res_params / Normal',undefined,'mu');link('scale','distribution','scale')
   } else if(node.kind==='encoder') {
     tensor('input','输入特征',c,s,null);norm('bn_0');act('act_0');conv('conv_0',c,c);norm('bn_1');act('act_1');conv('conv_1',c,c);se();residue();end()
   } else if(node.kind==='decoder') {
@@ -75,7 +86,7 @@ export function anatomyFor(id: string, observed: string[] = MODALITIES.map(m=>m.
     add('output','生成影像','image','1 × 192 × 192','输出到本模态；四个 BlockFinalImg 均独立运行。','output_img')
   } else if(node.kind==='prior') {
     if(node.l===7){add('zeros','μ = 0','tensor','256-vector','固定标准正态先验的零均值。','zeros_like',undefined,null);add('ones','s = 1','tensor','256-vector','固定单位标准差。','ones_like',undefined,null)}
-    else {tensor('input','生成特征 gₗ',c,s,null);add('pz','WeightNorm Conv 1×1','conv',`${c} → ${c} ch`,'pz[i]：bias=False，同层先验 head 共享。','pz[i]');add('chunk','split μ / a','split',`${c} → ${c/2} + ${c/2}`,'chunk(2, dim=1)，分别获得均值与 log-scale。','chunk');add('zeros','clamp μ','activation',`${c/2} ch`,'10 tanh(μ/10)。','soft_clamp',undefined,'chunk');add('ones','clamp a → exp','activation',`${c/2} ch`,'先 soft_clamp，再 exp(a) 得到标准差。','exp(logvar)',undefined,'chunk')}
+    else {add('zeros','先验均值 μp','tensor',dims(c/2,s),'先验概率头输出并 soft-clamp 后的均值。','mu_zi_p',undefined,null);add('ones','先验标准差 sp','tensor',dims(c/2,s),'先验概率头 log-scale 经 exp 得到的标准差。','exp(logvar_zi_p)',undefined,null)}
     add('prior','条件先验 pₗ','gaussian',node.shape,'torch.distributions.Normal 的第二参数为标准差。','Normal',undefined,'zeros');link('ones','prior','scale')
   } else if(node.kind==='poe') {
     add('prior','先验 pₗ','gaussian',node.shape,'来自上一级潜变量的条件先验，或顶层 N(0,I)。','prior',`prior-${node.l}`,null)
@@ -110,40 +121,47 @@ export function anatomyFor(id: string, observed: string[] = MODALITIES.map(m=>m.
     if(node.kind==='input')add('batch','切片 batch','tensor','B × 1 × 192 × 192','3D 数据在入口被展成二维切片，网络使用 Conv2d。','reshape')
     else {add('mask','背景 mask','multiply','1 × 192 × 192','m = (first input > −1)，使用 2((x+1)/2·m)−1 保留背景。','mask');add('output','模态输出','image','1 × 192 × 192','模型输出，不是浏览器实际推理结果。','output_img')}
   }
-  return {title,parts,edges,tensor:node.shape,note}
+  return {title,parts,edges,tensor:scope==='se'?dims(c,s):node.shape,note}
 }
 
 function layerAnatomy(l:number,observed:string[]):AnatomyGraph {
-  const v=LEVELS.find(v=>v.l===l)!,parts:AnatomyPart[]=[],edges:AnatomyEdge[]=[]
-  const part=(id:string,title:string,glyph:Glyph,shape:string,position:[number,number],child?:string,mod?:string)=>parts.push({id,title,glyph,shape,position,child,mod,sourceName:child??id,detail:child&&NODE_MAP.has(child)?NODE_MAP.get(child)!.description:'层内计算路径；箭头表示真实的张量依赖。'})
-  const link=(from:string,to:string,label?:string)=>edges.push({from,to,label})
-  if(l<7){part('previous',`z${l+1} · 上一级样本`,'tensor',l===6?'256-vector':NODE_MAP.get(`sample-${l+1}`)!.shape,[-6,4.5],`sample-${l+1}`)
-    if(l===6){part('lift','Linear → Reshape','linear','256 → 128 × 3²',[-2,4.5],'lift');link('previous','lift');part('up','Upsample','up',NODE_MAP.get(`up-${l}`)!.shape,[2,4.5],`up-${l}`);link('lift','up')}
-    else {part('up','Upsample','up',NODE_MAP.get(`up-${l}`)!.shape,[0,4.5],`up-${l}`);link('previous','up')}
-    part('decoder','BlockDecoder','network',`${v.feature} × ${v.size}²`,[6,4.5],`decoder-${l}`);link('up','decoder')
+  const topology=modelTopology(),selected=new Set<string>()
+  for(const [id] of topology.positions){const n=NODE_MAP.get(id)!;if(n.l===l&&(!n.mod||observed.includes(n.mod))&&!['input','stem','down','output','image'].includes(n.kind))selected.add(id)}
+  if(l<7){selected.add(`posterior-${l+1}`);selected.add(`sample-${l+1}`);if(l===6)selected.add('lift')}
+  if(l>1)selected.add(l===7?'lift':`up-${l-1}`)
+  else for(const m of MODALITIES){selected.add(`${m.id}-output`);selected.add(`${m.id}-image`)}
+  const parts:AnatomyPart[]=[...selected].map(id=>{const n=NODE_MAP.get(id)!,p=topology.positions.get(id)!;return {id,title:n.title,glyph:glyphFor(n.kind),shape:n.shape,detail:n.description,sourceName:id,child:id,mod:n.mod,position:[p[0],p[1]-levelY(l),p[2]]}})
+  const edges=topology.links.filter(e=>selected.has(e.from)&&selected.has(e.to)).map(e=>({from:e.from,to:e.to,label:e.label}))
+  return {title:`z${l} · 三维层级推导`,parts,edges,tensor:NODE_MAP.get(`sample-${l}`)!.shape,note:'原位展示：上一级后验 → 采样 → 上采样 → Decoder → 生成特征。生成特征分为先验头与各模态 Concat / Q 两路，残差专家和先验在 PoE 汇合，再采样并进入下一级。'}
+}
+
+export function anatomyFor(id:string,observed:string[]=MODALITIES.map(m=>m.id)):AnatomyGraph {
+  const graph=rawAnatomy(id,observed)
+  if(id.startsWith('layer-'))return graph
+  const [root,scope]=id.split('/'),node=NODE_MAP.get(root)!,l=node.l,mod=node.mod
+  const topology=modelTopology()
+  let inputs=topology.links.filter(e=>e.to===root).map(e=>({id:e.from,to:graph.parts.some(p=>p.id==='input')?'input':graph.parts[0].id,label:e.label}))
+  let outputs=topology.links.filter(e=>e.from===root).map(e=>e.to)
+  if(node.kind==='expert'&&l<7)inputs=[{id:`${mod}-encoder-${l}`,to:'input',label:'本模态 skip'},{id:`feature-${l}`,to:'condition',label:'中央生成特征 gₗ'}]
+  if(node.kind==='concat')inputs=[{id:`${mod}-encoder-${l}`,to:'input',label:'本模态 skip'},{id:`feature-${l}`,to:'condition',label:'中央生成特征 gₗ'}]
+  if(node.kind==='poe')inputs=[{id:`prior-${l}`,to:'prior',label:'条件先验'},...observed.map(m=>({id:`${m}-factor-${l}`,to:'factors',label:'残差专家参数'}))]
+  if(node.kind==='sample')inputs=[{id:`posterior-${l}`,to:'q',label:'融合后验分布'}]
+  if(node.kind==='resnet'){const index=Number(root.split('-').at(-1));inputs=[{id:index===1?'sample-1':`${mod}-resnet-${index-1}`,to:'input',label:index===1?'共享 z₁':'前一残差块'}];outputs=[index===6?`${mod}-output`:`${mod}-resnet-${index+1}`]}
+  if(node.kind==='prior'&&l<7)inputs=[{id:`prior-head-${l}`,to:'zeros',label:'μp 参数'},{id:`prior-head-${l}`,to:'ones',label:'sp 参数'}]
+  if(node.kind==='factor'||node.kind==='posterior')inputs=inputs.flatMap(v=>[{...v,to:'mu',label:'均值 μ'},{...v,to:'scale',label:node.kind==='factor'?'log-scale a':'标准差 T·s'}])
+  if(scope==='se'){inputs=[{id:root,to:'input',label:node.kind==='decoder'?'来自 act_2':'来自 conv_1'}];outputs=[root]}
+  const terminal=graph.parts.filter(p=>!graph.edges.some(e=>e.from===p.id)).map(p=>p.id)
+  for(const [i,input] of inputs.entries()){
+    const n=NODE_MAP.get(input.id);if(!n)continue
+    const key=`external-in-${i}`
+    graph.parts.push({id:key,title:`输入 · ${n.title}`,glyph:glyphFor(n.kind),shape:scope==='se'?graph.parts.find(p=>p.id==='input')!.shape:n.shape,detail:`${input.label}。来源：${n.title}；沿箭头进入当前模块。`,sourceName:input.id,child:input.id,role:'input',mod:n.mod})
+    graph.edges.push({from:key,to:input.to,label:input.label})
   }
-  part('prior',l===7?'固定先验 N(0,I)':'条件先验 pₗ','gaussian',NODE_MAP.get(`prior-${l}`)!.shape,[-7,-1.2],`prior-${l}`)
-  if(l<7)link('decoder','prior','pz · μp, sp')
-  observed.forEach((mod,i)=>{
-    const m=MODALITIES.find(v=>v.id===mod)!,x=(i-(observed.length-1)/2)*3.6
-    part(`${mod}-skip`,`${m.label} · skip`,'tensor',`${v.feature} × ${v.encoderSize}²`,[x,1.5],`${mod}-encoder-${l}`,mod)
-    part(`${mod}-q`,`${m.label} · residual expert`,'gaussian',`μ, log s · ${v.channels}ch`,[x,-1.2],`${mod}-expert-${l}`,mod)
-    link(`${mod}-skip`,`${mod}-q`,l===7?'Flatten → Linear':'Concat → BlockQ')
-    if(l<7)link('decoder',`${mod}-q`,'gₗ')
-    link(`${mod}-q`,'poe')
-  })
-  part('poe','Product of Experts','poe',`${observed.length} experts + prior`,[-3,-4.2],`poe-${l}`);link('prior','poe')
-  part('posterior','融合后验 qₗ','gaussian',`μₗ, T·sₗ`,[1,-4.2],`poe-${l}`);link('poe','posterior')
-  part('sample',`rsample → z${l}`,'sample',NODE_MAP.get(`sample-${l}`)!.shape,[5,-4.2],`sample-${l}`);link('posterior','sample')
-  if(l>1){
-    const next=l===7?'lift':`up-${l-1}`
-    part('next',l===7?'恢复空间 → 下一级':'进入下一级 Upsample','up',NODE_MAP.get(next)!.shape,[5,-7],next);link('sample','next',`z${l}`)
-  }else{
-    MODALITIES.forEach((m,i)=>{const x=(i-1.5)*4
-      part(`${m.id}-output`,`${m.label} · 独立 Decoder`,'network','6 Resnet → Conv7 → Conv7',[x,-7.3],`${m.id}-output`,m.id)
-      part(`${m.id}-image`,`${m.label} · OUTPUT`,'image','1 × 192 × 192',[x,-10],`${m.id}-image`,m.id)
-      link('sample',`${m.id}-output`,'共享 z₁');link(`${m.id}-output`,`${m.id}-image`,'Tanh · mask')
-    })
+  for(const [i,out] of outputs.entries()){
+    const n=NODE_MAP.get(out);if(!n)continue
+    const key=`external-out-${i}`,finalResnet=node.kind==='resnet'&&root.endsWith('-6')
+    graph.parts.push({id:key,title:finalResnet?`输出 → ${mod} · convt2 (7×7)`:`输出 → ${n.title}`,glyph:finalResnet?'conv':glyphFor(n.kind),shape:scope==='se'?graph.parts.find(p=>p.id==='input')!.shape:finalResnet?'8 × 192 × 192':n.shape,detail:`当前模块输出流向 ${n.title}。${scope==='se'?'返回原块，继续投影或残差相加。':finalResnet?'具体进入 convt2 (8→8, 7×7)，再经 IN、LeakyReLU、convt3 与 Tanh。':''}`,sourceName:finalResnet?`final_blocks.${mod}.convt2`:out,child:out,role:'output',mod:n.mod})
+    for(const from of terminal)graph.edges.push({from,to:key,label:scope==='se'?'通道门控特征':'输出张量'})
   }
-  return {title:`z${l} · 条件先验与观测专家的完整汇合`,parts,edges,tensor:NODE_MAP.get(`sample-${l}`)!.shape,note:'上一级先生成条件特征 gₗ；它分流至先验 P 和每个观测模态的 Q。PoE 只融合概率参数，随后采样 zₗ，再进入下一级上采样网络。'}
+  return graph
 }

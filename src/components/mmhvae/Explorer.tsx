@@ -7,12 +7,11 @@ import { COMMIT, LEVELS, MODALITIES, NODES, NODE_MAP, STAGES, source, type Model
 import './mmhvae.css'
 import { anatomyFor } from './anatomy'
 const OrbitScene=lazy(()=>import('./OrbitScene'))
-const AnatomyScene=lazy(()=>import('./AnatomyScene'))
 function ShapeLegend(){
   return <div className="mm-shape-legend" aria-label="三维形态图例">
     <span><svg viewBox="0 0 28 24" aria-hidden="true"><path d="M3 7h16v13H3zM7 4h16v13M11 1h16v13"/></svg>层片 · 特征张量</span>
     <span><svg viewBox="0 0 28 24" aria-hidden="true"><path d="M1 20c7 0 7-17 13-17s6 17 13 17M1 20h26M14 2v20"/></svg>钟形 · Gaussian</span>
-    <span><svg viewBox="0 0 28 24" aria-hidden="true"><ellipse cx="14" cy="12" rx="12" ry="5"/><ellipse cx="14" cy="12" rx="5" ry="11"/></svg>交环 · PoE</span>
+    <span><svg viewBox="0 0 28 24" aria-hidden="true"><ellipse cx="14" cy="12" rx="12" ry="6"/><path d="M9 12h10M14 8v8"/></svg>汇合盘 · PoE</span>
     <span><svg viewBox="0 0 28 24" aria-hidden="true"><path d="m14 2 10 10-10 10L4 12Z M4 12h20M14 2v20"/></svg>晶体 · 随机采样</span>
     <span><svg viewBox="0 0 28 24" aria-hidden="true"><path d="M3 3h22L19 20H9ZM3 3l6 17M25 3l-6 17M9 20h10"/></svg>尺度锥 · 上采样</span>
   </div>
@@ -104,18 +103,17 @@ export function MMHVAEExplorer() {
       </div></div>
       <div className={`mm-scene-wrap${anatomy?' has-anatomy':''}`} ref={sceneWrap}>
         <div className="mm-scene-status"><span className={playing?'mm-live-dot is-playing':'mm-live-dot'}/>{playing?'信号流播放中':'自由探索'}<span>2D 网络 / 3D 拓扑</span></div>
-        {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={26}/><span>正在构建七层模型空间…</span></div>}><OrbitScene selected={selected} observed={observed} target={target} level={level} isolate={isolate} spread={spread} playing={playing&&inView&&!detailId} stage={stage} temperature={temperature} view={view} reset={reset} zoom={zoom} focus={focus} reducedMotion={reducedMotion} onSelect={select}/></Suspense>:<div className="mm-loading">三维模型将在进入视野后加载</div>}
+        {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={26}/><span>正在构建七层模型空间…</span></div>}><OrbitScene selected={selected} observed={observed} target={target} level={level} isolate={isolate} spread={spread} playing={playing&&inView&&!detailId} stage={stage} temperature={temperature} view={view} reset={reset} zoom={zoom} focus={focus} reducedMotion={reducedMotion} onSelect={select} detailId={detailId} detailGraph={anatomy} activePart={activePart} detailMotion={detailMotion&&inView&&!editing} detailZoom={detailZoom} onPart={setActivePart}/></Suspense>:<div className="mm-loading">三维模型将在进入视野后加载</div>}
         {anatomy&&<div className="mm-anatomy-overlay">
           <div className="mm-anatomy-nav"><button onClick={closeDetail}><RotateCcw size={14}/>返回总览</button><div aria-label="拆解路径">{detailPath.map((id,i)=><button key={`${id}-${i}`} aria-current={i===detailPath.length-1?'location':undefined} onClick={()=>{setDetailPath(path=>path.slice(0,i+1));setActivePart(null)}}>{i>0&&<ChevronRight size={12}/>}<span>{id.startsWith('layer-')?`z${id.slice(6)} 推导`:id.includes('/se/')?'SE 门控':NODE_MAP.get(id)?.title??id}</span></button>)}</div><button aria-label={detailMotion?'暂停内部数据流':'播放内部数据流'} onClick={()=>setDetailMotion(v=>!v)}>{detailMotion?<Pause size={14}/>:<Play size={14}/>}</button></div>
-          <Suspense fallback={<div className="mm-loading">正在展开内部结构…</div>}><AnatomyScene zoom={detailZoom} graph={anatomy} active={activePart} motion={detailMotion&&inView&&!editing} reducedMotion={reducedMotion} onSelect={setActivePart}/></Suspense>
-          <div className="mm-anatomy-hint"><span>透明外壳 · 箭头表示张量依赖</span><span>点击算子查看细节 · Esc 返回上级</span></div>
+          <div className="mm-anatomy-hint"><span>同一空间 · 保留原模块轮廓</span><span>输入来自何处 / 输出流向何处 · Esc 返回</span></div>
         </div>}
         <div className="mm-scene-foot"><span>拖动旋转 · 点击模块 · 双指平移</span><span>Encoder ↑ <i/> 生成路径 ↓</span></div>
       </div>
       {anatomy&&<section className="mm-anatomy-readout" aria-label="内部算子与张量">
         <div className="mm-anatomy-caption"><strong>{anatomy.title}</strong><span>{anatomy.parts.length} 个算子 / 张量节点</span></div>
         <EditableText textKey={`mm-anatomy-note-${detailId}`}>{anatomy.note}</EditableText>
-        <div className="mm-part-list" aria-label="内部算子序列">{anatomy.parts.map((p,i)=><button key={p.id} aria-pressed={activePart===p.id} onClick={()=>setActivePart(p.id)}><small>{String(i+1).padStart(2,'0')}</small>{p.title}{p.child&&<ChevronRight size={12}/>}</button>)}</div>
+        <div className="mm-part-list" aria-label="内部算子序列">{anatomy.parts.map((p,i)=><button key={p.id} aria-pressed={activePart===p.id} onClick={()=>setActivePart(p.id)}><small>{p.role==='input'?'IN':p.role==='output'?'OUT':String(i+1).padStart(2,'0')}</small>{p.title}{p.child&&<ChevronRight size={12}/>}</button>)}</div>
         {part?<div className="mm-part-detail" aria-live="polite"><div><span className="mm-part-source">{part.sourceName}</span><h4>{part.title}</h4><EditableText textKey={`mm-part-${detailId}-${part.id}`}>{part.detail}</EditableText>{part.child&&<button className="mm-drill-button" onClick={()=>drill(part.child!)}>继续拆解 {part.title}<ChevronRight size={15}/></button>}</div><div className="mm-tensor-readout"><div className="mm-tensor-stack" aria-hidden="true"><i/><i/><i/><i/></div><span>张量 / 参数变化</span><strong>{part.shape}</strong><small>C 通道 · H 高度 · W 宽度<br/>层片数为示意；B 为 batch 维</small></div></div>:<p className="mm-part-prompt">选择图中节点或上方算子，查看参数、张量变化与下一层结构。</p>}
       </section>}
       <div className="mm-layer-entry"><span>z{level} · 上一级样本 → 条件先验 + 残差专家 → PoE → 采样</span><button onClick={()=>openDetail(`layer-${level}`)}><Layers3 size={15}/>展开本层完整推导<ChevronRight size={14}/></button></div>
