@@ -1,0 +1,48 @@
+.silicon-home{--aim-x:0px;--aim-y:0px;position:relative;isolation:isolate;min-height:100svh;background:#020305;color:#fff;overflow:hidden;display:flex;flex-direction:column;font-family:"Microsoft YaHei UI","Segoe UI",sans-serif}
+.silicon-atmosphere{position:absolute;inset:0;z-index:-1;overflow:hidden;background:#020305;pointer-events:none}
+.silicon-colossus{position:absolute;width:105%;height:105%;max-width:none;inset:-2.5%;object-fit:cover;object-position:center;transform:translate(var(--aim-x),var(--aim-y)) scale(1.025);filter:brightness(.76);will-change:transform}
+.silicon-atmosphere:after{content:"";position:absolute;inset:0;background:linear-gradient(0deg,#020305 0%,transparent 19%,transparent 75%,#02030525 100%)}
+.silicon-grazing-light{position:absolute;inset:-20%;background:linear-gradient(113deg,transparent 57%,#769cd000 61%,#769cd01a 63%,transparent 66%);mix-blend-mode:screen;opacity:0;transform:translateX(-12%)}
+.silicon-haze{position:absolute;left:35%;right:-20%;bottom:6%;height:26%;background:radial-gradient(ellipse at 55% 50%,#416eaa14,transparent 65%);filter:blur(28px);opacity:.5}
+.silicon-header{display:flex;align-items:center;justify-content:space-between;padding:26px 5.5vw;min-height:100px;position:relative;z-index:3}
+.silicon-signature{display:block;width:42px;height:46px;transform:rotate(-9deg)}
+.silicon-signature svg{width:100%;height:100%}
+.silicon-header nav{display:flex;gap:32px;align-items:center}
+.silicon-header nav a{display:flex;align-items:center;gap:10px;font-size:18px;min-height:44px;color:#d6dce5}
+.silicon-header nav a:hover{color:#fff}
+.silicon-main{display:flex;flex-direction:column;flex:1;width:100%;padding:0 5.5vw;outline:none}
+.silicon-identity{padding:clamp(100px,16vh,210px) 0 72px;flex:1}
+.silicon-identity h1{width:min(80vw,1230px);margin:0 0 26px -18px;line-height:1;color:#fff;font-weight:normal;position:relative}
+.silicon-wordmark{display:block;width:100%;height:auto;overflow:visible;filter:drop-shadow(0 3px 10px #0008)}
+.silicon-sr-only{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.silicon-entry{padding-left:14px}
+.silicon-enter{display:flex;align-items:center;justify-content:space-between;width:300px;padding:20px 25px;background:#fff;color:#06090e;font-size:22px;font-weight:600;clip-path:polygon(0 0,100% 0,100% 72%,94% 100%,0 100%);transition:background .2s,clip-path .25s}
+.silicon-enter:hover{background:#cfe2ff;clip-path:polygon(0 0,100% 0,100% 100%,100% 100%,0 100%)}
+.silicon-enter svg{transition:transform .25s}.silicon-enter:hover svg{transform:translate(3px,-3px)}
+.silicon-description{font-size:20px;line-height:1.9;color:#c4cedb;margin:24px 0 0;max-width:65ch}
+.silicon-archives{display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid #4a525b80;margin-top:auto}
+.silicon-archives>a{position:relative;display:flex;flex-direction:column;gap:8px;padding:24px 30px 24px 0;min-width:0}
+.silicon-archives>a+a{border-left:1px solid #4a525b60;padding-left:30px}
+.silicon-archives span{font-family:var(--display);font-weight:500;font-size:18px;color:#e6ebf1}
+.silicon-archives small{font-size:12px;color:#a9b7c9}
+.silicon-archives svg{position:absolute;right:24px;top:28px;color:#a9b7c9;transition:transform .25s}
+.silicon-archives a:hover svg{transform:translate(3px,-3px);color:#fff}.silicon-archives a:hover span{color:#fff}
+.silicon-home .silicon-footer{display:flex;justify-content:space-between;gap:20px;align-items:center;border:0;background:#020305;padding:16px 5.5vw 20px;font-size:10px;color:#99a9bc;min-height:65px;font-family:inherit}
+.silicon-footer>div{display:flex;gap:22px;align-items:center}
+.silicon-footer button{display:flex;align-items:center;gap:6px;border:0;background:none;color:#b7c3d2;padding:8px 0;cursor:pointer;font-size:11px}
+.silicon-footer details{position:relative}.silicon-footer summary{cursor:pointer;padding:8px 0;font-size:11px;color:#b7c3d2}
+.silicon-footer .note-edit-toolbar{position:absolute;bottom:40px;right:0;width:min(500px,86vw);padding:20px;background:#0b111b;border:1px solid #556579;z-index:5}
+.silicon-home a:focus-visible,.silicon-home button:focus-visible,.silicon-home summary:focus-visible{outline-color:#b7d5ff;outline-offset:5px}
+.silicon-transition{position:fixed;inset:0;background:#bcd8ff;clip-path:polygon(110% 0,112% 0,65% 100%,63% 100%);opacity:0;pointer-events:none;z-index:100}
+.is-animated .silicon-grazing-light{animation:silicon-light 16s ease-in-out infinite}
+.is-animated .silicon-haze{animation:silicon-haze 19s ease-in-out infinite alternate}
+.is-departing .silicon-transition{animation:silicon-depart .42s cubic-bezier(.22,.6,.25,1) forwards}
+.is-departing .silicon-identity{transition:opacity .35s,transform .4s;opacity:0;transform:translateX(-15px)}
+.is-background *{animation-play-state:paused!important}
+@keyframes silicon-light{0%,32%,100%{opacity:0;transform:translateX(-12%)}48%{opacity:.65}65%{opacity:0;transform:translateX(12%)}}
+@keyframes silicon-haze{from{transform:translate(-20px,10px);opacity:.3}to{transform:translate(20px,-8px);opacity:.7}}
+@keyframes silicon-depart{0%{opacity:0}25%{opacity:.9}100%{opacity:1;clip-path:polygon(-10% 0,110% 0,110% 100%,-10% 100%);background:#020305}}
+@media(min-width:1700px){.silicon-identity{padding-top:18vh}.silicon-identity h1{width:75vw;max-width:1450px}}
+@media(max-width:760px){.silicon-header{padding:20px 6vw;min-height:82px}.silicon-header nav{gap:22px}.silicon-header nav a{font-size:12px}.silicon-signature{width:33px;height:38px}.silicon-main{padding:0 6vw}.silicon-colossus{object-position:65% center;width:135%;left:-22%;filter:brightness(.6)}.silicon-identity{padding-top:150px;padding-bottom:70px}.silicon-identity h1{width:96vw;margin-left:-5vw;margin-bottom:30px}.silicon-entry{padding-left:0}.silicon-enter{width:265px;font-size:15px;padding:18px 22px}.silicon-description{font-size:12px;margin-top:20px}.silicon-archives{grid-template-columns:1fr}.silicon-archives>a,.silicon-archives>a+a{padding:17px 35px 17px 0;border-left:0;border-bottom:1px solid #343c4760;gap:6px}.silicon-archives span{font-size:16px}.silicon-archives small{font-size:11px}.silicon-archives svg{right:0;top:23px}.silicon-home .silicon-footer{padding:18px 6vw;align-items:flex-start}.silicon-footer>div{gap:15px}.silicon-footer>span{font-size:9px;padding-top:9px}.silicon-footer summary,.silicon-footer button{font-size:12px}}
+@media(max-width:380px){.silicon-header nav{gap:14px}.silicon-identity{padding-top:125px}.silicon-footer>div{gap:9px}}
+@media(prefers-reduced-motion:reduce){.silicon-home *{animation:none!important;transition:none!important}.silicon-colossus{will-change:auto;transform:none}}

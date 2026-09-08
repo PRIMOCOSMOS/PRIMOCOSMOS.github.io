@@ -48,6 +48,7 @@ The site turns literature review into an explorable model laboratory: readers ca
 ## Brand Commitments
 
 - Public identity: PRIMOCOSMOS.
+- Independent home identity: PRIMOCOSMOS：SILICONDEVINE, preserving the user-supplied spelling. The approved S2 Silicon Idol direction uses a black ground, white industrial lettering, an aggressive emblem integrated with the lettering, and restrained cold motion. Visitors enter the existing literature archive from this separate home surface.
 - Science-fiction, geek, and avant-garde character.
 - Overdrive mode: ambitious browser-native interaction and expressive art direction are required, while the research remains legible and credible.
 - The visual language must be specific to multimodal medical imaging and latent-variable research, not a generic neon technology template.

@@ -1,7 +1,10 @@
 ---
-name: PRIMOCOSMOS Multimodal Signal Lab
-description: A deep-space personal cover opening into an interactive multimodal research notebook.
+name: PRIMOCOSMOS — Silicon Idol & Multimodal Signal Lab
+description: An independent industrial identity opening into a scientifically grounded interactive research notebook.
 colors:
+  silicon-black: "#020305"
+  silicon-white: "#fff"
+  silicon-secondary-ink: "#a9b7c9"
   event-horizon-black: "#05080b"
   orbital-navy: "#07111f"
   notebook-black: "#05090d"
@@ -24,6 +27,14 @@ colors:
   cool-telemetry-hairline: "rgba(203, 227, 213, 0.18)"
   active-lime-hairline: "rgba(216, 255, 69, 0.34)"
 typography:
+  home-navigation:
+    fontFamily: '"Microsoft YaHei UI", "Segoe UI", sans-serif'
+    fontSize: "18px"
+    fontWeight: 400
+  home-archive-title:
+    fontFamily: '"Tektur Variable", "Noto Sans SC", sans-serif'
+    fontSize: "18px"
+    fontWeight: 500
   display:
     fontFamily: '"Tektur Variable", "Noto Sans SC", sans-serif'
     fontSize: "clamp(4rem, 8.2vw, 6rem)"
@@ -74,6 +85,13 @@ spacing:
   xl: "2rem"
   section: "clamp(4.75rem, 9vw, 9rem)"
 components:
+  home-navigation-link:
+    backgroundColor: "transparent"
+    textColor: "#d6dce5"
+    typography: "{typography.home-navigation}"
+    height: "44px"
+  home-navigation-link-hover:
+    textColor: "{colors.silicon-white}"
   primary-action:
     backgroundColor: "{colors.observed-signal-lime}"
     textColor: "{colors.event-horizon-black}"
@@ -132,32 +150,38 @@ components:
     padding: "0"
 ---
 
-# Design System: PRIMOCOSMOS Multimodal Signal Lab
+# Design System: PRIMOCOSMOS — Silicon Idol & Multimodal Signal Lab
 
 ## Overview
 
-**Creative North Star: "Deep-Space Telemetry Array"**
+**Creative North Star: "Silicon Idol / Deep-Space Telemetry Array"**
 
-PRIMOCOSMOS is a dark science-fiction personal field station rather than a conventional portfolio. An independent, full-viewport cover introduces the identity through a live signal field, clipped orbital framing, a compact field-index console, and a three-cell archive status rail. Entering Research changes the pacing from cinematic identity to a rigorous, tabbed academic notebook without leaving the same material world.
+PRIMOCOSMOS has two deliberately separate visual scopes. The home route uses the approved Silicon Idol identity: black sculptural material, white authored industrial lettering, an aggressive blade integrated into the lettering, and restrained cold light. Research keeps its incumbent Deep-Space Telemetry Array notebook and scientific semantics. The shared identity and real paper destinations connect these scopes; their palettes and display treatments do not become interchangeable.
+
+Scope authority: home rules apply to `src/components/home/` and `#/`; research rules apply to `src/ResearchPage.tsx`, the research components, and `#/research/<paper>`. The home wordmark preserves the exact spelling **PRIMOCOSMOS：SILICONDEVINE**. Its first-screen composition and generated colossus asset belong to `.impeccable/surfaces/src-components-home-home-tsx.md`, not a mandatory template for future pages. The legacy orbital-cover styles remain in the stylesheet but no longer define the home identity. Existing unprefixed frontmatter primitives remain research-scoped unless explicitly identified otherwise; `home-*` and `silicon-*` entries are home-scoped.
 
 The notebook is intentionally dense and operational. Three mutually exclusive paper tabs expose complete notes in a stable Abstract → Method → Evaluation sequence. The Method band expands beyond the reading column and gives each paper a browser-native model laboratory: large labeled SVG schematics, controls that alter observed modalities or gradient routes, generated MRI slices, trend plots, formula disclosures, and plain-language status readouts. Expressive details must explain identity, hierarchy, state, information flow, or evidence—not decorate empty space.
 
 **Key Characteristics:**
 
-- Separate cinematic personal cover and dense research notebook, joined by one phosphor-lime entry action.
+- Independent monochrome industrial home and dense scientific notebook, joined by direct paper navigation.
 - Matte near-black and navy tonal decks, clipped instrument housings, one-pixel calibration rails, and almost no soft elevation.
 - Semantic signal colors: lime for observed/active/measurement state, blue for shared/reference structure, orange for correction or blocked gradients, and violet/coral/lavender for distinct latent factors.
 - One complete paper mounted at a time through a keyboard-operable, three-item tab bar.
 - Exhaustive interactive architectures whose controls, routes, captions, readouts, and equations stay synchronized.
-- Responsive reflow around fixed scientific topology: every dense model canvas stays horizontally scrollable and keyboard focusable.
+- Responsive reflow around scientific topology: existing planar diagrams scroll horizontally; MMHVAE preserves its vertical spatial hierarchy and accessible hierarchy browser.
 
 ## Colors
 
-The palette resembles a scientific instrument deck: near-black tonal layers carry the reading experience, warm neutrals carry prose, and chromatic signals have fixed scientific meanings.
+The following primary/secondary/tertiary scientific roles are research-scoped. The home uses Silicon Black, Silicon White, and cool secondary ink; ice-blue hover/focus feedback and material lighting stay restrained. Its white action and pale focus ring do not inherit the research lime action treatment. The shared skip link and browser-local edit tools retain their existing accessible research styling.
+
+**The Two-World Rule.** Keep the home’s monochrome industrial identity and the research notebook’s scientific color meanings scoped to their own surfaces.
+
+The research palette resembles a scientific instrument deck: near-black tonal layers carry the reading experience, warm neutrals carry prose, and chromatic signals have fixed scientific meanings.
 
 ### Primary
 
-- **Observed-Signal Lime:** Used for the sole cover CTA, active paper rail, selected controls, measured inputs, live reconstruction phases, numeric outputs, selection highlight, and all focus outlines.
+- **Observed-Signal Lime:** Used for research transport actions, active paper rail, selected controls, measured inputs, live reconstruction phases, numeric outputs, selection highlight, and all focus outlines.
 
 ### Secondary
 
@@ -173,7 +197,7 @@ The palette resembles a scientific instrument deck: near-black tonal layers carr
 ### Neutral
 
 - **Event-Horizon Black:** Page canvas, dark action text, and the base behind all instrument decks.
-- **Orbital Navy:** Full-viewport personal-cover field.
+- **Orbital Navy:** Retained legacy field token; no longer the independent home canvas.
 - **Notebook Black:** Research notebook ground, slightly lifted from the page void.
 - **Method-Deck Navy:** Paper tabs, full-bleed Method bands, and the narrow-screen scrollbar track.
 - **Architecture Night / Diagram-Bay Black:** Outer architecture housings and their inset SVG/Canvas bays.
@@ -192,6 +216,17 @@ The palette resembles a scientific instrument deck: near-black tonal layers carr
 
 ## Typography
 
+### Silicon Idol home
+
+The display identity is authored SVG geometry, not a font substitution: two lines of engineered glyphs, cut strokes, and an interlocked blade. Keep the semantic HTML heading and hidden full brand text paired with the decorative SVG. The inherited Tektur face is used for paper names; ordinary home navigation and prose use the local Microsoft YaHei UI / Segoe UI sans stack.
+
+The implemented desktop hierarchy is navigation and archive names at 18px, the archive action at 22px/600, and descriptive text at 20px with 1.9 line height. These are component measurements, not a new global scale. At the home mobile breakpoint navigation, description, and motion/edit controls use at least 12px; the action uses 15px and paper names 16px. Small archive topic and passive brand labels remain subordinate metadata, not sizing precedents for interactive controls.
+
+**The Authored Identity Rule.** Preserve the bespoke wordmark’s complete lettering and integrated blade; do not replace it with a system display face or a detached generic icon.
+
+### Research notebook
+
+
 **Display Font:** Tektur Variable (bundled through `@fontsource-variable/tektur`, with Noto Sans SC and sans-serif fallbacks)  
 **Body Font:** Noto Sans SC (with Microsoft YaHei UI, PingFang SC, and sans-serif fallbacks)  
 **Label/Mono Font:** Tektur Variable for telemetry labels; Cascadia Code (with SFMono-Regular and monospace fallbacks) for dense SVG microcopy and edit-state messaging  
@@ -201,7 +236,7 @@ The palette resembles a scientific instrument deck: near-black tonal layers carr
 
 ### Hierarchy
 
-- **Display** (625, fluid 4–6rem, 0.84): The two-line `FIELD NOTES / FROM THE EDGE` cover transmission. At the narrowest breakpoint it shifts to a fluid 2.8–4.1rem with 0.9 line height.
+- **Legacy display** (625, fluid 4–6rem, 0.84): Retained orbital-cover type token; it does not control the authored Silicon Idol wordmark.
 - **Headline** (570–600, fluid 1.7–4rem, 1.02–1.08): Research title and paper titles; always balanced and tightly tracked.
 - **Title** (580, fluid 1.45–2.25rem, approximately 1.2): Abstract, Method, and Evaluation block headings. Compact instrument subheads fall to 0.9–1rem.
 - **Body** (400, usually 0.83–0.84rem, 1.7–1.88): Translations, method explanation, evidence, and caveats. Emphasis comes from space and color rather than increased weight.
@@ -217,21 +252,30 @@ The palette resembles a scientific instrument deck: near-black tonal layers carr
 
 ## Layout
 
-The site alternates full-bleed telemetry fields with centered reading shells. Standard content uses `min(84rem, 88vw)`; the personal cover uses `min(90rem, 86vw)`; the full-bleed Method band centers a wider `min(92rem, 92vw)` working surface. Section spacing follows a fluid 4.75–9rem vertical rhythm. One-pixel rails, numbered block headings, and 0.5–2rem internal spacing organize high information density.
+### Silicon Idol home
 
-The cover is a full-viewport two-column identity/console composition with a fixed 7.9rem three-cell index along the bottom. The notebook begins with a thesis/explanation split, then three equal-width paper tabs and one mounted `tabpanel`. Each paper repeats a stable reading sequence. The Method section extends beyond the standard shell; abstract and paper headers use asymmetric two-column layouts, and evaluation uses a three-column evidence ledger.
+Use a minimum full small-viewport-height canvas with generous side gutters, an open identity area, and a rail-separated archive navigation area. At 760px and below, the archive links become a vertical list and the full wordmark remains visible. The background image may crop more tightly while the heading, archive action, and navigation remain real responsive content. Do not assign the home’s image crop, exact letter coordinates, or hero offsets to a global spacing system.
 
-Responsive changes are explicit. At 1080px wide diagram/trend companions rebalance. At 980px the cover, research introduction, paper title, and abstract stack; the comparison trend also becomes one column. At 840px shared console-lower areas and equation pairs stack and the fixed header hides its center links. At 720px the paper tablist becomes a horizontal row of three 15rem columns, Method prose and evidence become single-column, and the compact cover console becomes a three-cell ledger. At 560px action rows become full width, segmented controls become two columns, and the Method console deliberately bleeds slightly toward the viewport edges.
+### Research notebook
 
-All three final architecture SVGs use a `92rem` minimum width inside focusable `overflow-x: auto` regions. Preserve that canvas, node order, label scale, and left-to-right graph logic at every viewport; scroll the diagram rather than compressing or rearranging it.
 
-**The Topology-First Responsive Rule.** Reflow prose, metadata, controls, and evidence freely, but preserve the model graph itself through a keyboard-focusable horizontal viewport.
+The site alternates full-bleed telemetry fields with centered reading shells. Standard content uses `min(84rem, 88vw)`; the full-bleed Method band centers a wider `min(92rem, 92vw)` working surface. Section spacing follows a fluid 4.75–9rem vertical rhythm. One-pixel rails, numbered block headings, and 0.5–2rem internal spacing organize high information density.
+
+The notebook begins with a thesis/explanation split, then three equal-width paper tabs and one mounted `tabpanel`. Each paper repeats a stable reading sequence. The Method section extends beyond the standard shell; abstract and paper headers use asymmetric two-column layouts, and evaluation uses a three-column evidence ledger.
+
+Responsive changes are explicit. At 1080px wide diagram/trend companions rebalance. At 980px the research introduction, paper title, and abstract stack; the comparison trend also becomes one column. At 840px shared console-lower areas and equation pairs stack and the fixed header hides its center links. At 720px the paper tablist becomes a horizontal row of three 15rem columns, Method prose and evidence become single-column. At 560px action rows become full width, segmented controls become two columns, and the Method console deliberately bleeds slightly toward the viewport edges.
+
+The existing PnP-CoSMo and MMVAE++ planar architecture SVGs retain their `92rem` minimum width inside focusable `overflow-x: auto` regions. Preserve those canvases and graph logic rather than compressing them. MMHVAE is an established exception: its orbital explorer preserves vertical encoder towers, seven latent levels, vertically unfolded operator detail, and a synchronized hierarchy browser. The home redesign does not alter this spatial hierarchy, semantic modality palette, KaTeX labels, camera interaction, or scientific content.
+
+**The Topology-First Responsive Rule.** Reflow prose, metadata, controls, and evidence freely, but preserve each model’s established topology: a focusable horizontal viewport for planar diagrams and vertical spatial hierarchy for MMHVAE.
 
 **The One-Paper Rule.** Keep exactly one tabpanel mounted. The tab row is orientation-stable—three columns on wide screens and one horizontal scroller on narrow screens—so comparison order never changes.
 
 ## Elevation & Depth
 
-This system has no box-shadow vocabulary. Depth is flat and structural: the page void supports slightly lighter cover, notebook, Method, console, and diagram surfaces; one-pixel hairlines and clipped silhouettes express containment. The fixed header is the only translucent surface, using a near-black field with 12px backdrop blur so content may pass behind it without reducing navigation legibility.
+The research notebook is flat by default; the existing MMHVAE spatial viewer has its own local depth and hover-label treatment. The home conveys depth through the generated textured colossus, slow grazing light, haze, and subtle wordmark separation. This atmospheric material is home-specific, not a card-elevation vocabulary.
+
+The general notebook has no box-shadow vocabulary. Depth is flat and structural: the page void supports slightly lighter notebook, Method, console, and diagram surfaces; one-pixel hairlines and clipped silhouettes express containment. The fixed header is the only translucent surface, using a near-black field with 12px backdrop blur so content may pass behind it without reducing navigation legibility.
 
 ### Named Rules
 
@@ -241,13 +285,27 @@ This system has no box-shadow vocabulary. Depth is flat and structural: the page
 
 ## Shapes
 
-Structural surfaces are rectilinear instrument housings with opposing clipped corners: 28px on the large cover frame, 18px on the cover console, 20px on architecture consoles, and 10px on the primary action. Paper tabs, note blocks, evidence ledgers, and equation disclosures remain square and rail-driven.
+The home uses hard white planar lettering and a blade with sharp negative-space cuts. Its archive entry is a white plate with a single lower-right chamfer that resolves to a square corner on hover; archive links sit on rules instead of cards. The sigil and lettering form one identity asset. These home shapes are independent of the following notebook housings.
+
+
+Structural surfaces are rectilinear instrument housings with opposing clipped corners: 20px on general architecture consoles and 10px on research primary actions. The current MMHVAE housing overrides clipping with a square spatial workbench. Paper tabs, note blocks, evidence ledgers, and equation disclosures remain square and rail-driven.
 
 Pills (`999px`) are reserved for compact controls and outbound source links, each at least 2.75rem high. SVG modules use restrained 2px node corners and 3px zone corners. Circles, diamonds, and hexagons represent orbit paths, state indicators, fusion operators, and latent cores; they are semantic instrument geometry, not a decorative pattern.
 
 **The Hard-Housing Rule.** Structural containers are square or clipped; pill geometry belongs to touch targets, not content surfaces.
 
 ## Components
+
+### Home navigation and identity
+
+The semantic header exposes the home signature, archive entry, and verified GitHub destination. Its navigation links have a 44px minimum height. The white chamfered archive action and three named paper links navigate to real hash routes: `#/research/mmhvae`, `#/research/pnp`, and `#/research/mmvae`. Browser back, refresh, modified clicks, and legacy research anchors retain ordinary navigation behavior. Research is loaded separately and the home does not mount its scientific viewers.
+
+A bounded pointer response moves the image only; text and controls stay stable. Slow light and haze supply ambient motion. A visible toggle pauses/resumes motion; hidden tabs pause animation, and `prefers-reduced-motion` removes animation, transitions, and parallax. Navigation resolves immediately when motion is off and otherwise uses a brief blade departure. Home focus uses a pale-blue outline; never let the cinematic treatment obscure keyboard state. The existing browser-local editing and backup tools include the home description.
+
+### Research controls
+
+The remaining component descriptions apply to the established research scope. They are not templates for the home’s white action or industrial identity.
+
 
 ### Buttons
 
@@ -259,7 +317,7 @@ Pills (`999px`) are reserved for compact controls and outbound source links, eac
 
 ### Editable Note Copy
 
-The Research introduction includes a compact text-edit toolbar. `编辑正文` exposes dashed blue boundaries around explanatory copy across the cover description, section captions, translations, Method prose, diagram captions, equation explanations, and evaluation evidence. A focused field changes to a lime boundary. `保存修改` exits editing, and text is persisted per stable content key in the current browser through `localStorage`. `恢复默认` is disabled when no overrides exist and requires confirmation before clearing saved copy. Structural labels, paper metadata, controls, formulas, and SVG node names remain fixed to protect the information architecture.
+The Research introduction includes a compact text-edit toolbar. `编辑正文` exposes dashed blue boundaries around explanatory copy across the home description, section captions, translations, Method prose, diagram captions, equation explanations, and evaluation evidence. A focused field changes to a lime boundary. `保存修改` exits editing, and text is persisted per stable content key in the current browser through `localStorage`. `恢复默认` is disabled when no overrides exist and requires confirmation before clearing saved copy. Structural labels, paper metadata, controls, formulas, and SVG node names remain fixed to protect the information architecture.
 
 ### Chips
 
@@ -289,9 +347,9 @@ The paper selector is a three-item WAI-ARIA tablist. Each tab contains a code, s
 
 ### Architecture Console
 
-This is the signature component: a clipped blue-hairline housing with a three-pixel lime calibration tick, wrapping toolbar, 92rem focusable architecture canvas, synchronized caption/readout, controls, legend, and equation stack.
+The planar architecture console is a clipped blue-hairline housing with a three-pixel lime calibration tick, wrapping toolbar, 92rem focusable planar architecture canvas, synchronized caption/readout, controls, legend, and equation stack.
 
-- **MMHVAE:** Toggles any non-empty subset of four observed modalities, selects a synthesis target, focuses one of seven latent levels by pointer or keyboard, and explains sampling temperature with dual readouts.
+- **MMHVAE:** The current orbital explorer supersedes this generic planar housing. It keeps four modality choices, synthesis-target selection, seven latent levels, nested module exploration, vertical operator detail, source-backed explanations, and local KaTeX HTML/MathML labels. Its scientific palette and hierarchy remain authoritative within `src/components/mmhvae/`.
 - **PnP-CoSMo:** Shows code-generated reference/estimate MRI slices, an eight-step reconstruction transport, live CC/DC/CR routing, an optional content-refinement switch, k-space-center control, and polite live phase status. The 920ms automatic cadence is replaced by explicit stepping under reduced motion.
 - **MMVAE++:** Switches between MVAE, MoPoE-VAE, MMVAE, and MMVAE++; updates the objective-route matrix and backpropagation map; couples private-feature count to a labeled regime state and qualitative comparison plot.
 
@@ -305,18 +363,20 @@ Equations use native `details`/`summary` rows with lime-tinted rails and a rotat
 
 ### Do:
 
-- **Do** keep the cover and research notebook distinct in density while preserving one telemetry material language.
+- **Do** keep the Silicon Idol home and scientific notebook visually scoped while preserving their shared identity and real paper destinations.
 - **Do** use signal colors according to scientific meaning and repeat every color-coded state in text, geometry, iconography, stroke, or position.
 - **Do** keep paper switching as an accessible tab interaction with Arrow, Home, and End behavior and exactly one mounted panel.
-- **Do** preserve every dense architecture as a 92rem internal canvas inside a focusable horizontal scroller.
-- **Do** keep the title stack on Tektur Variable, long Chinese reading on the system-sans stack, diagram micro notation on Cascadia Code, and formulas on the declared conventional math stack.
+- **Do** preserve planar research canvases in their focusable horizontal scrollers and MMHVAE in its established vertical spatial hierarchy.
+- **Do** preserve the authored SVG home wordmark and keep the research title stack on Tektur Variable, long Chinese reading on the system-sans stack, diagram micro notation on Cascadia Code, and formulas on the declared conventional math stack.
 - **Do** keep focus visible, expose status changes in adjacent text or live regions, include SVG title/description, and make reduced-motion transport explicit.
 
 ### Don't:
 
-- **Don't** turn the world into a generic neon gradient, glassmorphism dashboard, rounded SaaS card system, or shadow-based elevation stack.
+- **Don't** turn either scope into a generic neon gradient, glassmorphism dashboard, or rounded SaaS card system; the home’s native cold lighting and MMHVAE’s spatial depth remain valid local materials.
 - **Don't** use lime, blue, orange, violet, coral, lavender, amber, or green interchangeably; every one has a defined data or comparison role.
 - **Don't** shrink, reorder, or redraw a scientific graph merely to fit a narrow viewport.
 - **Don't** round structural consoles, paper tabs, note blocks, or evidence ledgers; reserve pills for compact controls and source links.
 - **Don't** let an interactive diagram change without a readable label, caption, output, or status describing the new state.
 - **Don't** invent biography, affiliation, achievements, contacts, or additional research projects to fill the personal cover.
+
+Not canonized: retired orbital-cover layouts, exact colossus crops and wordmark coordinates, and small passive home metadata are not reusable global rules. Existing paper kickers remain incumbent research copy and are not a new eyebrow style for future surfaces.

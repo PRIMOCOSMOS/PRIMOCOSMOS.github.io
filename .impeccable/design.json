@@ -1,168 +1,531 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-04T05:55:39.1699675Z",
-  "title": "Design System: PRIMOCOSMOS Multimodal Signal Lab",
+  "generatedAt": "2026-09-08T05:09:49.936190+00:00",
+  "title": "Design System: PRIMOCOSMOS — Silicon Idol & Multimodal Signal Lab",
   "extensions": {
     "colorMeta": {
       "event-horizon-black": {
         "role": "neutral",
         "displayName": "Event-Horizon Black",
         "canonical": "#05080b",
-        "tonalRamp": ["oklch(15% 0.010 242.7)", "oklch(27% 0.010 242.7)", "oklch(39% 0.010 242.7)", "oklch(51% 0.010 242.7)", "oklch(63% 0.010 242.7)", "oklch(75% 0.010 242.7)", "oklch(87% 0.010 242.7)", "oklch(95% 0.010 242.7)"]
+        "tonalRamp": [
+          "oklch(15% 0.010 242.7)",
+          "oklch(27% 0.010 242.7)",
+          "oklch(39% 0.010 242.7)",
+          "oklch(51% 0.010 242.7)",
+          "oklch(63% 0.010 242.7)",
+          "oklch(75% 0.010 242.7)",
+          "oklch(87% 0.010 242.7)",
+          "oklch(95% 0.010 242.7)"
+        ]
       },
       "orbital-navy": {
         "role": "neutral",
         "displayName": "Orbital Navy",
         "canonical": "#07111f",
-        "tonalRamp": ["oklch(15% 0.033 256.4)", "oklch(27% 0.033 256.4)", "oklch(39% 0.033 256.4)", "oklch(51% 0.033 256.4)", "oklch(63% 0.033 256.4)", "oklch(75% 0.033 256.4)", "oklch(87% 0.033 256.4)", "oklch(95% 0.033 256.4)"]
+        "tonalRamp": [
+          "oklch(15% 0.033 256.4)",
+          "oklch(27% 0.033 256.4)",
+          "oklch(39% 0.033 256.4)",
+          "oklch(51% 0.033 256.4)",
+          "oklch(63% 0.033 256.4)",
+          "oklch(75% 0.033 256.4)",
+          "oklch(87% 0.033 256.4)",
+          "oklch(95% 0.033 256.4)"
+        ]
       },
       "notebook-black": {
         "role": "neutral",
         "displayName": "Notebook Black",
         "canonical": "#05090d",
-        "tonalRamp": ["oklch(15% 0.012 240)", "oklch(27% 0.012 240)", "oklch(39% 0.012 240)", "oklch(51% 0.012 240)", "oklch(63% 0.012 240)", "oklch(75% 0.012 240)", "oklch(87% 0.012 240)", "oklch(95% 0.012 240)"]
+        "tonalRamp": [
+          "oklch(15% 0.012 240)",
+          "oklch(27% 0.012 240)",
+          "oklch(39% 0.012 240)",
+          "oklch(51% 0.012 240)",
+          "oklch(63% 0.012 240)",
+          "oklch(75% 0.012 240)",
+          "oklch(87% 0.012 240)",
+          "oklch(95% 0.012 240)"
+        ]
       },
       "method-deck-navy": {
         "role": "neutral",
         "displayName": "Method-Deck Navy",
         "canonical": "#071018",
-        "tonalRamp": ["oklch(15% 0.024 241)", "oklch(27% 0.024 241)", "oklch(39% 0.024 241)", "oklch(51% 0.024 241)", "oklch(63% 0.024 241)", "oklch(75% 0.024 241)", "oklch(87% 0.024 241)", "oklch(95% 0.024 241)"]
+        "tonalRamp": [
+          "oklch(15% 0.024 241)",
+          "oklch(27% 0.024 241)",
+          "oklch(39% 0.024 241)",
+          "oklch(51% 0.024 241)",
+          "oklch(63% 0.024 241)",
+          "oklch(75% 0.024 241)",
+          "oklch(87% 0.024 241)",
+          "oklch(95% 0.024 241)"
+        ]
       },
       "architecture-night": {
         "role": "neutral",
         "displayName": "Architecture Night",
         "canonical": "#071118",
-        "tonalRamp": ["oklch(15% 0.022 225)", "oklch(27% 0.022 225)", "oklch(39% 0.022 225)", "oklch(51% 0.022 225)", "oklch(63% 0.022 225)", "oklch(75% 0.022 225)", "oklch(87% 0.022 225)", "oklch(95% 0.022 225)"]
+        "tonalRamp": [
+          "oklch(15% 0.022 225)",
+          "oklch(27% 0.022 225)",
+          "oklch(39% 0.022 225)",
+          "oklch(51% 0.022 225)",
+          "oklch(63% 0.022 225)",
+          "oklch(75% 0.022 225)",
+          "oklch(87% 0.022 225)",
+          "oklch(95% 0.022 225)"
+        ]
       },
       "diagram-bay-black": {
         "role": "neutral",
         "displayName": "Diagram-Bay Black",
         "canonical": "#050b10",
-        "tonalRamp": ["oklch(15% 0.015 235)", "oklch(27% 0.015 235)", "oklch(39% 0.015 235)", "oklch(51% 0.015 235)", "oklch(63% 0.015 235)", "oklch(75% 0.015 235)", "oklch(87% 0.015 235)", "oklch(95% 0.015 235)"]
+        "tonalRamp": [
+          "oklch(15% 0.015 235)",
+          "oklch(27% 0.015 235)",
+          "oklch(39% 0.015 235)",
+          "oklch(51% 0.015 235)",
+          "oklch(63% 0.015 235)",
+          "oklch(75% 0.015 235)",
+          "oklch(87% 0.015 235)",
+          "oklch(95% 0.015 235)"
+        ]
       },
       "active-tab-slate": {
         "role": "neutral",
         "displayName": "Active-Tab Slate",
         "canonical": "#0c1820",
-        "tonalRamp": ["oklch(15% 0.024 229)", "oklch(27% 0.024 229)", "oklch(39% 0.024 229)", "oklch(51% 0.024 229)", "oklch(63% 0.024 229)", "oklch(75% 0.024 229)", "oklch(87% 0.024 229)", "oklch(95% 0.024 229)"]
+        "tonalRamp": [
+          "oklch(15% 0.024 229)",
+          "oklch(27% 0.024 229)",
+          "oklch(39% 0.024 229)",
+          "oklch(51% 0.024 229)",
+          "oklch(63% 0.024 229)",
+          "oklch(75% 0.024 229)",
+          "oklch(87% 0.024 229)",
+          "oklch(95% 0.024 229)"
+        ]
       },
       "warm-schematic-paper": {
         "role": "neutral",
         "displayName": "Warm Schematic Paper",
         "canonical": "#f2e9d8",
-        "tonalRamp": ["oklch(15% 0.025 83.4)", "oklch(27% 0.025 83.4)", "oklch(39% 0.025 83.4)", "oklch(51% 0.025 83.4)", "oklch(63% 0.025 83.4)", "oklch(75% 0.025 83.4)", "oklch(87% 0.025 83.4)", "oklch(95% 0.025 83.4)"]
+        "tonalRamp": [
+          "oklch(15% 0.025 83.4)",
+          "oklch(27% 0.025 83.4)",
+          "oklch(39% 0.025 83.4)",
+          "oklch(51% 0.025 83.4)",
+          "oklch(63% 0.025 83.4)",
+          "oklch(75% 0.025 83.4)",
+          "oklch(87% 0.025 83.4)",
+          "oklch(95% 0.025 83.4)"
+        ]
       },
       "phosphor-tinted-ink": {
         "role": "neutral",
         "displayName": "Phosphor-Tinted Ink",
         "canonical": "#eef2df",
-        "tonalRamp": ["oklch(15% 0.025 116.5)", "oklch(27% 0.025 116.5)", "oklch(39% 0.025 116.5)", "oklch(51% 0.025 116.5)", "oklch(63% 0.025 116.5)", "oklch(75% 0.025 116.5)", "oklch(87% 0.025 116.5)", "oklch(95% 0.025 116.5)"]
+        "tonalRamp": [
+          "oklch(15% 0.025 116.5)",
+          "oklch(27% 0.025 116.5)",
+          "oklch(39% 0.025 116.5)",
+          "oklch(51% 0.025 116.5)",
+          "oklch(63% 0.025 116.5)",
+          "oklch(75% 0.025 116.5)",
+          "oklch(87% 0.025 116.5)",
+          "oklch(95% 0.025 116.5)"
+        ]
       },
       "muted-sensor-sage": {
         "role": "neutral",
         "displayName": "Muted Sensor Sage",
         "canonical": "#a8b8b3",
-        "tonalRamp": ["oklch(15% 0.019 175.1)", "oklch(27% 0.019 175.1)", "oklch(39% 0.019 175.1)", "oklch(51% 0.019 175.1)", "oklch(63% 0.019 175.1)", "oklch(75% 0.019 175.1)", "oklch(87% 0.019 175.1)", "oklch(95% 0.019 175.1)"]
+        "tonalRamp": [
+          "oklch(15% 0.019 175.1)",
+          "oklch(27% 0.019 175.1)",
+          "oklch(39% 0.019 175.1)",
+          "oklch(51% 0.019 175.1)",
+          "oklch(63% 0.019 175.1)",
+          "oklch(75% 0.019 175.1)",
+          "oklch(87% 0.019 175.1)",
+          "oklch(95% 0.019 175.1)"
+        ]
       },
       "faint-calibration-teal": {
         "role": "neutral",
         "displayName": "Faint Calibration Teal",
         "canonical": "#738889",
-        "tonalRamp": ["oklch(15% 0.024 200.1)", "oklch(27% 0.024 200.1)", "oklch(39% 0.024 200.1)", "oklch(51% 0.024 200.1)", "oklch(63% 0.024 200.1)", "oklch(75% 0.024 200.1)", "oklch(87% 0.024 200.1)", "oklch(95% 0.024 200.1)"]
+        "tonalRamp": [
+          "oklch(15% 0.024 200.1)",
+          "oklch(27% 0.024 200.1)",
+          "oklch(39% 0.024 200.1)",
+          "oklch(51% 0.024 200.1)",
+          "oklch(63% 0.024 200.1)",
+          "oklch(75% 0.024 200.1)",
+          "oklch(87% 0.024 200.1)",
+          "oklch(95% 0.024 200.1)"
+        ]
       },
       "observed-signal-lime": {
         "role": "primary",
         "displayName": "Observed-Signal Lime",
         "canonical": "#d8ff45",
-        "tonalRamp": ["oklch(15% 0.204 121)", "oklch(27% 0.204 121)", "oklch(39% 0.204 121)", "oklch(51% 0.204 121)", "oklch(63% 0.204 121)", "oklch(75% 0.204 121)", "oklch(87% 0.204 121)", "oklch(95% 0.204 121)"]
+        "tonalRamp": [
+          "oklch(15% 0.204 121)",
+          "oklch(27% 0.204 121)",
+          "oklch(39% 0.204 121)",
+          "oklch(51% 0.204 121)",
+          "oklch(63% 0.204 121)",
+          "oklch(75% 0.204 121)",
+          "oklch(87% 0.204 121)",
+          "oklch(95% 0.204 121)"
+        ]
       },
       "shared-latent-blue": {
         "role": "secondary",
         "displayName": "Shared-Latent Blue",
         "canonical": "#78b8ff",
-        "tonalRamp": ["oklch(15% 0.122 252)", "oklch(27% 0.122 252)", "oklch(39% 0.122 252)", "oklch(51% 0.122 252)", "oklch(63% 0.122 252)", "oklch(75% 0.122 252)", "oklch(87% 0.122 252)", "oklch(95% 0.122 252)"]
+        "tonalRamp": [
+          "oklch(15% 0.122 252)",
+          "oklch(27% 0.122 252)",
+          "oklch(39% 0.122 252)",
+          "oklch(51% 0.122 252)",
+          "oklch(63% 0.122 252)",
+          "oklch(75% 0.122 252)",
+          "oklch(87% 0.122 252)",
+          "oklch(95% 0.122 252)"
+        ]
       },
       "correction-orange": {
         "role": "tertiary",
         "displayName": "Correction Orange",
         "canonical": "#ff5c35",
-        "tonalRamp": ["oklch(15% 0.205 34.6)", "oklch(27% 0.205 34.6)", "oklch(39% 0.205 34.6)", "oklch(51% 0.205 34.6)", "oklch(63% 0.205 34.6)", "oklch(75% 0.205 34.6)", "oklch(87% 0.205 34.6)", "oklch(95% 0.205 34.6)"]
+        "tonalRamp": [
+          "oklch(15% 0.205 34.6)",
+          "oklch(27% 0.205 34.6)",
+          "oklch(39% 0.205 34.6)",
+          "oklch(51% 0.205 34.6)",
+          "oklch(63% 0.205 34.6)",
+          "oklch(75% 0.205 34.6)",
+          "oklch(87% 0.205 34.6)",
+          "oklch(95% 0.205 34.6)"
+        ]
       },
       "private-factor-violet": {
         "role": "tertiary",
         "displayName": "Private-Factor Violet",
         "canonical": "#c896ff",
-        "tonalRamp": ["oklch(15% 0.154 305)", "oklch(27% 0.154 305)", "oklch(39% 0.154 305)", "oklch(51% 0.154 305)", "oklch(63% 0.154 305)", "oklch(75% 0.154 305)", "oklch(87% 0.154 305)", "oklch(95% 0.154 305)"]
+        "tonalRamp": [
+          "oklch(15% 0.154 305)",
+          "oklch(27% 0.154 305)",
+          "oklch(39% 0.154 305)",
+          "oklch(51% 0.154 305)",
+          "oklch(63% 0.154 305)",
+          "oklch(75% 0.154 305)",
+          "oklch(87% 0.154 305)",
+          "oklch(95% 0.154 305)"
+        ]
       },
       "modality-one-coral": {
         "role": "tertiary",
         "displayName": "Modality-One Coral",
         "canonical": "#ff8c66",
-        "tonalRamp": ["oklch(15% 0.155 37)", "oklch(27% 0.155 37)", "oklch(39% 0.155 37)", "oklch(51% 0.155 37)", "oklch(63% 0.155 37)", "oklch(75% 0.155 37)", "oklch(87% 0.155 37)", "oklch(95% 0.155 37)"]
+        "tonalRamp": [
+          "oklch(15% 0.155 37)",
+          "oklch(27% 0.155 37)",
+          "oklch(39% 0.155 37)",
+          "oklch(51% 0.155 37)",
+          "oklch(63% 0.155 37)",
+          "oklch(75% 0.155 37)",
+          "oklch(87% 0.155 37)",
+          "oklch(95% 0.155 37)"
+        ]
       },
       "modality-two-lavender": {
         "role": "tertiary",
         "displayName": "Modality-Two Lavender",
         "canonical": "#c6a6ff",
-        "tonalRamp": ["oklch(15% 0.125 298)", "oklch(27% 0.125 298)", "oklch(39% 0.125 298)", "oklch(51% 0.125 298)", "oklch(63% 0.125 298)", "oklch(75% 0.125 298)", "oklch(87% 0.125 298)", "oklch(95% 0.125 298)"]
+        "tonalRamp": [
+          "oklch(15% 0.125 298)",
+          "oklch(27% 0.125 298)",
+          "oklch(39% 0.125 298)",
+          "oklch(51% 0.125 298)",
+          "oklch(63% 0.125 298)",
+          "oklch(75% 0.125 298)",
+          "oklch(87% 0.125 298)",
+          "oklch(95% 0.125 298)"
+        ]
       },
       "comparison-amber": {
         "role": "tertiary",
         "displayName": "Comparison Amber",
         "canonical": "#e4cf45",
-        "tonalRamp": ["oklch(15% 0.150 102)", "oklch(27% 0.150 102)", "oklch(39% 0.150 102)", "oklch(51% 0.150 102)", "oklch(63% 0.150 102)", "oklch(75% 0.150 102)", "oklch(87% 0.150 102)", "oklch(95% 0.150 102)"]
+        "tonalRamp": [
+          "oklch(15% 0.150 102)",
+          "oklch(27% 0.150 102)",
+          "oklch(39% 0.150 102)",
+          "oklch(51% 0.150 102)",
+          "oklch(63% 0.150 102)",
+          "oklch(75% 0.150 102)",
+          "oklch(87% 0.150 102)",
+          "oklch(95% 0.150 102)"
+        ]
       },
       "comparison-green": {
         "role": "tertiary",
         "displayName": "Comparison Green",
         "canonical": "#68d6a4",
-        "tonalRamp": ["oklch(15% 0.125 160)", "oklch(27% 0.125 160)", "oklch(39% 0.125 160)", "oklch(51% 0.125 160)", "oklch(63% 0.125 160)", "oklch(75% 0.125 160)", "oklch(87% 0.125 160)", "oklch(95% 0.125 160)"]
+        "tonalRamp": [
+          "oklch(15% 0.125 160)",
+          "oklch(27% 0.125 160)",
+          "oklch(39% 0.125 160)",
+          "oklch(51% 0.125 160)",
+          "oklch(63% 0.125 160)",
+          "oklch(75% 0.125 160)",
+          "oklch(87% 0.125 160)",
+          "oklch(95% 0.125 160)"
+        ]
       },
       "cool-telemetry-hairline": {
         "role": "neutral",
         "displayName": "Cool Telemetry Hairline",
         "canonical": "rgba(203, 227, 213, 0.18)",
-        "tonalRamp": ["oklch(15% 0.032 160.2 / 0.18)", "oklch(27% 0.032 160.2 / 0.18)", "oklch(39% 0.032 160.2 / 0.18)", "oklch(51% 0.032 160.2 / 0.18)", "oklch(63% 0.032 160.2 / 0.18)", "oklch(75% 0.032 160.2 / 0.18)", "oklch(87% 0.032 160.2 / 0.18)", "oklch(95% 0.032 160.2 / 0.18)"]
+        "tonalRamp": [
+          "oklch(15% 0.032 160.2 / 0.18)",
+          "oklch(27% 0.032 160.2 / 0.18)",
+          "oklch(39% 0.032 160.2 / 0.18)",
+          "oklch(51% 0.032 160.2 / 0.18)",
+          "oklch(63% 0.032 160.2 / 0.18)",
+          "oklch(75% 0.032 160.2 / 0.18)",
+          "oklch(87% 0.032 160.2 / 0.18)",
+          "oklch(95% 0.032 160.2 / 0.18)"
+        ]
       },
       "active-lime-hairline": {
         "role": "primary",
         "displayName": "Active Lime Hairline",
         "canonical": "rgba(216, 255, 69, 0.34)",
-        "tonalRamp": ["oklch(15% 0.204 121 / 0.34)", "oklch(27% 0.204 121 / 0.34)", "oklch(39% 0.204 121 / 0.34)", "oklch(51% 0.204 121 / 0.34)", "oklch(63% 0.204 121 / 0.34)", "oklch(75% 0.204 121 / 0.34)", "oklch(87% 0.204 121 / 0.34)", "oklch(95% 0.204 121 / 0.34)"]
+        "tonalRamp": [
+          "oklch(15% 0.204 121 / 0.34)",
+          "oklch(27% 0.204 121 / 0.34)",
+          "oklch(39% 0.204 121 / 0.34)",
+          "oklch(51% 0.204 121 / 0.34)",
+          "oklch(63% 0.204 121 / 0.34)",
+          "oklch(75% 0.204 121 / 0.34)",
+          "oklch(87% 0.204 121 / 0.34)",
+          "oklch(95% 0.204 121 / 0.34)"
+        ]
+      },
+      "silicon-black": {
+        "role": "neutral",
+        "displayName": "Silicon Black",
+        "canonical": "#020305",
+        "tonalRamp": [
+          "oklch(15% .008 260)",
+          "oklch(27% .008 260)",
+          "oklch(39% .008 260)",
+          "oklch(51% .008 260)",
+          "oklch(63% .008 260)",
+          "oklch(75% .008 260)",
+          "oklch(87% .008 260)",
+          "oklch(95% .008 260)"
+        ]
+      },
+      "silicon-white": {
+        "role": "primary",
+        "displayName": "Silicon White",
+        "canonical": "#fff",
+        "tonalRamp": [
+          "oklch(15% 0 0)",
+          "oklch(27% 0 0)",
+          "oklch(39% 0 0)",
+          "oklch(51% 0 0)",
+          "oklch(63% 0 0)",
+          "oklch(75% 0 0)",
+          "oklch(87% 0 0)",
+          "oklch(95% 0 0)"
+        ]
+      },
+      "silicon-secondary-ink": {
+        "role": "neutral",
+        "displayName": "Silicon Secondary Ink",
+        "canonical": "#a9b7c9",
+        "tonalRamp": [
+          "oklch(15% .03 255)",
+          "oklch(27% .03 255)",
+          "oklch(39% .03 255)",
+          "oklch(51% .03 255)",
+          "oklch(63% .03 255)",
+          "oklch(75% .03 255)",
+          "oklch(87% .03 255)",
+          "oklch(95% .03 255)"
+        ]
       }
     },
     "typographyMeta": {
-      "display": {"displayName": "Cover Transmission", "purpose": "The two-line personal-cover signal."},
-      "headline": {"displayName": "Research Thesis", "purpose": "Research title and complete paper titles."},
-      "title": {"displayName": "Academic Block Title", "purpose": "Abstract, Method, Evaluation, and instrument subheads."},
-      "body": {"displayName": "Scientific Reading", "purpose": "Chinese translation, explanation, evidence, and caveats."},
-      "label": {"displayName": "Calibration Label", "purpose": "Uppercase statuses, coordinates, controls, axes, and measurements."},
-      "mono": {"displayName": "Micro Notation", "purpose": "Dense SVG implementation annotations and editing telemetry."},
-      "math": {"displayName": "Academic Formula", "purpose": "Equation fields use Cambria Math with STIX Two Math, Latin Modern Math, Times New Roman, and serif fallbacks."}
+      "display": {
+        "displayName": "Cover Transmission",
+        "purpose": "The two-line personal-cover signal."
+      },
+      "headline": {
+        "displayName": "Research Thesis",
+        "purpose": "Research title and complete paper titles."
+      },
+      "title": {
+        "displayName": "Academic Block Title",
+        "purpose": "Abstract, Method, Evaluation, and instrument subheads."
+      },
+      "body": {
+        "displayName": "Scientific Reading",
+        "purpose": "Chinese translation, explanation, evidence, and caveats."
+      },
+      "label": {
+        "displayName": "Calibration Label",
+        "purpose": "Uppercase statuses, coordinates, controls, axes, and measurements."
+      },
+      "mono": {
+        "displayName": "Micro Notation",
+        "purpose": "Dense SVG implementation annotations and editing telemetry."
+      },
+      "math": {
+        "displayName": "Academic Formula",
+        "purpose": "Equation fields use Cambria Math with STIX Two Math, Latin Modern Math, Times New Roman, and serif fallbacks."
+      },
+      "home-navigation": {
+        "displayName": "Home Navigation",
+        "purpose": "Home navigation only; responsive to 12px on narrow screens."
+      },
+      "home-archive-title": {
+        "displayName": "Home Archive Name",
+        "purpose": "Named real paper destinations on the independent home."
+      }
     },
     "shadows": [],
     "motion": [
-      {"name": "dense-state", "value": "160ms ease-out", "purpose": "SVG observation, node focus, decoder target, and objective-route changes."},
-      {"name": "state-fast", "value": "180ms ease-out", "purpose": "Tab rail, disclosure chevron, skip link, and switch state transitions."},
-      {"name": "directional-shift", "value": "200ms ease-out", "purpose": "Diagram-operation changes and directional arrow travel."},
-      {"name": "navigation-sweep", "value": "220ms ease-out", "purpose": "Fixed-header underline reveal from left to right."},
-      {"name": "iteration-step", "value": "920ms", "purpose": "PnP-CoSMo CC/DC/CR automatic phase cadence when motion is allowed."},
-      {"name": "reduced-motion-collapse", "value": "0.01ms", "purpose": "Global transition and animation duration under prefers-reduced-motion; PnP transport becomes manual stepping."}
+      {
+        "name": "dense-state",
+        "value": "160ms ease-out",
+        "purpose": "SVG observation, node focus, decoder target, and objective-route changes."
+      },
+      {
+        "name": "state-fast",
+        "value": "180ms ease-out",
+        "purpose": "Tab rail, disclosure chevron, skip link, and switch state transitions."
+      },
+      {
+        "name": "directional-shift",
+        "value": "200ms ease-out",
+        "purpose": "Diagram-operation changes and directional arrow travel."
+      },
+      {
+        "name": "navigation-sweep",
+        "value": "220ms ease-out",
+        "purpose": "Fixed-header underline reveal from left to right."
+      },
+      {
+        "name": "iteration-step",
+        "value": "920ms",
+        "purpose": "PnP-CoSMo CC/DC/CR automatic phase cadence when motion is allowed."
+      },
+      {
+        "name": "reduced-motion-collapse",
+        "value": "0.01ms",
+        "purpose": "Global transition and animation duration under prefers-reduced-motion; PnP transport becomes manual stepping."
+      },
+      {
+        "name": "home-grazing-light",
+        "value": "16s ease-in-out infinite",
+        "purpose": "Home material light only; pauses with the motion toggle, hidden tabs, or reduced motion."
+      },
+      {
+        "name": "home-haze",
+        "value": "19s ease-in-out infinite alternate",
+        "purpose": "Home background haze only; same pause policy."
+      },
+      {
+        "name": "home-parallax",
+        "value": "14px horizontal / 9px vertical, smoothed",
+        "purpose": "Bounded image-only pointer response; disabled for touch and reduced motion."
+      },
+      {
+        "name": "home-departure",
+        "value": "400ms navigation delay / 420ms visual sweep",
+        "purpose": "Blade departure for unmodified same-tab navigation when motion is enabled; immediate routing otherwise."
+      }
     ],
     "breakpoints": [
-      {"name": "console-rebalance", "value": "1080px"},
-      {"name": "cover-and-paper-stack", "value": "980px"},
-      {"name": "shared-region-stack", "value": "840px"},
-      {"name": "tab-scroll-and-ledger-stack", "value": "720px"},
-      {"name": "narrow-instrument", "value": "560px"}
-    ]
+      {
+        "name": "console-rebalance",
+        "value": "1080px"
+      },
+      {
+        "name": "cover-and-paper-stack",
+        "value": "980px"
+      },
+      {
+        "name": "shared-region-stack",
+        "value": "840px"
+      },
+      {
+        "name": "tab-scroll-and-ledger-stack",
+        "value": "720px"
+      },
+      {
+        "name": "narrow-instrument",
+        "value": "560px"
+      },
+      {
+        "name": "home-stack",
+        "value": "760px"
+      },
+      {
+        "name": "home-narrow",
+        "value": "380px"
+      },
+      {
+        "name": "home-wide",
+        "value": "1700px"
+      }
+    ],
+    "scopes": {
+      "home": {
+        "targets": [
+          "src/components/home/",
+          "#/"
+        ],
+        "tokenPrefixes": [
+          "silicon-",
+          "home-"
+        ],
+        "rules": "Silicon Idol monochrome material and authored lettering; does not redefine scientific data colors.",
+        "surfaceBrief": ".impeccable/surfaces/src-components-home-home-tsx.md"
+      },
+      "research": {
+        "targets": [
+          "src/ResearchPage.tsx",
+          "src/styles.css",
+          "#/research/"
+        ],
+        "rules": "Preserve incumbent scientific color semantics, controls, and content. Legacy orbital-cover rules do not apply to home."
+      },
+      "mmhvae": {
+        "targets": [
+          "src/components/mmhvae/"
+        ],
+        "rules": "Existing module palette, vertical encoder towers and seven-level spatial hierarchy take precedence over generic planar-console guidance. Preserve local KaTeX, operator detail, and hierarchy browser."
+      }
+    },
+    "notCanonized": "Retired cover composition, exact image crop and glyph coordinates, passive metadata sizes, and incumbent research kickers are not new global rules."
   },
   "components": [
     {
       "name": "Primary Research Entry",
       "kind": "button",
       "refersTo": "primary-action",
-      "description": "The sole high-emphasis cover action, rendered as a clipped lime instrument plate.",
+      "description": "Legacy orbital-cover specimen; not the current home pattern. The sole high-emphasis cover action, rendered as a clipped lime instrument plate.",
       "html": "<a class=\"ds-primary-action\" href=\"#research\">进入科研板块 <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M12 5v14M6 13l6 6 6-6\"/></svg></a>",
       "css": ".ds-primary-action { display:inline-flex; align-items:center; gap:.65rem; min-height:2.9rem; padding:.8rem 1.15rem; color:var(--void); background:var(--lime); font:660 .84rem var(--display); text-decoration:none; clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px)); transition:background 180ms ease-out; } .ds-primary-action svg { width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2; } .ds-primary-action:hover { background:var(--paper); } .ds-primary-action:focus-visible { outline:2px solid var(--lime); outline-offset:4px; }"
     },
@@ -231,7 +594,7 @@
       "name": "Personal Field Index",
       "kind": "card",
       "refersTo": "telemetry-panel",
-      "description": "The clipped cover console that states the current research axis, archive size, and working mode.",
+      "description": "Legacy orbital-cover specimen; not the current home pattern. The clipped cover console that states the current research axis, archive size, and working mode.",
       "html": "<aside class=\"ds-telemetry\"><h3><span></span> PERSONAL FIELD INDEX</h3><dl><div><dt>Current axis</dt><dd>qMRI · MULTIMODAL LEARNING</dd></div><div><dt>Open archive</dt><dd>RESEARCH NOTES / 003</dd></div><div><dt>Working mode</dt><dd>READ · MODEL · VERIFY</dd></div></dl></aside>",
       "css": ".ds-telemetry { padding:clamp(1.25rem,2.4vw,2rem); border:1px solid var(--line-strong); color:var(--paper); background:rgba(5,12,17,.92); clip-path:polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px)); } .ds-telemetry h3 { display:flex; align-items:center; gap:.6rem; margin:0 0 1.5rem; color:var(--lime); font:.7rem var(--display); letter-spacing:.12em; } .ds-telemetry h3 span { width:.45rem; height:.45rem; border:1px solid var(--lime); background:var(--lime); transform:rotate(45deg); } .ds-telemetry dl { margin:0; } .ds-telemetry dl div { display:grid; grid-template-columns:minmax(6rem,.7fr) 1.3fr; gap:1rem; padding:.85rem 0; border-top:1px solid var(--line); } .ds-telemetry dt { color:var(--muted); font-size:.7rem; } .ds-telemetry dd { margin:0; color:var(--paper); font:.65rem/1.5 var(--display); }"
     },
@@ -242,42 +605,106 @@
       "description": "An unboxed line marker that binds a semantic signal color to a readable label.",
       "html": "<span class=\"ds-signal-key\"><span aria-hidden=\"true\"></span>共享因素</span>",
       "css": ".ds-signal-key { display:inline-flex; align-items:center; gap:.45rem; color:var(--muted); font-size:.68rem; white-space:nowrap; } .ds-signal-key>span { width:1.25rem; height:2px; background:var(--blue); }"
+    },
+    {
+      "name": "Silicon Home Archive Entry",
+      "kind": "button",
+      "description": "Independent home only: white chamfered entry, cold hover, visible focus, reduced-motion state.",
+      "html": "<a class=\"ds-silicon-entry\" href=\"#/research/mmhvae\">进入文献档案 <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></a>",
+      "css": ".ds-silicon-entry{display:flex;align-items:center;justify-content:space-between;width:300px;padding:20px 25px;background:#fff;color:#06090e;font:600 22px \"Microsoft YaHei UI\",\"Segoe UI\",sans-serif;text-decoration:none;clip-path:polygon(0 0,100% 0,100% 72%,94% 100%,0 100%);transition:background .2s,clip-path .25s}.ds-silicon-entry svg{width:26px;height:26px;fill:none;stroke:currentColor;stroke-width:2;transition:transform .25s}.ds-silicon-entry:hover{background:#cfe2ff;clip-path:polygon(0 0,100% 0,100% 100%,100% 100%,0 100%)}.ds-silicon-entry:hover svg{transform:translate(3px,-3px)}.ds-silicon-entry:focus-visible{outline:2px solid #b7d5ff;outline-offset:5px}@media(prefers-reduced-motion:reduce){.ds-silicon-entry,.ds-silicon-entry svg{transition:none}}"
+    },
+    {
+      "name": "Silicon Home Navigation",
+      "kind": "nav",
+      "refersTo": "home-navigation-link",
+      "description": "Home header link with a 44px minimum hit height and cold focus feedback.",
+      "html": "<nav class=\"ds-silicon-nav\" aria-label=\"主页导航\"><a href=\"#/research/mmhvae\">文献档案 <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></a></nav>",
+      "css": ".ds-silicon-nav{background:#020305;padding:16px}.ds-silicon-nav a{display:flex;align-items:center;gap:10px;min-height:44px;font:18px \"Microsoft YaHei UI\",\"Segoe UI\",sans-serif;color:#d6dce5;text-decoration:none}.ds-silicon-nav svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}.ds-silicon-nav a:hover{color:#fff}.ds-silicon-nav a:focus-visible{outline:2px solid #b7d5ff;outline-offset:5px}"
     }
   ],
   "narrative": {
-    "northStar": "Deep-Space Telemetry Array",
-    "overview": "PRIMOCOSMOS is a dark science-fiction personal field station rather than a conventional portfolio. An independent, full-viewport cover introduces the identity through a live signal field, clipped orbital framing, a compact field-index console, and a three-cell archive status rail. Entering Research changes the pacing from cinematic identity to a rigorous, tabbed academic notebook without leaving the same material world.\n\nThe notebook is intentionally dense and operational. Three mutually exclusive paper tabs expose complete notes in a stable Abstract → Method → Evaluation sequence. The Method band expands beyond the reading column and gives each paper a browser-native model laboratory: large labeled SVG schematics, controls that alter observed modalities or gradient routes, generated MRI slices, trend plots, formula disclosures, and plain-language status readouts. Expressive details must explain identity, hierarchy, state, information flow, or evidence—not decorate empty space.",
+    "northStar": "Silicon Idol / Deep-Space Telemetry Array",
+    "overview": "PRIMOCOSMOS has two deliberately separate visual scopes. The home route uses the approved Silicon Idol identity: black sculptural material, white authored industrial lettering, an aggressive blade integrated into the lettering, and restrained cold light. Research keeps its incumbent Deep-Space Telemetry Array notebook and scientific semantics. The shared identity and real paper destinations connect these scopes; their palettes and display treatments do not become interchangeable.\n\nScope authority: home rules apply to `src/components/home/` and `#/`; research rules apply to `src/ResearchPage.tsx`, the research components, and `#/research/<paper>`. The home wordmark preserves the exact spelling **PRIMOCOSMOS：SILICONDEVINE**. Its first-screen composition and generated colossus asset belong to `.impeccable/surfaces/src-components-home-home-tsx.md`, not a mandatory template for future pages. The legacy orbital-cover styles remain in the stylesheet but no longer define the home identity. Existing unprefixed frontmatter primitives remain research-scoped unless explicitly identified otherwise; `home-*` and `silicon-*` entries are home-scoped.\n\nThe notebook is intentionally dense and operational. Three mutually exclusive paper tabs expose complete notes in a stable Abstract → Method → Evaluation sequence. The Method band expands beyond the reading column and gives each paper a browser-native model laboratory: large labeled SVG schematics, controls that alter observed modalities or gradient routes, generated MRI slices, trend plots, formula disclosures, and plain-language status readouts. Expressive details must explain identity, hierarchy, state, information flow, or evidence—not decorate empty space.",
     "keyCharacteristics": [
-      "Separate cinematic personal cover and dense research notebook, joined by one phosphor-lime entry action.",
+      "Independent monochrome industrial home and dense scientific notebook, joined by direct paper navigation.",
       "Matte near-black and navy tonal decks, clipped instrument housings, one-pixel calibration rails, and almost no soft elevation.",
       "Semantic signal colors: lime for observed/active/measurement state, blue for shared/reference structure, orange for correction or blocked gradients, and violet/coral/lavender for distinct latent factors.",
       "One complete paper mounted at a time through a keyboard-operable, three-item tab bar.",
       "Exhaustive interactive architectures whose controls, routes, captions, readouts, and equations stay synchronized.",
-      "Responsive reflow around fixed scientific topology: every dense model canvas stays horizontally scrollable and keyboard focusable."
+      "Responsive reflow around scientific topology: existing planar diagrams scroll horizontally; MMHVAE preserves its vertical spatial hierarchy and accessible hierarchy browser."
     ],
     "rules": [
-      {"name": "The Signal-Is-Data Rule", "body": "Lime means observed, active, or measurement-anchored; blue means shared, referenced, or informational; orange means corrective, stopped, or risky; violet, coral, and lavender separate latent factors. Every chromatic state also needs a label, position, icon, stroke, or shape cue.", "section": "colors"},
-      {"name": "The Comparison-Only Rule", "body": "Amber and green belong to comparative plot series. Do not promote them into navigation, calls to action, focus, or general decoration.", "section": "colors"},
-      {"name": "The Phosphor Rarity Rule", "body": "Lime is the sharpest voice and stays sparse outside active states, focus, measurements, and the primary entry action.", "section": "colors"},
-      {"name": "The Four-Channel Type Rule", "body": "Tektur carries identity, headings, measurements, and machine voice; the Chinese system-sans stack carries explanation and evidence; Cascadia Code carries micro notation and editing telemetry; the conventional math stack carries equations.", "section": "typography"},
-      {"name": "The Readable Science Rule", "body": "Sustained prose keeps generous 1.7–1.88 line height and restrained widths even when the surrounding console is dense.", "section": "typography"},
-      {"name": "The Topology-First Responsive Rule", "body": "Reflow prose, metadata, controls, and evidence freely, but preserve the model graph itself through a keyboard-focusable horizontal viewport.", "section": "layout"},
-      {"name": "The One-Paper Rule", "body": "Keep exactly one tabpanel mounted. The tab row is orientation-stable—three columns on wide screens and one horizontal scroller on narrow screens—so comparison order never changes.", "section": "layout"},
-      {"name": "The Tonal-Deck Rule", "body": "Use controlled near-black steps, strokes, clipping, and inset fields; do not introduce drop shadows, luminous card halos, or floating white surfaces.", "section": "elevation"},
-      {"name": "The One-Glass Exception Rule", "body": "Backdrop blur belongs to the fixed header only, never to paper tabs, notes, telemetry panels, or model consoles.", "section": "elevation"},
-      {"name": "The Hard-Housing Rule", "body": "Structural containers are square or clipped; pill geometry belongs to touch targets, not content surfaces.", "section": "shapes"}
+      {
+        "name": "The Two-World Rule",
+        "body": "Keep the home’s monochrome industrial identity and the research notebook’s scientific color meanings scoped to their own surfaces.",
+        "section": "colors"
+      },
+      {
+        "name": "The Signal-Is-Data Rule",
+        "body": "Lime means observed, active, or measurement-anchored; blue means shared, referenced, or informational; orange means corrective, stopped, or risky; violet, coral, and lavender separate latent factors. Every chromatic state also needs a label, position, icon, stroke, or shape cue.",
+        "section": "colors"
+      },
+      {
+        "name": "The Comparison-Only Rule",
+        "body": "Amber and green belong to comparative plot series. Do not promote them into navigation, calls to action, focus, or general decoration.",
+        "section": "colors"
+      },
+      {
+        "name": "The Phosphor Rarity Rule",
+        "body": "Lime is the sharpest voice and stays sparse outside active states, focus, measurements, and the primary entry action.",
+        "section": "colors"
+      },
+      {
+        "name": "The Authored Identity Rule",
+        "body": "Preserve the bespoke wordmark’s complete lettering and integrated blade; do not replace it with a system display face or a detached generic icon.",
+        "section": "typography"
+      },
+      {
+        "name": "The Four-Channel Type Rule",
+        "body": "Tektur carries identity, headings, measurements, and machine voice; the Chinese system-sans stack carries explanation and evidence; Cascadia Code carries micro notation and editing telemetry; the conventional math stack carries equations.",
+        "section": "typography"
+      },
+      {
+        "name": "The Readable Science Rule",
+        "body": "Sustained prose keeps generous 1.7–1.88 line height and restrained widths even when the surrounding console is dense.",
+        "section": "typography"
+      },
+      {
+        "name": "The Topology-First Responsive Rule",
+        "body": "Reflow prose, metadata, controls, and evidence freely, but preserve each model’s established topology: a focusable horizontal viewport for planar diagrams and vertical spatial hierarchy for MMHVAE.",
+        "section": "layout"
+      },
+      {
+        "name": "The One-Paper Rule",
+        "body": "Keep exactly one tabpanel mounted. The tab row is orientation-stable—three columns on wide screens and one horizontal scroller on narrow screens—so comparison order never changes.",
+        "section": "layout"
+      },
+      {
+        "name": "The Tonal-Deck Rule",
+        "body": "Use controlled near-black steps, strokes, clipping, and inset fields; do not introduce drop shadows, luminous card halos, or floating white surfaces.",
+        "section": "elevation"
+      },
+      {
+        "name": "The One-Glass Exception Rule",
+        "body": "Backdrop blur belongs to the fixed header only, never to paper tabs, notes, telemetry panels, or model consoles.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Hard-Housing Rule",
+        "body": "Structural containers are square or clipped; pill geometry belongs to touch targets, not content surfaces.",
+        "section": "shapes"
+      }
     ],
     "dos": [
-      "Do keep the cover and research notebook distinct in density while preserving one telemetry material language.",
+      "Do keep the Silicon Idol home and scientific notebook visually scoped while preserving their shared identity and real paper destinations.",
       "Do use signal colors according to scientific meaning and repeat every color-coded state in text, geometry, iconography, stroke, or position.",
       "Do keep paper switching as an accessible tab interaction with Arrow, Home, and End behavior and exactly one mounted panel.",
-      "Do preserve every dense architecture as a 92rem internal canvas inside a focusable horizontal scroller.",
-      "Do keep the title stack on Tektur Variable, long Chinese reading on the system-sans stack, diagram micro notation on Cascadia Code, and formulas on the declared conventional math stack.",
-      "Do keep explanatory note copy editable through stable browser-local keys while structural labels, controls, formulas, and diagram topology remain fixed.",
+      "Do preserve planar research canvases in their focusable horizontal scrollers and MMHVAE in its established vertical spatial hierarchy.",
+      "Do preserve the authored SVG home wordmark and keep the research title stack on Tektur Variable, long Chinese reading on the system-sans stack, diagram micro notation on Cascadia Code, and formulas on the declared conventional math stack.",
       "Do keep focus visible, expose status changes in adjacent text or live regions, include SVG title/description, and make reduced-motion transport explicit."
     ],
     "donts": [
-      "Don't turn the world into a generic neon gradient, glassmorphism dashboard, rounded SaaS card system, or shadow-based elevation stack.",
+      "Don't turn either scope into a generic neon gradient, glassmorphism dashboard, or rounded SaaS card system; the home’s native cold lighting and MMHVAE’s spatial depth remain valid local materials.",
       "Don't use lime, blue, orange, violet, coral, lavender, amber, or green interchangeably; every one has a defined data or comparison role.",
       "Don't shrink, reorder, or redraw a scientific graph merely to fit a narrow viewport.",
       "Don't round structural consoles, paper tabs, note blocks, or evidence ledgers; reserve pills for compact controls and source links.",
