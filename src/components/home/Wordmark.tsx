@@ -17,9 +17,11 @@ function LetterLine({word,y,x,width}:{word:string;y:number;x:number;width:number
  const total=[...word].reduce((n,c)=>n+glyphs[c].w+9,0)-9;let cursor=0
  return <g transform={`translate(${x} ${y}) scale(${width/total} 1)`}>{[...word].map((c,i)=>{const pos=cursor;cursor+=glyphs[c].w+9;return <path key={i} d={glyphs[c].d} fillRule="evenodd" transform={`translate(${pos} 0)`}/>})}</g>
 }
-export function Sigil(){return <svg viewBox="0 0 100 108" aria-hidden="true"><path fill="currentColor" d="M7 19 36 47 54 0 61 42 94 16 71 79 41 108 26 74ZM28 48 39 75 48 59 54 22 46 57 40 64ZM59 64 48 88 67 71 77 44Z" fillRule="evenodd"/></svg>}
+function ArcSigil(){return <g fill="currentColor"><path d="M89 17C64-8 22-1 9 29C-5 60 15 91 47 97C19 82 13 57 25 37C36 18 63 13 89 17Z"/><path d="M14 86C43 111 86 95 94 63C101 38 85 13 64 7C85 24 89 45 78 63C65 84 38 90 14 86Z"/><path d="M22 69Q48 39 93 36Q65 46 51 60L45 84L40 66Z"/></g>}
+export function Sigil(){return <svg viewBox="0 0 104 104" aria-hidden="true"><ArcSigil/></svg>}
 export function Wordmark(){return <svg className="silicon-wordmark" viewBox="-10 -95 1110 330" aria-hidden="true">
  <defs><mask id="silicon-cuts"><rect x="-30" y="-110" width="1150" height="360" fill="white"/><path d="M137 20 168 54M408 123 438 155M725 20 755 52M949 144 980 175" stroke="black" strokeWidth="4"/></mask></defs>
- <g fill="currentColor" mask="url(#silicon-cuts)"><LetterLine word="PRIMOCOSMOS" x={90} y={24} width={950}/><LetterLine word="SILICONDEVINE" x={42} y={140} width={1030}/><path className="silicon-blade" d="M0 142 21 -41 65 15 100 -95 107 28 87 16 89 -10 64 60 38 26 29 121 65 98 45 136Z"/><path d="M0 166 86 104 67 140 28 169 36 190 10 225 13 183Z"/><path d="M1048 39H1067V55H1048ZM1048 74H1067V90H1048Z"/></g>
+ <g className="silicon-orbit-sigil" transform="translate(12 -94) scale(.94)"><ArcSigil/></g>
+ <g fill="currentColor" mask="url(#silicon-cuts)"><LetterLine word="PRIMOCOSMOS" x={42} y={24} width={998}/><LetterLine word="SILICONDEVINE" x={42} y={140} width={1030}/><path d="M1048 39H1067V55H1048ZM1048 74H1067V90H1048Z"/></g>
  <path d="M998 228H1100L1075 234H985Z" fill="currentColor"/>
 </svg>}

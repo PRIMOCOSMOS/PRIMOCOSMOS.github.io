@@ -63,7 +63,8 @@ for (const level of LEVELS) {
 console.log(`Verified ${visited.size} MMHVAE module, nested-block and layer graphs.`)
 
 const anatomyURL = moduleURL(anatomySource)
-const navigationURL = moduleURL(compile(await readFile(new URL('../src/components/mmhvae/navigation.ts', import.meta.url), 'utf8')).replace("'./model'", JSON.stringify(modelURL)).replace("'./anatomy'", JSON.stringify(anatomyURL)).replace("'./topology'", JSON.stringify(topologyURL)))
+const mathematicsURL = moduleURL(compile(await readFile(new URL('../src/components/mmhvae/mathematics.ts', import.meta.url), 'utf8')))
+const navigationURL = moduleURL(compile(await readFile(new URL('../src/components/mmhvae/navigation.ts', import.meta.url), 'utf8')).replace("'./model'", JSON.stringify(modelURL)).replace("'./anatomy'", JSON.stringify(anatomyURL)).replace("'./mathematics'", JSON.stringify(mathematicsURL)).replace("'./topology'", JSON.stringify(topologyURL)))
 const { childrenOf, canonicalPath, graphFor, navName, atomInfo, principle } = await import(navigationURL)
 const { detailLayout } = await import(moduleURL(compile(await readFile(new URL('../src/components/mmhvae/detailLayout.ts', import.meta.url), 'utf8'))))
 const indexed = new Set(), queue = ['root'], observed = MODALITIES.map(m => m.id)
@@ -84,7 +85,7 @@ while(queue.length) {
   }
   }
   const atom = atomInfo(id, observed)
-  if(atom) { assert.equal(children.length, 0); assert(principle(atom.part).formula) }
+  if(atom) { assert.equal(children.length, 0); assert(principle(atom.part).formula); assert.equal(graph.layout,'mathematics'); assert(graph.mathematics.steps.length>=3); assert(graph.parts.filter(p=>!p.role).every(p=>p.math)); for(const edge of graph.edges)assert(graph.parts.some(p=>p.id===edge.from)&&graph.parts.some(p=>p.id===edge.to),id+' math edge') }
 }
 for(const n of NODES) assert(indexed.has(n.id), `Missing module in containment index: ${n.id}`)
 console.log(`Verified ${indexed.size} hierarchy entries, atomic explanations and outside context rails.`)
@@ -101,3 +102,8 @@ for(const id of ['us-encoder-4','decoder-4','decoder-4/se/768','flair-output','f
   spine.forEach((point,i)=>{assert.equal(point[0],0);assert.equal(point[2],0);if(i)assert(point[1]<spine[i-1][1],`${id}: trunk must descend`)})
 }
 console.log('Verified vertical computational trunks and exact overview subset coordinates.')
+
+const kinds=new Map(); for(const id of indexed){if(!id.startsWith('atom:'))continue;const kind=graphFor(id,observed).mathematics.kind;kinds.set(kind,(kinds.get(kind)??0)+1)}
+console.log('Mathematical coverage:',Object.fromEntries(kinds))
+const {normalizeValues,activateValue,bilinear,fusionValues}=await import(mathematicsURL)
+assert.deepEqual(normalizeValues([2,2,2]),[0,0,0]);assert.equal(activateValue(-2,'leaky'),-.4);assert.equal(bilinear([0,2,4,6],2,.5,.5).value,3);assert.equal(bilinear([1,2,3,4],2,-.25,-.25).value,1);const f=fusionValues(1,.5);assert(Math.abs(f.mu-(1.2/.7-.8)/(2+1/.7))<1e-12);assert(Math.abs(f.scale-.5/(2+1/.7))<1e-12)

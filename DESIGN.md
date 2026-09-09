@@ -24,6 +24,9 @@ colors:
   modality-two-lavender: "#c6a6ff"
   comparison-amber: "#e4cf45"
   comparison-green: "#68d6a4"
+  math-positive-blue: "#72cbe5"
+  math-negative-warm: "#e8af77"
+  math-selected-pale: "#efffd5"
   cool-telemetry-hairline: "rgba(203, 227, 213, 0.18)"
   active-lime-hairline: "rgba(216, 255, 69, 0.34)"
 typography:
@@ -156,7 +159,7 @@ components:
 
 **Creative North Star: "Silicon Idol / Deep-Space Telemetry Array"**
 
-PRIMOCOSMOS has two deliberately separate visual scopes. The home route uses the approved Silicon Idol identity: black sculptural material, white authored industrial lettering, an aggressive blade integrated into the lettering, and restrained cold light. Research keeps its incumbent Deep-Space Telemetry Array notebook and scientific semantics. The shared identity and real paper destinations connect these scopes; their palettes and display treatments do not become interchangeable.
+PRIMOCOSMOS has two deliberately separate visual scopes. The home route uses the approved Silicon Idol identity: black sculptural material, white authored industrial lettering, a smooth curved sigil composed with the title without touching its letters, and restrained cold light. Research keeps its incumbent Deep-Space Telemetry Array notebook and scientific semantics. The shared identity and real paper destinations connect these scopes; their palettes and display treatments do not become interchangeable.
 
 Scope authority: home rules apply to `src/components/home/` and `#/`; research rules apply to `src/ResearchPage.tsx`, the research components, and `#/research/<paper>`. The home wordmark preserves the exact spelling **PRIMOCOSMOS：SILICONDEVINE**. Its first-screen composition and generated colossus asset belong to `.impeccable/surfaces/src-components-home-home-tsx.md`, not a mandatory template for future pages. The legacy orbital-cover styles remain in the stylesheet but no longer define the home identity. Existing unprefixed frontmatter primitives remain research-scoped unless explicitly identified otherwise; `home-*` and `silicon-*` entries are home-scoped.
 
@@ -194,6 +197,8 @@ The research palette resembles a scientific instrument deck: near-black tonal la
 - **Modality-One Coral / Modality-Two Lavender:** Keep the two modality-specific channels distinguishable inside multimodal diagrams and legends without borrowing the meanings of lime or blue.
 - **Comparison Amber / Comparison Green:** Reserved for MVAE and MoPoE-VAE comparison curves; these are analytical series colors, not general accents.
 
+The MMHVAE numerical teaching models have a local value palette: **Math Positive Blue** for nonnegative cells, **Math Negative Warm** for negative cells, and **Math Selected Pale** for the selected element. Their intensity varies with magnitude. These values encode signed teaching data within the atomic scene; they do not replace the surrounding module and modality colors. Position, animated correspondence, axes and numeric readouts accompany the colors.
+
 ### Neutral
 
 - **Event-Horizon Black:** Page canvas, dark action text, and the base behind all instrument decks.
@@ -218,11 +223,11 @@ The research palette resembles a scientific instrument deck: near-black tonal la
 
 ### Silicon Idol home
 
-The display identity is authored SVG geometry, not a font substitution: two lines of engineered glyphs, cut strokes, and an interlocked blade. Keep the semantic HTML heading and hidden full brand text paired with the decorative SVG. The inherited Tektur face is used for paper names; ordinary home navigation and prose use the local Microsoft YaHei UI / Segoe UI sans stack.
+The display identity is authored SVG geometry, not a font substitution: two lines of engineered glyphs, cut strokes, and a curved sigil separated from the letterforms. Keep the semantic HTML heading and hidden full brand text paired with the decorative SVG. The inherited Tektur face is used for paper names; ordinary home navigation and prose use the local Microsoft YaHei UI / Segoe UI sans stack.
 
 The implemented desktop hierarchy is navigation and archive names at 18px, the archive action at 22px/600, and descriptive text at 20px with 1.9 line height. These are component measurements, not a new global scale. At the home mobile breakpoint navigation, description, and motion/edit controls use at least 12px; the action uses 15px and paper names 16px. Small archive topic and passive brand labels remain subordinate metadata, not sizing precedents for interactive controls.
 
-**The Authored Identity Rule.** Preserve the bespoke wordmark’s complete lettering and integrated blade; do not replace it with a system display face or a detached generic icon.
+**The Authored Identity Rule.** Preserve the bespoke wordmark’s complete lettering and authored curved sigil, including the intentional gap between them; do not substitute a system display face or attach the symbol to letter strokes.
 
 ### Research notebook
 
@@ -285,7 +290,7 @@ The general notebook has no box-shadow vocabulary. Depth is flat and structural:
 
 ## Shapes
 
-The home uses hard white planar lettering and a blade with sharp negative-space cuts. Its archive entry is a white plate with a single lower-right chamfer that resolves to a square corner on hover; archive links sit on rules instead of cards. The sigil and lettering form one identity asset. These home shapes are independent of the following notebook housings.
+The home uses hard white planar lettering and a curved enclosing sigil with pointed terminals and a clear gap from the letters. Its archive entry is a white plate with a single lower-right chamfer that resolves to a square corner on hover; archive links sit on rules instead of cards. The sigil and lettering form one identity asset. These home shapes are independent of the following notebook housings.
 
 
 Structural surfaces are rectilinear instrument housings with opposing clipped corners: 20px on general architecture consoles and 10px on research primary actions. The current MMHVAE housing overrides clipping with a square spatial workbench. Paper tabs, note blocks, evidence ledgers, and equation disclosures remain square and rail-driven.
@@ -355,6 +360,18 @@ The planar architecture console is a clipped blue-hairline housing with a three-
 
 Every SVG carries a title and description. Interactive SVG groups expose keyboard activation. Visual trends are labeled as conceptual or qualitative when they are not literal paper measurements.
 
+### Atomic Mathematical Views
+
+The last containment level replaces operator glyphs with numeric three-dimensional teaching models: horizontal feature cells, weight matrices, moving receptive fields, density surfaces, sample clouds and index-preserving trajectories. Computation stages follow the existing vertical trunk; source/destination references remain outside the enclosing volume. Selecting a stage in the scene or its HTML index focuses the camera and selects the same KaTeX explanation. Complete-calculation navigation restores the full stage sequence.
+
+**The Operator Boundary Rule.** An atomic view explains only its own output. Noise generation does not perform the later scale/mean operations; weight accumulation does not construct the downstream posterior. Pure tensor leaves explain storage and indexing without inventing hidden networks.
+
+**The Numerical Correspondence Rule.** The selected coordinate, scene value and control readout use the same operator-specific example. All examples are deterministic teaching data, not trained weights. Gaussian display height is explicitly scaled by eight for legibility; normalized probability remains separate from display coordinates. Blue/warm values distinguish positive/negative responses and pale highlights mark the current sample. Explanatory prose participates in the existing persistent editor.
+
+The controls use a horizontally scrollable numbered step row, followed by a two-column explanation/probe panel. The selected step has a slate fill and pale green text; disabled previous/next buttons dim at the sequence boundaries. Explanation and output use 12px type with 1.8 line height; formulas and the stage heading use 14px. Outputs use tabular numerals, and the scale/index disclosure explains how the scene relates to the example. These are local component measurements, not a replacement for the notebook type ramp.
+
+Step selection, playback/pause, a probe slider and manual animation progress remain available together. Scrubbing progress pauses playback; reduced motion preserves parameter inspection and manual progression. At 640px and below the explanation/probe panel stacks while the step row scrolls. The same controls remain within the native fullscreen viewer with a scrolling height cap of 34dvh, reduced to 32dvh on narrow screens. Normalization’s variance stage displays squared centered values before the final normalized values; convolution’s scene and output use the same kernel, stride and example computation.
+
 ### Equation Disclosure
 
 Equations use native `details`/`summary` rows with lime-tinted rails and a rotating chevron. Open content pairs a scroll-safe conventional math-font field with an editable plain-language explanation; the pair stacks below 840px. Each paper presents three disclosures, open by default, after the interactive architecture.
@@ -379,4 +396,4 @@ Equations use native `details`/`summary` rows with lime-tinted rails and a rotat
 - **Don't** let an interactive diagram change without a readable label, caption, output, or status describing the new state.
 - **Don't** invent biography, affiliation, achievements, contacts, or additional research projects to fill the personal cover.
 
-Not canonized: retired orbital-cover layouts, exact colossus crops and wordmark coordinates, and small passive home metadata are not reusable global rules. Existing paper kickers remain incumbent research copy and are not a new eyebrow style for future surfaces.
+Not canonized: retired orbital-cover layouts, exact colossus crops and wordmark coordinates, and small passive home metadata are not reusable global rules. Existing paper kickers remain incumbent research copy and are not a new eyebrow style for future surfaces. Exact teaching-grid sizes, per-family geometry dimensions and interpolation colors remain local implementation details rather than new global tokens.

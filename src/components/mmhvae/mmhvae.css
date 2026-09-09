@@ -87,3 +87,17 @@
 .mm-scene-label[role="button"]{cursor:pointer}
 .mm-scene-label[role="button"]:hover{background:#193442}
 .mm-scene-label[role="button"]:focus-visible{outline:2px solid #d8ff45;outline-offset:2px}
+.mm-math-controls{border-top:1px solid #38515e;padding:18px 22px;background:#0b1a24;color:#dfebee;flex-shrink:0}
+.mm-math-steps{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px}
+.mm-math-steps button{display:flex;align-items:center;gap:8px;text-align:left;font-size:12px;min-height:40px;padding:8px 12px;border:1px solid #34505e;white-space:nowrap}
+.mm-math-steps button[aria-pressed=true],.mm-browser-math button[aria-pressed=true]{background:#203d4d;color:#e8ffbc}
+.mm-math-steps button>span{color:#bddf99;font-size:11px}
+.mm-math-controls-body{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(250px,1fr);gap:26px}
+.mm-math-stage-title{display:flex;align-items:center;gap:10px;font-size:14px}.mm-math-stage-title strong{font-weight:500;flex:1}.mm-math-stage-title button{padding:7px}.mm-math-stage-title button:disabled{opacity:.3}
+.mm-math-current .mm-math{margin:8px 0;padding:6px 0;font-size:14px;max-height:100px;overflow:auto}.mm-math-current p{font-size:12px;line-height:1.8;color:#b7d0d9;margin:5px 0;max-width:70ch}
+.mm-math-inputs{padding-top:6px}.mm-math-inputs label{display:flex;flex-direction:column;gap:10px;font-size:12px;color:#c7dce3}.mm-math-inputs input{width:100%;accent-color:#c6e7a0;cursor:pointer}.mm-math-inputs output{display:block;font-size:12px;line-height:1.8;color:#e5d8b3;margin:10px 0 14px;font-variant-numeric:tabular-nums;min-height:42px}
+.mm-math-inputs>div{display:flex;gap:16px;align-items:center}.mm-math-inputs>div>label{flex:1}.mm-math-inputs button{display:flex;align-items:center;gap:7px;padding:10px;font-size:12px;border:1px solid #436271;min-height:40px}
+.mm-math-controls>details{font-size:11px;color:#a5c0cd;margin-top:14px}.mm-math-controls summary{cursor:pointer;padding:6px 0}.mm-math-controls details p{font-size:12px;line-height:1.7;max-width:85ch}
+.mm-browser-math{border-top:1px solid #3a5460;margin-top:24px;padding-top:20px}.mm-browser-math>p{font-size:12px;line-height:1.8;color:#b1cad2}
+.mm-viewer:fullscreen .mm-math-controls{max-height:34dvh;overflow:auto}
+@media(max-width:640px){.mm-math-controls{padding:14px}.mm-math-controls-body{grid-template-columns:1fr;gap:14px}.mm-math-steps button{font-size:11px}.mm-math-current .mm-math{font-size:12px}.mm-viewer:fullscreen .mm-math-controls{max-height:32dvh}.mm-viewer:fullscreen .mm-math-controls-body{grid-template-columns:1fr}.mm-viewer:fullscreen .mm-math-current p{display:none}}

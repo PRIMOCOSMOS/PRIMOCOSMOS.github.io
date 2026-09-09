@@ -1,9 +1,11 @@
 import { MODALITIES, LEVELS, NODE_MAP, type ModelNode } from './model'
 import { anatomyFor, glyphFor, type AnatomyGraph, type AnatomyPart } from './anatomy'
 import { modelTopology } from './topology'
+import { mathematicalGraph } from './mathematics'
 
 export const moduleName=(n:ModelNode)=>`${n.mod?`${MODALITIES.find(m=>m.id===n.mod)?.label} · `:''}${({input:'输入影像',stem:'初始特征提取',encoder:'编码残差块',down:'空间下采样',expert:'模态概率估计',prior:'条件先验分布',poe:'多专家融合',sample:'潜变量采样',up:'空间上采样',decoder:'生成残差块',lift:'向量还原为空间特征',output:'影像生成器',resnet:'影像残差块',image:'生成影像',discriminator:'真实性判别器',feature:'共享生成特征',concat:'条件与观测拼接',priorhead:'先验参数预测',factor:'模态残差分布',posterior:'融合后验分布'} as Record<string,string>)[n.kind]}${['input','stem','output','image','discriminator','lift'].includes(n.kind)?'':n.kind==='resnet'?` ${n.id.split('-').at(-1)}`:` · 第 ${n.l} 层`}`
 export function partName(p:AnatomyPart):string {
+  if(p.math)return p.title
   if(p.sourceName.endsWith('.convt2'))return '影像细节映射 · 7×7 卷积'
   if(p.child&&NODE_MAP.has(p.child))return moduleName(NODE_MAP.get(p.child)!)
   const specific:Record<string,string>={mean:'全局空间平均',flatten:'展平通道向量',fc1:'压缩通道描述',fc2:'恢复通道权重',view:'重排张量维度',gate:'施加通道权重',weight:'累加分布权重',weighted_mu:'累加加权均值',normalize:'归一化融合参数',chunk:'分离均值与尺度',split:'分离分布参数',eps:'生成标准正态噪声',se:'通道注意力',bn_0:'输入特征归一化',bn_1:'中间特征归一化',bn_2:'深度卷积后归一化'}
@@ -62,7 +64,7 @@ export function graphFor(id:string,observed:string[]):AnatomyGraph|null {
   const parent=anatomyFor(atom.parent,observed),part={...atom.part,child:undefined,position:undefined}
   const edges=parent.edges.filter(e=>e.from===part.id||e.to===part.id)
   const neighbors=parent.parts.filter(p=>p.id!==part.id&&edges.some(e=>e.from===p.id||e.to===p.id)).map(p=>({...p,position:undefined,role:edges.some(e=>e.from===p.id&&e.to===part.id)?'input' as const:'output' as const,child:p.child??atomId(atom.parent,p.id)}))
-  return {title:partName(part),tensor:part.shape,note:part.detail,parts:[part,...neighbors],edges}
+  return mathematicalGraph(part,neighbors,edges,partName(part),principle(part).formula)
 }
 export function principle(p:AnatomyPart):{purpose:string;formula:string}{
   const table:Record<string,[string,string]>={

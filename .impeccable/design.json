@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-08T05:09:49.936190+00:00",
+  "generatedAt": "2026-09-09T05:09:38.085320+00:00",
   "title": "Design System: PRIMOCOSMOS — Silicon Idol & Multimodal Signal Lab",
   "extensions": {
     "colorMeta": {
@@ -363,12 +363,57 @@
           "oklch(87% .03 255)",
           "oklch(95% .03 255)"
         ]
+      },
+      "math-positive-blue": {
+        "role": "tertiary",
+        "displayName": "Math Positive Blue",
+        "canonical": "#72cbe5",
+        "tonalRamp": [
+          "oklch(15% 0.093 218.9)",
+          "oklch(27% 0.093 218.9)",
+          "oklch(39% 0.093 218.9)",
+          "oklch(51% 0.093 218.9)",
+          "oklch(63% 0.093 218.9)",
+          "oklch(75% 0.093 218.9)",
+          "oklch(87% 0.093 218.9)",
+          "oklch(95% 0.093 218.9)"
+        ]
+      },
+      "math-negative-warm": {
+        "role": "tertiary",
+        "displayName": "Math Negative Warm",
+        "canonical": "#e8af77",
+        "tonalRamp": [
+          "oklch(15% 0.098 65.1)",
+          "oklch(27% 0.098 65.1)",
+          "oklch(39% 0.098 65.1)",
+          "oklch(51% 0.098 65.1)",
+          "oklch(63% 0.098 65.1)",
+          "oklch(75% 0.098 65.1)",
+          "oklch(87% 0.098 65.1)",
+          "oklch(95% 0.098 65.1)"
+        ]
+      },
+      "math-selected-pale": {
+        "role": "tertiary",
+        "displayName": "Math Selected Pale",
+        "canonical": "#efffd5",
+        "tonalRamp": [
+          "oklch(15% 0.057 124.4)",
+          "oklch(27% 0.057 124.4)",
+          "oklch(39% 0.057 124.4)",
+          "oklch(51% 0.057 124.4)",
+          "oklch(63% 0.057 124.4)",
+          "oklch(75% 0.057 124.4)",
+          "oklch(87% 0.057 124.4)",
+          "oklch(95% 0.057 124.4)"
+        ]
       }
     },
     "typographyMeta": {
       "display": {
         "displayName": "Cover Transmission",
-        "purpose": "The two-line personal-cover signal."
+        "purpose": "Retained orbital-cover display token; the current home identity uses authored SVG lettering."
       },
       "headline": {
         "displayName": "Research Thesis",
@@ -454,6 +499,11 @@
         "name": "home-departure",
         "value": "400ms navigation delay / 420ms visual sweep",
         "purpose": "Blade departure for unmodified same-tab navigation when motion is enabled; immediate routing otherwise."
+      },
+      {
+        "name": "mmhvae-mathematical-cycle",
+        "value": "0.15 cycles per second",
+        "purpose": "Deterministic local mathematical progression; manual scrubbing pauses playback and reduced motion disables automatic advancement."
       }
     ],
     "breakpoints": [
@@ -488,6 +538,10 @@
       {
         "name": "home-wide",
         "value": "1700px"
+      },
+      {
+        "name": "mmhvae-math-and-browser-stack",
+        "value": "640px"
       }
     ],
     "scopes": {
@@ -518,7 +572,28 @@
         "rules": "Existing module palette, vertical encoder towers and seven-level spatial hierarchy take precedence over generic planar-console guidance. Preserve local KaTeX, operator detail, and hierarchy browser."
       }
     },
-    "notCanonized": "Retired cover composition, exact image crop and glyph coordinates, passive metadata sizes, and incumbent research kickers are not new global rules."
+    "notCanonized": "Retired cover composition, exact image crop and glyph coordinates, passive metadata sizes, and incumbent research kickers are not new global rules. Exact teaching-grid sizes, per-family geometry dimensions and interpolation colors remain local implementation details rather than new global tokens.",
+    "atomicMathematics": {
+      "scope": "MMHVAE deepest containment entries",
+      "form": "vertical numeric 3D stages with external context rails",
+      "rules": [
+        "Operator Boundary Rule",
+        "Numerical Correspondence Rule"
+      ],
+      "densityDisplayHeight": 8,
+      "motion": "bounded deterministic local transformation; pause, manual progress and reduced-motion support",
+      "truth": "small teaching data, never trained inference",
+      "labelRendering": "KaTeX and MathML",
+      "signedValueColors": [
+        "math-positive-blue",
+        "math-negative-warm",
+        "math-selected-pale"
+      ],
+      "controls": "Scrollable numbered steps, current formula and editable explanation, operator-specific probe/readout, pause and manual progress, native scale/index disclosure.",
+      "responsive": "Two columns become one at 640px; fullscreen control panel scrolls within 34dvh, or 32dvh on narrow screens.",
+      "normalizationStages": "Input values → squared centered deviations → normalized values.",
+      "numericalSource": "Convolution geometry and control readout share convolutionDemo; other readouts follow the selected operator and coordinate."
+    }
   },
   "components": [
     {
@@ -620,11 +695,18 @@
       "description": "Home header link with a 44px minimum hit height and cold focus feedback.",
       "html": "<nav class=\"ds-silicon-nav\" aria-label=\"主页导航\"><a href=\"#/research/mmhvae\">文献档案 <svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M7 17 17 7M7 7h10v10\"/></svg></a></nav>",
       "css": ".ds-silicon-nav{background:#020305;padding:16px}.ds-silicon-nav a{display:flex;align-items:center;gap:10px;min-height:44px;font:18px \"Microsoft YaHei UI\",\"Segoe UI\",sans-serif;color:#d6dce5;text-decoration:none}.ds-silicon-nav svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2}.ds-silicon-nav a:hover{color:#fff}.ds-silicon-nav a:focus-visible{outline:2px solid #b7d5ff;outline-offset:5px}"
+    },
+    {
+      "name": "Atomic Mathematical Controls",
+      "kind": "custom",
+      "description": "MMHVAE local step selection, numerical probe and explicit scale disclosure; the live component synchronizes these controls with the 3D stage.",
+      "html": "<section class=\"ds-math-controls\" aria-label=\"原子运算数学实验\"><div class=\"ds-math-steps\" role=\"group\" aria-label=\"数学推导步骤\"><button>完整演算</button><button aria-pressed=\"true\"><span>1</span>概率密度</button><button aria-pressed=\"false\"><span>2</span>尺度与方差</button></div><div class=\"ds-math-body\"><div><strong>概率密度</strong><p>观察同一分布的尺度如何改变密度曲面。</p></div><div class=\"ds-math-inputs\"><label>调整尺度<input type=\"range\" min=\"0\" max=\"1\" step=\"0.01\" value=\"0.42\"/></label><output>示例 μ = 0 · s = 1.02 · Var = 1.034 · 显示高度 = 8×密度</output></div></div><details><summary>示意比例与坐标含义</summary><p>数值为小规模确定性教学示例，未加载训练权重。</p></details></section>",
+      "css": ".ds-math-controls{border-top:1px solid #38515e;padding:18px 22px;background:#0b1a24;color:#dfebee;font-family:\"Noto Sans SC\",\"Microsoft YaHei UI\",sans-serif}.ds-math-steps{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px}.ds-math-steps button{display:flex;align-items:center;gap:8px;text-align:left;font-size:12px;font-family:inherit;min-height:40px;padding:8px 12px;border:1px solid #34505e;background:transparent;color:inherit;white-space:nowrap;cursor:pointer}.ds-math-steps button[aria-pressed=true]{background:#203d4d;color:#e8ffbc}.ds-math-steps button>span{color:#bddf99;font-size:11px}.ds-math-steps button:hover{background:#1a303d}.ds-math-controls button:focus-visible,.ds-math-controls input:focus-visible,.ds-math-controls summary:focus-visible{outline:2px solid #d8ff45;outline-offset:2px}.ds-math-body{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(250px,1fr);gap:26px}.ds-math-body strong{font-size:14px;font-weight:500}.ds-math-body p{font-size:12px;line-height:1.8;color:#b7d0d9;max-width:70ch}.ds-math-inputs label{display:flex;flex-direction:column;gap:10px;font-size:12px;color:#c7dce3}.ds-math-inputs input{width:100%;accent-color:#c6e7a0;cursor:pointer}.ds-math-inputs output{display:block;font-size:12px;line-height:1.8;color:#e5d8b3;margin:10px 0 14px;font-variant-numeric:tabular-nums;min-height:42px}.ds-math-controls details{font-size:11px;color:#a5c0cd;margin-top:14px}.ds-math-controls summary{cursor:pointer;padding:6px 0}.ds-math-controls details p{font-size:12px;line-height:1.7;max-width:85ch}@media(max-width:640px){.ds-math-controls{padding:14px}.ds-math-body{grid-template-columns:1fr;gap:14px}.ds-math-steps button{font-size:11px}}"
     }
   ],
   "narrative": {
     "northStar": "Silicon Idol / Deep-Space Telemetry Array",
-    "overview": "PRIMOCOSMOS has two deliberately separate visual scopes. The home route uses the approved Silicon Idol identity: black sculptural material, white authored industrial lettering, an aggressive blade integrated into the lettering, and restrained cold light. Research keeps its incumbent Deep-Space Telemetry Array notebook and scientific semantics. The shared identity and real paper destinations connect these scopes; their palettes and display treatments do not become interchangeable.\n\nScope authority: home rules apply to `src/components/home/` and `#/`; research rules apply to `src/ResearchPage.tsx`, the research components, and `#/research/<paper>`. The home wordmark preserves the exact spelling **PRIMOCOSMOS：SILICONDEVINE**. Its first-screen composition and generated colossus asset belong to `.impeccable/surfaces/src-components-home-home-tsx.md`, not a mandatory template for future pages. The legacy orbital-cover styles remain in the stylesheet but no longer define the home identity. Existing unprefixed frontmatter primitives remain research-scoped unless explicitly identified otherwise; `home-*` and `silicon-*` entries are home-scoped.\n\nThe notebook is intentionally dense and operational. Three mutually exclusive paper tabs expose complete notes in a stable Abstract → Method → Evaluation sequence. The Method band expands beyond the reading column and gives each paper a browser-native model laboratory: large labeled SVG schematics, controls that alter observed modalities or gradient routes, generated MRI slices, trend plots, formula disclosures, and plain-language status readouts. Expressive details must explain identity, hierarchy, state, information flow, or evidence—not decorate empty space.",
+    "overview": "PRIMOCOSMOS has two deliberately separate visual scopes. The home route uses the approved Silicon Idol identity: black sculptural material, white authored industrial lettering, a smooth curved sigil composed with the title without touching its letters, and restrained cold light. Research keeps its incumbent Deep-Space Telemetry Array notebook and scientific semantics. The shared identity and real paper destinations connect these scopes; their palettes and display treatments do not become interchangeable.\n\nScope authority: home rules apply to `src/components/home/` and `#/`; research rules apply to `src/ResearchPage.tsx`, the research components, and `#/research/<paper>`. The home wordmark preserves the exact spelling **PRIMOCOSMOS：SILICONDEVINE**. Its first-screen composition and generated colossus asset belong to `.impeccable/surfaces/src-components-home-home-tsx.md`, not a mandatory template for future pages. The legacy orbital-cover styles remain in the stylesheet but no longer define the home identity. Existing unprefixed frontmatter primitives remain research-scoped unless explicitly identified otherwise; `home-*` and `silicon-*` entries are home-scoped.\n\nThe notebook is intentionally dense and operational. Three mutually exclusive paper tabs expose complete notes in a stable Abstract → Method → Evaluation sequence. The Method band expands beyond the reading column and gives each paper a browser-native model laboratory: large labeled SVG schematics, controls that alter observed modalities or gradient routes, generated MRI slices, trend plots, formula disclosures, and plain-language status readouts. Expressive details must explain identity, hierarchy, state, information flow, or evidence—not decorate empty space.",
     "keyCharacteristics": [
       "Independent monochrome industrial home and dense scientific notebook, joined by direct paper navigation.",
       "Matte near-black and navy tonal decks, clipped instrument housings, one-pixel calibration rails, and almost no soft elevation.",
@@ -656,7 +738,7 @@
       },
       {
         "name": "The Authored Identity Rule",
-        "body": "Preserve the bespoke wordmark’s complete lettering and integrated blade; do not replace it with a system display face or a detached generic icon.",
+        "body": "Preserve the bespoke wordmark’s complete lettering and authored curved sigil, including the intentional gap between them; do not substitute a system display face or attach the symbol to letter strokes.",
         "section": "typography"
       },
       {
@@ -693,6 +775,16 @@
         "name": "The Hard-Housing Rule",
         "body": "Structural containers are square or clipped; pill geometry belongs to touch targets, not content surfaces.",
         "section": "shapes"
+      },
+      {
+        "name": "The Operator Boundary Rule",
+        "body": "An atomic view explains only its own output. Noise generation does not perform the later scale/mean operations; weight accumulation does not construct the downstream posterior. Pure tensor leaves explain storage and indexing without inventing hidden networks.",
+        "section": "components"
+      },
+      {
+        "name": "The Numerical Correspondence Rule",
+        "body": "The selected coordinate, scene value and control readout use the same operator-specific example. All examples are deterministic teaching data, not trained weights. Gaussian display height is explicitly scaled by eight for legibility; normalized probability remains separate from display coordinates. Blue/warm values distinguish positive/negative responses and pale highlights mark the current sample. Explanatory prose participates in the existing persistent editor.",
+        "section": "components"
       }
     ],
     "dos": [

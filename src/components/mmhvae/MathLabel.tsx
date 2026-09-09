@@ -5,6 +5,7 @@ const escapeHTML=(text:string)=>text.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&l
 const symbols:Record<string,string>={'μ':'\\mu ','σ':'\\sigma ','ε':'\\epsilon ','Σ':'\\sum ','Λ':'\\Lambda ','⊙':'\\odot ','×':'\\times ','→':'\\to ','←':'\\leftarrow ','↑':'\\uparrow ','↓':'\\downarrow ','−':'-','²':'^{2}','³':'^{3}','ₗ':'_{l}','ⱼ':'_{j}','ₚ':'_{p}','₁':'_{1}','₂':'_{2}','₃':'_{3}','₄':'_{4}','₅':'_{5}','₆':'_{6}','₇':'_{7}','₀':'_{0}','∈':'\\in ','·':'\\cdot ','∞':'\\infty '}
 /** Labels contain trusted model notation, but escape all text and disable KaTeX trust. */
 export function labelHTML(value:string,forceMath=false):string {
+  if(/\\[A-Za-z]+/.test(value))return katex.renderToString(value,{displayMode:false,throwOnError:false,strict:'ignore',trust:false,output:'htmlAndMathml'})
   return value.split(/([\u3400-\u9fff，。；：、]+)/).map(fragment=>{
     if(!fragment||/[\u3400-\u9fff]/.test(fragment))return escapeHTML(fragment)
     if(!forceMath&&!/[μσεΣΛ⊙×→←²³ₗⱼₚ₀-₇=]|\b[zgpqEPQ][1-7]\b/.test(fragment))return escapeHTML(fragment)

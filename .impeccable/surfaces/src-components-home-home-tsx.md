@@ -9,9 +9,9 @@ related_targets: ["src/components/home/home.css","src/components/home/Wordmark.t
 
 Scope: independent home route (#/), Experience leading into the existing Read/explore research archive (#/research/<paper>). Readers and scientific claims inherit PRODUCT.md.
 
-Approved: .impeccable/mocks/silicon-S2.png, explicitly selected by the user. Follow-up requests motion and a more aggressive emblem interlocked with the lettering, breaking rigid icon/text separation. The user-pinned direction overrides random selection; contract seed is user-selected-S2. No catalog QUALITY BAR card applies to this bespoke direction.
+Approved: .impeccable/mocks/silicon-S2.png, explicitly selected by the user. The latest explicit correction requests smooth arcs to complement sharp letters; the symbol and title form one composition but must have breathing room rather than touching. The user-pinned direction overrides random selection; contract seed is user-selected-S2. No catalog QUALITY BAR card applies to this bespoke direction.
 
-First viewport: black ground; asymmetric dark colossus on the right; oversized two-line white engineered wordmark crosses its silhouette; white archive action beneath; three real paper destinations anchor the foot. The blade sigil overlaps the left letters and extends above them. Exact brand spelling: PRIMOCOSMOS：SILICONDEVINE.
+First viewport: black ground; asymmetric dark colossus on the right; oversized two-line white engineered wordmark crosses its silhouette; white archive action beneath; three real paper destinations anchor the foot. The authored curved sigil sits just above the left title origin with a clear gap from the letters. Exact brand spelling: PRIMOCOSMOS：SILICONDEVINE.
 
 Assets: public/assets/silicon-colossus.png is a newly generated standalone material image, not a comp crop; prompt embedded and adjacent. Wordmark.tsx uses authored SVG glyphs. Links and text remain semantic HTML. Extra generic destinations in the comp are omitted because only three real papers exist.
 

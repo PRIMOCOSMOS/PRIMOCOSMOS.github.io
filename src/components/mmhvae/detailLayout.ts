@@ -19,11 +19,12 @@ export function detailLayout(graph:AnatomyGraph,compact=false){
   const positions=new Map<string,Point3>()
   for(const p of internal){
     const d=depth.get(p.id)!,branches=internal.filter(v=>depth.get(v.id)===d&&!spine.has(v.id)),index=branches.indexOf(p),angle=index*Math.PI*.75+Math.PI/4
-    positions.set(p.id,graph.layout==='overview'&&p.position?[...p.position]:p.position?[p.position[0]*1.7,p.position[1]*1.7,p.position[2]*1.7]:spine.has(p.id)?[0,-d*4.6,0]:[Math.cos(angle)*7,-d*4.6,Math.sin(angle)*7])
+    positions.set(p.id,graph.layout==='overview'&&p.position?[...p.position]:p.position?[p.position[0]*1.7,p.position[1]*1.7,p.position[2]*1.7]:spine.has(p.id)?[0,-d*(graph.mathematics?11:4.6),0]:[Math.cos(angle)*7,-d*4.6,Math.sin(angle)*7])
   }
   const values=[...positions.values()]
-  const min=([0,1,2] as const).map(i=>Math.min(...values.map(v=>v[i]))-[3.6,2.6,3.6][i]) as Point3
-  const max=([0,1,2] as const).map(i=>Math.max(...values.map(v=>v[i]))+[3.6,2.6,3.6][i]) as Point3
+  const margin=graph.mathematics?[7,5,5]:[3.6,2.6,3.6]
+  const min=([0,1,2] as const).map(i=>Math.min(...values.map(v=>v[i]))-margin[i]) as Point3
+  const max=([0,1,2] as const).map(i=>Math.max(...values.map(v=>v[i]))+margin[i]) as Point3
   for(const role of ['input','output'] as const){
     const ports=graph.parts.filter(p=>p.role===role)
     const used:number[]=[]
