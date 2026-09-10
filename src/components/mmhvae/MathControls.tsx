@@ -1,4 +1,4 @@
-import {ChevronLeft,ChevronRight,Pause,Play} from 'lucide-react'
+import {ChevronLeft,ChevronRight,Pause,Play,MoveRight} from 'lucide-react'
 import katex from 'katex'
 import {useMemo} from 'react'
 import {EditableText} from '../EditableContent'
@@ -27,6 +27,6 @@ export function MathControls({spec,selected,onSelect,probe,onProbe,progress,onPr
   <div className="mm-math-steps" role="group" aria-label="数学推导步骤"><button onClick={onOverview}>完整演算</button>{spec.steps.map((s,i)=><button key={s.title} aria-pressed={i===selected} onClick={()=>onSelect(i)}><span>{i+1}</span>{s.title}</button>)}</div>
   <div className="mm-math-controls-body"><div className="mm-math-current"><div className="mm-math-stage-title"><button aria-label="上一个数学步骤" disabled={!selected} onClick={()=>onSelect(selected-1)}><ChevronLeft size={16}/></button><strong>{current.title}</strong><button aria-label="下一个数学步骤" disabled={selected===spec.steps.length-1} onClick={()=>onSelect(selected+1)}><ChevronRight size={16}/></button></div><div className="mm-math" tabIndex={0} dangerouslySetInnerHTML={{__html:html}}/><EditableText textKey={`mm-math-step-${textKeyBase}-${selected}`}>{current.explanation}</EditableText></div>
    <div className="mm-math-inputs"><label>{spec.control}<input type="range" aria-label={spec.control} min="0" max="1" step=".01" value={probe} onChange={e=>onProbe(Number(e.target.value))}/></label><output>{readout(spec,probe,temperature)}</output><div><button onClick={onPlaying} aria-label={playing?'暂停数学演示':'播放数学演示'}>{playing?<Pause size={15}/>:<Play size={15}/>}<span>{playing?'暂停':'播放'}</span></button><label>演算进度<input type="range" aria-label="手动调整数学演算进度" min="0" max="1" step=".01" value={progress} onChange={e=>onProgress(Number(e.target.value))}/></label></div></div>
-  </div><details><summary>示意比例与坐标含义</summary><EditableText textKey={`mm-math-legend-${textKeyBase}`}>{`${spec.legend} 数值为小规模确定性教学示例，未加载训练权重。纯数据张量展示索引与组织方式，不虚构额外运算。`}</EditableText></details>
+  </div><div className="mm-crystal-key" aria-label="三维演算图例"><span><i className="mm-crystal-key-focus"/>当前元素</span><span><i className="mm-crystal-key-active"/>参与计算</span><span><i className="mm-crystal-key-idle"/>其余张量</span><span><MoveRight size={20} aria-hidden="true"/>箭头：输入到结果</span></div><details><summary>示意比例与坐标含义</summary><EditableText textKey={`mm-math-legend-${textKeyBase}`}>{`${spec.legend} 张量单元使用等尺寸水晶块：冷蓝表示非负值，暖色表示负值，色彩强度反映幅值；浅白高亮是当前元素，低亮有色单元参与当前运算，透明单元保留上下文。箭头表示数据依赖方向，暂停后仍可读；重排与广播的路径表示索引映射，不表示内存复制。数值为小规模确定性教学示例，未加载训练权重。`}</EditableText></details>
  </section>
 }

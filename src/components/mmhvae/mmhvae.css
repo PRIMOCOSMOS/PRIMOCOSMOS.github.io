@@ -100,4 +100,10 @@
 .mm-math-controls>details{font-size:11px;color:#a5c0cd;margin-top:14px}.mm-math-controls summary{cursor:pointer;padding:6px 0}.mm-math-controls details p{font-size:12px;line-height:1.7;max-width:85ch}
 .mm-browser-math{border-top:1px solid #3a5460;margin-top:24px;padding-top:20px}.mm-browser-math>p{font-size:12px;line-height:1.8;color:#b1cad2}
 .mm-viewer:fullscreen .mm-math-controls{max-height:34dvh;overflow:auto}
+.mm-crystal-key{display:flex;flex-wrap:wrap;gap:12px 22px;align-items:center;margin-top:18px;padding-top:14px;border-top:1px solid #304955;font-size:11px;color:#bcd4df}
+.mm-crystal-key>span{display:flex;align-items:center;gap:8px;line-height:1.6}
+.mm-crystal-key i{display:block;width:13px;height:13px;transform:rotate(-15deg) skewY(8deg)}
+.mm-crystal-key-focus{background:#d7f5ff;border:1px solid #f2fcff}
+.mm-crystal-key-active{background:#426f84;border:1px solid #83c8e0}
+.mm-crystal-key-idle{background:#152e3b;border:1px solid #547585}
 @media(max-width:640px){.mm-math-controls{padding:14px}.mm-math-controls-body{grid-template-columns:1fr;gap:14px}.mm-math-steps button{font-size:11px}.mm-math-current .mm-math{font-size:12px}.mm-viewer:fullscreen .mm-math-controls{max-height:32dvh}.mm-viewer:fullscreen .mm-math-controls-body{grid-template-columns:1fr}.mm-viewer:fullscreen .mm-math-current p{display:none}}

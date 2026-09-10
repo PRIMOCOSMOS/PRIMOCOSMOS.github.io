@@ -9,6 +9,7 @@ import { atomId, moduleName, partName } from './navigation'
 import { makeGlyph, disposeGroup } from './glyphs'
 import { modelTopology, levelY } from './topology'
 import { makeMathVisual, type MathVisual } from './mathVisuals'
+import { createArrowStream } from './crystalPrimitives'
 
 export interface SceneProps {
   selected:string; observed:string[]; target:string; level:number; isolate:boolean; spread:number
@@ -18,7 +19,7 @@ export interface SceneProps {
   mathProbe:number; mathProgress:number;mathFocus:boolean
 }
 type Visual={node:ModelNode;group:T.Group;label?:T.Sprite;materials:Map<T.Material,number>;hit:T.Mesh;origin:T.Vector3}
-type Flow={from:string;to:string;curve:T.CatmullRomCurve3;line:T.Line;arrow:T.Mesh;dot:T.Mesh;label?:T.Sprite;l?:number;mod?:string}
+type Flow={from:string;to:string;curve:T.CatmullRomCurve3;line:T.Line;arrow:T.Mesh;stream:ReturnType<typeof createArrowStream>;label?:T.Sprite;l?:number;mod?:string}
 type PartVisual={part:AnatomyPart;group:T.Group;dest:T.Vector3;label:T.Sprite;dim:T.Sprite;hit:T.Mesh;mathematics?:MathVisual;readout?:T.Sprite;axes?:T.Sprite[]}
 const vector=(p:[number,number,number])=>new T.Vector3(...p)
 
@@ -48,9 +49,9 @@ export default function OrbitScene(props:SceneProps){
    if(residual){mid.x+=3.4;mid.z+=2.5}else if(Math.abs(a.x-b.x)>2){mid.z+=.85}
    const curve=new T.CatmullRomCurve3([start,mid,end]),line=new T.Line(new T.BufferGeometry().setFromPoints(curve.getPoints(32)),new T.LineBasicMaterial({color,transparent:true,opacity:.45}))
    const arrow=new T.Mesh(new T.ConeGeometry(.12,.35,8),new T.MeshBasicMaterial({color,transparent:true}));arrow.position.copy(end);arrow.quaternion.setFromUnitVectors(new T.Vector3(0,1,0),curve.getTangent(1).normalize())
-   const dot=new T.Mesh(new T.SphereGeometry(.09,6,6),new T.MeshBasicMaterial({color:'#dcff90',transparent:true}));parent.add(line,arrow,dot)
+   const stream=createArrowStream(parent,'#c6edf4',.12,2);stream.update(curve,.2);parent.add(line,arrow)
    let tag:T.Sprite|undefined;if(caption){tag=label(caption,color,.45,5);tag.position.copy(mid).add(new T.Vector3(.7,.25,0));parent.add(tag)}
-   return {from,to,curve,line,arrow,dot,label:tag}
+   return {from,to,curve,line,arrow,stream,label:tag}
   }
   for(const [id,point] of topology.positions){
    const node=NODE_MAP.get(id)!,color=colorFor(node),group=new T.Group(),glyph=makeGlyph(glyphFor(node.kind),color),large=['encoder','output','input','image'].includes(node.kind)
@@ -94,7 +95,7 @@ export default function OrbitScene(props:SceneProps){
     const tag=label(caption,color,.68,p.role?7:5.5);tag.position.set(0,p.math?4.3:1.65,0);tag.userData.baseScale=tag.scale.clone();tag.userData.part=p.id;tag.userData.priority=p.math?5:0;group.add(tag)
     const dim=label(p.math?'':p.shape,'#b3cbd4',.48,5.4,true);dim.position.set(0,.8,0);dim.userData.baseScale=dim.scale.clone();dim.userData.part=p.id;dim.userData.dimension=true;group.add(dim)
     let readout:T.Sprite|undefined,axes:T.Sprite[]|undefined
-    if(p.math){readout=label('','#e7d5b0',.5,7,true);readout.position.set(0,-2.3,1);readout.userData.priority=6;group.add(readout);const kind=p.math.kind,names=kind==='activation'?['x','f(x)','C']:kind==='distribution'?['z₁','8p(z₁,z₂)','z₂']:kind==='sampling'?['ε₁','ε₂','ε₃']:kind==='linear'?['输入 n','输出 m','权重 W']:kind==='fusion'?['专家','权重 / 贡献','结果']:['W','C','H'];axes=names.map((name,i)=>{const a=label(name,'#a2bcc6');a.position.copy(vector([[3.5,-.6,0],[-3.5,2,0],[0,-.6,3.6]][i] as [number,number,number]));group.add(a);return a})}
+    if(p.math){readout=label('','#e7d5b0',.5,7,true);readout.position.set(0,-3.7,1);readout.userData.priority=6;group.add(readout);const kind=p.math.kind,names=kind==='activation'?['x','f(x)','C']:kind==='distribution'?['z₁','8p(z₁,z₂)','z₂']:kind==='sampling'?['ε₁','ε₂','ε₃']:kind==='linear'?['输入 n','输出 m','权重 W']:kind==='fusion'?[]:['W','C','H'];axes=names.map((name,i)=>{const a=label(name,'#a2bcc6');a.position.copy(vector([[3.5,-.6,0],[-3.5,2,0],[0,-.6,3.6]][i] as [number,number,number]));group.add(a);return a});for(const item of mathematics?.group.userData.annotations??[]){const a=label('\\displaystyle '+item.text,'#c6e6f0',.5,5,true);a.position.copy(vector(item.position));a.userData.priority=4;group.add(a);axes.push(a)}}
     const hit=new T.Mesh(new T.BoxGeometry(p.math?12:2.6,p.math?5:1.5,p.math?8:2.6),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.userData.part=p.id;group.add(hit);detail.add(group);parts.push({part:p,group,dest,label:tag,dim,hit,mathematics,readout,axes})
    }
    const coords=new Map(parts.map(p=>[p.part.id,p.dest]))
@@ -111,7 +112,15 @@ export default function OrbitScene(props:SceneProps){
   let dirty=true,visible=true,frame=0,lastTime=0,elapsed=0,signature='',mathClock=0,lastProgress=-1,lastMath='',lastMathFocus=''
   const mark=()=>{dirty=true};controls.addEventListener('change',mark)
   let firstSize=true
-  const resize=()=>{const w=container.clientWidth,h=container.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix();if(detail){if(detailKey&&latest.current.detailId)buildDetail(detailKey,latest.current.detailId)}else if(firstSize){const next=overviewPose();camera.position.copy(next.position);controls.target.copy(next.target)}firstSize=false;dirty=true}
+  const resize=()=>{
+   const w=container.clientWidth,h=container.clientHeight;renderer.setSize(w,h);camera.aspect=w/h;camera.updateProjectionMatrix()
+   if(detail){if(detailKey&&latest.current.detailId){
+    buildDetail(detailKey,latest.current.detailId)
+    // A responsive rebuild changes the camera fit even if the selected step did not change.
+    lastMathFocus='';detailStart=performance.now()-900
+   }}else if(firstSize){const next=overviewPose();camera.position.copy(next.position);controls.target.copy(next.target)}
+   firstSize=false;dirty=true
+  }
   const ro=new ResizeObserver(resize);ro.observe(container);resize()
   const io=new IntersectionObserver(([e])=>{visible=e.isIntersecting;dirty=true},{rootMargin:'80px'});io.observe(container)
   const ray=new T.Raycaster(),pointer=new T.Vector2();let down=[0,0]
@@ -149,15 +158,15 @@ export default function OrbitScene(props:SceneProps){
     }
     decorations.forEach(d=>d.visible=!detail&&!p.isolate)
     for(const f of overviewFlows){const active=(!f.mod||p.observed.includes(f.mod)||f.to.includes('output')||f.to.includes('image'))&&(!p.isolate||f.l===p.level||f.l===0),focused=f.l===p.level
-     f.line.visible=!detail&&active&&p.spread===0;(f.line.material as T.LineBasicMaterial).opacity=focused?.65:.12;f.arrow.visible=f.line.visible&&(focused||!f.mod);f.dot.visible=f.line.visible&&p.playing&&(focused||p.stage===0&&f.mod!==undefined)&&!p.reducedMotion
+     f.line.visible=!detail&&active&&p.spread===0;(f.line.material as T.LineBasicMaterial).opacity=focused?.65:.12;f.arrow.visible=f.line.visible&&(focused||!f.mod);f.stream.group.visible=f.line.visible&&(focused||p.stage===0&&f.mod!==undefined)
     }
     for(const v of parts){const active=v.part.id===(hoverPart||p.activePart),major=!!v.part.math||!!v.part.role||!!v.part.child||['tensor','image','gaussian','poe','sample','se'].includes(v.part.glyph);v.label.visible=major||active;v.dim.visible=active&&!v.part.math;v.group.scale.setScalar(active&&!v.part.math?1.12:1);if(v.readout)v.readout.visible=active;v.axes?.forEach(a=>a.visible=active&&p.mathFocus)}
-    for(const f of [...detailFlows,...connectors]){const active=!p.activePart||f.from===p.activePart||f.to===p.activePart;(f.line.material as T.LineBasicMaterial).opacity=active?.67:.16;f.arrow.visible=true;f.dot.visible=p.detailMotion&&!p.reducedMotion&&active;if(f.label)f.label.visible=!!(hoverPart||p.activePart)&&[f.from,f.to].includes(hoverPart||p.activePart!)}
+    for(const f of [...detailFlows,...connectors]){const active=!p.activePart||f.from===p.activePart||f.to===p.activePart;(f.line.material as T.LineBasicMaterial).opacity=active?.67:.16;f.arrow.visible=true;f.stream.group.visible=active;if(f.label)f.label.visible=!!(hoverPart||p.activePart)&&[f.from,f.to].includes(hoverPart||p.activePart!)}
    }
    if(detail){const t=p.reducedMotion?1:Math.min((now-detailStart)/900,1),k=1-(1-t)**3
     if(t<1||parts.some(v=>!v.group.userData.arrived)){for(const v of parts){v.group.position.copy(v.dest).multiplyScalar(v.part.position?1:k);v.group.userData.arrived=t===1}if(cage)cage.scale.copy(cageExtent).multiplyScalar(.08+.92*k);dirty=true}
    }
-   if((detail?p.detailMotion:p.playing)&&!p.reducedMotion){elapsed+=dt;for(const [i,f] of (detail?[...detailFlows,...connectors]:overviewFlows).entries())if(f.dot.visible)f.dot.position.copy(f.curve.getPointAt((elapsed*.36+i*.17)%1));dirty=true}
+   if((detail?p.detailMotion:p.playing)&&!p.reducedMotion){elapsed+=dt;for(const [i,f] of (detail?[...detailFlows,...connectors]:overviewFlows).entries())if(f.stream.group.visible)f.stream.update(f.curve,(elapsed*.36+i*.17)%1);dirty=true}
    if(detailKey?.mathematics){
     if(lastProgress!==p.mathProgress||lastMath!==p.detailId){mathClock=p.mathProgress;lastProgress=p.mathProgress;lastMath=p.detailId??'';dirty=true}
     if(p.detailMotion&&!p.reducedMotion){mathClock=(mathClock+dt*.15)%1;dirty=true}
