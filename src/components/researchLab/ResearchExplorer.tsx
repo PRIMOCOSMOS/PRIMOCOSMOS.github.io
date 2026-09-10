@@ -1,0 +1,69 @@
+import {lazy,Suspense,useEffect,useMemo,useRef,useState} from 'react'
+import {ArrowLeft,ArrowUp,ArrowUpRight,ChevronRight,Code2,FileCode2,Folder,Home,Layers3,Maximize2,Minimize2,MoveRight,Pause,Play,RotateCcw,Search,ZoomIn,ZoomOut} from 'lucide-react'
+import katex from 'katex'
+import 'katex/dist/katex.min.css'
+import '../mmhvae/mmhvae.css'
+import './researchLab.css'
+import {EditableText,NoteEditToolbar,useEditableContent} from '../EditableContent'
+import {MathControls} from '../mmhvae/MathControls'
+import {MathLabel} from '../mmhvae/MathLabel'
+import {graphForEntry,pathFor,sourceLink,type PaperModel} from './catalog'
+import {scientificExample} from './operators'
+const ResearchScene=lazy(()=>import('./ResearchScene'))
+const R=String.raw
+function Formula({value}:{value:string}){return value?<div className="mm-math" tabIndex={0} aria-label="数学公式，可横向滚动" dangerouslySetInnerHTML={{__html:katex.renderToString(value,{displayMode:true,throwOnError:false,trust:false,output:'htmlAndMathml'})}}/>:null}
+
+export default function ResearchExplorer({model,variantControl}:{model:PaperModel;variantControl?:React.ReactNode}){
+ const [location,setLocation]=useState('root'),[history,setHistory]=useState<string[]>([]),[search,setSearch]=useState(''),[view,setView]=useState<'orbit'|'front'|'top'>('orbit'),[reset,setReset]=useState(0),[zoom,setZoom]=useState(1)
+ const [reduced,setReduced]=useState(()=>matchMedia('(prefers-reduced-motion: reduce)').matches),[playing,setPlaying]=useState(()=>!matchMedia('(prefers-reduced-motion: reduce)').matches),[step,setStep]=useState(0),[focus,setFocus]=useState(false),[probe,setProbe]=useState(.42),[progress,setProgress]=useState(.3)
+ const [near,setNear]=useState(false),[fullscreen,setFullscreen]=useState(false),[notice,setNotice]=useState('')
+ const root=useRef<HTMLDivElement>(null),viewer=useRef<HTMLDivElement>(null),{editing}=useEditableContent()
+ const entry=model.entries[location]??model.entries.root,graph=useMemo(()=>graphForEntry(model,entry.id),[model,entry.id]),path=pathFor(model,entry.id)
+ const navigate=(id:string,record=true)=>{if(!model.entries[id])return;if(record&&id!==location)setHistory(h=>[...h,location]);setLocation(id);setSearch('');setFocus(false);setStep(0);setZoom(1);setProgress(.3)}
+ const back=()=>{const id=history.at(-1);if(id){setHistory(h=>h.slice(0,-1));navigate(id,false)}else navigate(entry.parent??'root',false)}
+ useEffect(()=>{const media=matchMedia('(prefers-reduced-motion: reduce)'),changed=()=>{setReduced(media.matches);if(media.matches)setPlaying(false)};media.addEventListener('change',changed);const io=new IntersectionObserver(([e])=>{if(e.isIntersecting)setNear(true)},{rootMargin:'200px'});io.observe(root.current!);return()=>{media.removeEventListener('change',changed);io.disconnect()}},[])
+ useEffect(()=>{if(editing)setPlaying(false)},[editing])
+ useEffect(()=>{const change=()=>setFullscreen(document.fullscreenElement===viewer.current);document.addEventListener('fullscreenchange',change);return()=>document.removeEventListener('fullscreenchange',change)},[])
+ useEffect(()=>{const key=(e:KeyboardEvent)=>{if(e.key==='Escape'&&!document.fullscreenElement&&!(e.target as HTMLElement).isContentEditable&&location!=='root')navigate(entry.parent??'root')};window.addEventListener('keydown',key);return()=>window.removeEventListener('keydown',key)},[location])
+ const toggleFullscreen=async()=>{try{if(document.fullscreenElement)await document.exitFullscreen();else await viewer.current?.requestFullscreen();setNotice('')}catch{setNotice('此浏览器限制全屏。请在 Edge 或 Chrome 的独立标签页中打开后重试。')}}
+ const list=search?Object.values(model.entries).filter(e=>`${e.title} ${e.symbol} ${e.shape}`.toLowerCase().includes(search.toLowerCase())).slice(0,70):entry.children.map(id=>model.entries[id])
+ const math=graph.mathematics,mathReadout=math?.operation.startsWith('lab:')?scientificExample({...math,stage:step},probe).readout:undefined
+ const source=sourceLink(model,entry),prefix=`lab-${model.id}-${entry.id}`
+ return <div ref={root} id={`${model.id}-orbit-lab`} className="architecture-console mm-lab rl-lab">
+  <header className="mm-lab-heading"><div><h3>{model.name}<span>轨道架构实验台</span></h3><EditableText textKey={`lab-${model.id}-intro`}>{model.intro}</EditableText></div><a href={model.repo} target="_blank" rel="noreferrer"><Code2 size={16}/>源码库<ArrowUpRight size={14}/></a></header>
+  <NoteEditToolbar compact/>
+  <div className="rl-configuration"><EditableText textKey={`lab-${model.id}-config`}>{model.config}</EditableText>{variantControl}<span>源码快照 {model.commit.slice(0,8)}</span></div>
+  <div className="rl-viewer mm-viewer" ref={viewer}>
+   <div className="mm-view-toolbar"><div aria-label="相机预设">{([['orbit','轨道'],['front','正视'],['top','俯视']] as const).map(([id,title])=><button key={id} onClick={()=>{setView(id);setReset(n=>n+1)}} aria-pressed={view===id}>{title}</button>)}</div><div>
+    <button aria-label={playing?'暂停数据流':'播放数据流'} title={playing?'暂停数据流':'播放数据流'} onClick={()=>setPlaying(v=>!v)}>{playing?<Pause size={16}/>:<Play size={16}/>}</button>
+    <button aria-label="放大模型" title="放大" onClick={()=>setZoom(z=>Math.min(2.8,z+.2))}><ZoomIn size={16}/></button><button aria-label="缩小模型" title="缩小" onClick={()=>setZoom(z=>Math.max(.5,z-.2))}><ZoomOut size={16}/></button>
+    <button aria-label="重置当前视角" title="重置当前视角" onClick={()=>{setZoom(1);setView('orbit');setFocus(false);setReset(n=>n+1)}}><RotateCcw size={16}/></button>
+    <button aria-label={fullscreen?'退出全屏':'全屏观看'} title={fullscreen?'退出全屏':'全屏观看'} aria-pressed={fullscreen} onClick={toggleFullscreen}>{fullscreen?<Minimize2 size={16}/>:<Maximize2 size={16}/>}</button>
+   </div></div>
+   <nav className="rl-breadcrumbs" aria-label="三维模型层级"><button disabled={!history.length&&location==='root'} onClick={back} aria-label="返回上一视图"><ArrowLeft size={15}/></button><button onClick={()=>navigate('root')} aria-label="返回全模型"><Home size={15}/></button><div>{path.map((id,i)=><button key={id} aria-current={i===path.length-1?'location':undefined} onClick={()=>navigate(id)}>{i>0&&<ChevronRight size={12}/>}<span>{model.entries[id].title}</span></button>)}</div></nav>
+   <div className="mm-scene-wrap rl-scene-wrap"><div className="mm-scene-status"><span className={`mm-live-dot${playing&&!reduced?' is-playing':''}`}/>{reduced?'减少动态效果':playing?'箭头数据流':'已暂停 · 可手动观察'}<span>{math?'数学内部 · 确定性示例':location==='root'?'全模型 · 点击进入':'纵向主干 · 边界外显示上下游'}</span></div>
+    {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={24}/>正在构建模型空间…</div>}><ResearchScene graph={graph} selected={entry.id} playing={playing&&!editing} reduced={reduced} probe={probe} progress={progress} step={step} focus={focus} view={view} reset={reset} zoom={zoom} onSelect={navigate} onStep={n=>{setStep(n);setFocus(true);setZoom(1)}}/></Suspense>:<div className="mm-loading">模型将在进入视野后加载</div>}
+    <div className="mm-scene-foot"><span>拖动旋转 · 点击逐层展开 · 滚轮缩放</span><span>水平层片：张量 · 外侧端口：来源 / 去向</span></div>
+   </div>
+   {math&&<MathControls textKeyBase={`${model.id}-${entry.id}`} spec={math} selected={step} onSelect={n=>{setStep(n);setFocus(true);setZoom(1)}} onOverview={()=>{setFocus(false);setZoom(1)}} probe={probe} onProbe={setProbe} progress={progress} onProgress={v=>{setProgress(v);setPlaying(false)}} playing={playing&&!reduced} onPlaying={()=>setPlaying(v=>!v)} temperature={1} readoutText={mathReadout}/>}
+   {notice&&<p role="status" className="mm-fullscreen-notice">{notice}</p>}
+  </div>
+  <div className="rl-reading-strip"><span><Layers3 size={16}/>层片 · 数据结构</span><span><MoveRight size={18}/>箭头 · 依赖方向</span><span><Folder size={16}/>目录 · 由粗到细</span><EditableText textKey={`lab-${model.id}-scale-note`}>几何比例用于阅读，张量真实维度以标注为准。原子演算使用小型数值示例，不是训练权重推理。</EditableText></div>
+  <section className="rl-browser" aria-label="模型资源管理器">
+   <div className="rl-browser-toolbar"><div><button disabled={!entry.parent} onClick={()=>navigate(entry.parent??'root')}><ArrowUp size={15}/>上一级</button><strong>{math?'原子运算':'模块目录'}</strong><span>{path.length-1} 级</span></div><label className="mm-search"><Search size={15}/><input aria-label="搜索模型模块" placeholder="搜索模块名称或尺寸" value={search} onChange={e=>setSearch(e.target.value)}/></label></div>
+   <div className="rl-browser-body"><aside aria-label="顶层目录"><button aria-current={location==='root'?'location':undefined} onClick={()=>navigate('root')}><Home size={15}/>完整模型</button>{model.entries.root.children.map(id=><button key={id} aria-current={path.includes(id)?'location':undefined} onClick={()=>navigate(id)}>{model.entries[id].children.length?<Folder size={15}/>:<FileCode2 size={15}/>}<span>{model.entries[id].title}</span></button>)}</aside>
+    <div className="rl-directory-content">
+     <header><span>{entry.children.length?`${entry.children.length} 个次级模块`:'已到原子层 · 三个数学步骤'}</span><h4>{entry.title}</h4><div className="rl-tensor-shape"><MathLabel value={entry.shape} math/></div></header>
+     <div className="rl-explanation"><div><h5>原理与设计目的</h5><EditableText textKey={`${prefix}-purpose`}>{entry.purpose}</EditableText></div><div><h5>源码如何实现</h5><EditableText textKey={`${prefix}-implementation`}>{entry.implementation}</EditableText></div></div>
+     <Formula value={entry.formula}/><a className="mm-inline-source" href={source} target="_blank" rel="noreferrer"><Code2 size={14}/>{entry.file}:{entry.line}<ArrowUpRight size={13}/></a>
+     {math&&!search?<div className="rl-atomic-index" role="group" aria-label="选择三维数学步骤">{math.steps.map((s,i)=><button key={i} onClick={()=>{setStep(i);setFocus(true)}} aria-pressed={step===i}><span>{i+1}</span><strong>{s.title}</strong><ChevronRight size={15}/></button>)}</div>:<div className="rl-file-list" aria-label={search?'搜索结果':'当前模块包含的结构'}>{list.map(e=><button key={e.id} onClick={()=>navigate(e.id)} data-entry={e.id}>{e.children.length?<Folder size={19}/>:<FileCode2 size={19}/>}<span><strong>{e.title}</strong><small>{search?pathFor(model,e.id).slice(1,-1).map(id=>model.entries[id].title).join(' / '):e.shape}</small></span><em>{e.children.length?`${e.children.length} 个组件`:'数学内部'}</em><ChevronRight size={16}/></button>)}{!list.length&&<p>没有找到匹配模块。可尝试“风格”“卷积”“掩码”等名称。</p>}</div>}
+     {graph.parts.some(p=>p.role)&&<div className="rl-context"><h5>边界外的数据联系</h5>{graph.parts.filter(p=>p.role).map(p=><button key={p.id} onClick={()=>p.child&&navigate(p.child)}><span>{p.role==='input'?'来自':'流向'}</span>{p.title}<ChevronRight size={13}/></button>)}</div>}
+    </div>
+   </div>
+  </section>
+  <section className="mm-directory rl-structure-table"><details><summary>完整架构与张量尺寸 <ChevronRight size={16}/></summary><div className="mm-table-scroll"><table><caption>{model.config}</caption><thead><tr><th>结构</th><th>输入 / 输出或参数</th><th>次级组件</th><th>源码</th></tr></thead><tbody>{Object.values(model.entries).filter(e=>e.id!=='root'&&pathFor(model,e.id).length<=4&&e.children.length>0).map(e=><tr key={e.id}><th><button onClick={()=>navigate(e.id)}>{pathFor(model,e.id).slice(1).map(id=>model.entries[id].title).join(' / ')}</button></th><td>{e.shape}</td><td>{e.children.length}</td><td><a href={sourceLink(model,e)} target="_blank" rel="noreferrer">{e.file.split('/').at(-1)}:{e.line}</a></td></tr>)}</tbody></table></div></details></section>
+  <section className="mm-math-section"><div className="mm-section-heading"><h4>把空间关系还原成数学</h4></div>{model.equations.map((e,i)=><article className="mm-equation-detail" key={e.title}><h5>{e.title}</h5><Formula value={e.formula}/><EditableText textKey={`lab-${model.id}-equation-${i}`}>{e.explanation}</EditableText></article>)}</section>
+  <section className="mm-training"><div className="mm-section-heading"><h4>{model.id==='pnp'?'从离线学习到在线重建':'四个目标，共用两条浅层网络'}</h4></div>{model.id==='pnp'?<><div className="mm-training-routes"><div><span>1</span><h5>无配对预训练</h5><EditableText textKey="lab-pnp-pretrain">GAN、同域图像、content self、style self 权重均为 1；配对跨域项为 0。随机采样目标风格，学习跨对比生成。</EditableText></div><div><span>2</span><h5>配对微调</h5><EditableText textKey="lab-pnp-pft">GAN、同域图像、跨域图像、跨域 content 权重均为 1；content self 与 style self 为 0。采用目标真实风格编码。</EditableText></div><div><span>3</span><h5>固定网络重建</h5><EditableText textKey="lab-pnp-online">CC 与 DC 更新图像；CR 只更新 content。实测 k-space 约束来自多线圈 A；不在此阶段训练生成器权重。</EditableText></div></div><button className="rl-training-entry" onClick={()=>navigate('training')}>进入完整判别器与损失目录 <ChevronRight size={16}/></button><Formula value={R`\underbrace{E^s_t\to F_t\to G_t}_{CC}\quad\longrightarrow\quad\underbrace{x-\alpha A^*(Ax-y)}_{DC}\quad\longrightarrow\quad\underbrace{c-\eta\nabla_c\mathcal L_{data}}_{CR}`}/></>:<div className="mm-table-scroll"><table><thead><tr><th>模型</th><th>编码与采样</th><th>解码与梯度规则</th></tr></thead><tbody><tr><th>MMVAE</th><td>逐单模态后验采样</td><td>每个来源重建两个目标；保留共享梯度</td></tr><tr><th>MMVAE++</th><td>与 MMVAE 相同的前向网络</td><td>同视图重建仅 detach 共享坐标</td></tr><tr><th>MVAE</th><td>单位先验 + 可用模态 PoE</td><td>联合重建 + 单模态自重建</td></tr><tr><th>MoPoE-VAE</th><td>复用 MVAE 类</td><td>include_cross_view_terms 增加仅共享维跨视图项</td></tr></tbody></table><button className="rl-training-entry" onClick={()=>navigate('inference')}>检查 PoE 参数化 <ChevronRight size={16}/></button></div>}</section>
+  <details className="mm-source-audit"><summary><Code2 size={16}/>源码审计 · 配置差异与实现边界<ChevronRight size={16}/></summary>{model.audit.map((item,i)=><article key={item.title}><h5>{item.title}</h5><EditableText textKey={`lab-${model.id}-audit-${i}`}>{item.detail}</EditableText><a className="mm-inline-source" href={sourceLink(model,item)} target="_blank" rel="noreferrer">查看对应源码 <ArrowUpRight size={12}/></a></article>)}</details>
+ </div>
+}

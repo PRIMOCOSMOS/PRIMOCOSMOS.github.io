@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, type KeyboardEvent } from 'react'
 import { Github, ScanLine } from 'lucide-react'
-import { MMVAEPlusExplorer } from './components/MMVAEPlusExplorer'
-import { PnPCosmoExplorer } from './components/PnPCosmoExplorer'
+const MMVAEPlusExplorer = lazy(() => import('./components/MMVAEPlusExplorer').then(m => ({default:m.MMVAEPlusExplorer})))
+const PnPCosmoExplorer = lazy(() => import('./components/PnPCosmoExplorer').then(m => ({default:m.PnPCosmoExplorer})))
 import { SourceLink } from './components/Primitives'
 import { EditableText, NoteEditToolbar } from './components/EditableContent'
 
@@ -149,7 +149,7 @@ function PnPNote() {
           <EditableText textKey="pnp-method-1">两个图像域 X₁ 与 X₂ 共享 content 空间 C，并拥有独立 style 空间 S₁ 与 S₂。每个域包含 content encoder Eᶜ、style encoder Eˢ、decoder G 和 discriminator D。content encoder 使用输入卷积、可选的步长下采样卷积及残差块；style encoder 使用卷积、下采样、全局自适应平均池化和全连接层；decoder 反向恢复空间分辨率，并通过 AdaIN 把 style 注入 content 特征。</EditableText>
           <EditableText textKey="pnp-method-2">无配对 MUNIT 阶段优化 GAN、图像自重建、content 自重建和 style 自重建。少量配准图像进入 PFT 阶段，增加双向跨域图像损失与配对 content 对齐损失。重建阶段从 Aᴴy 初始化目标图像，从参考图像初始化 content，然后循环执行 content consistency、data consistency 和 content refinement。</EditableText>
         </div>
-        <PnPCosmoExplorer />
+        <Suspense fallback={<p className="explorer-loading">正在载入内容／风格模型实验台…</p>}><PnPCosmoExplorer /></Suspense>
       </section>
 
       <section className="note-block evaluation-note">
@@ -206,7 +206,7 @@ function MMVAEPlusNote() {
           <EditableText textKey="mmvae-method-1">每个样本由两个模态 x₁ 与 x₂ 构成，结构化潜空间写为 z=[zᵖʳ¹,zˢʰ,zᵖʳ²]。模态编码器估计私有与共享后验，解码器使用本模态私有变量和共享变量完成同视图重建；跨视图预测通过共享变量传递信息。</EditableText>
           <EditableText textKey="mmvae-method-2">MVAE 目标包含联合输入和单模态自重建。MoPoE-VAE 额外包含 x₁→x₂ 与 x₂→x₁ 的跨模态下界。MMVAE 的 MoE 展开后覆盖全部 (m,m′) 编码-解码对。MMVAE++ 在 m=m′ 的路径上对 q(zˢʰ|xₘ) 使用 stop-gradient，仅让 m≠m′ 的误差更新共享后验。</EditableText>
         </div>
-        <MMVAEPlusExplorer />
+        <Suspense fallback={<p className="explorer-loading">正在载入共享／私有模型实验台…</p>}><MMVAEPlusExplorer /></Suspense>
       </section>
 
       <section className="note-block evaluation-note">
