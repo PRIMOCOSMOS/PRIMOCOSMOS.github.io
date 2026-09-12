@@ -46,7 +46,7 @@ export function sharedPrivateModel(variant:VAEVariant='MMVAE++'):PaperModel{
  for(const m of [1,2]){atom(`objective/kl${m}`,'objective',`模态 ${m} · 有效潜维 KL`,'kl','B × 6 → scalar','KL × 来源潜维掩码，再屏蔽来源缺失样本，按维求和并对 batch 平均。',R`\mathrm{KL}(q_j\|\mathcal N(0,I))`,code,162,'gaussian');b.link('root',`likelihood${m}`,'objective');b.link('root',`posterior${m}`,'objective','KL',true)}
  atom('objective/sum','objective','合并所有有效损失','sum','scalar','重建项和 beta 加权 KL 的标量和。',loss.formula,code,192,'sum');b.link('objective','objective/kl1','objective/sum');b.link('objective','objective/kl2','objective/sum')
  const inference=compound('inference','root','PoE 与目标族比较','B × 6','显式区分四个模型目标。','MVAE 与 MoPoE-VAE 使用 ProductOfExperts；MMVAE / MMVAE++ 逐单模态采样再解码所有模态，没有一个中央平均 Gaussian 采样节点。',R`q_{PoE}\propto p(z)\prod_{j\in I}q_j(z|x_j)`, 'multimodalVAE/PoE.py',18)
- for(const [key,title] of [['joint','联合观测 PoE'],['one','仅模态 1 PoE'],['two','仅模态 2 PoE']])atom(`inference/${key}`,inference.id,title,'poe-precision','B × 6','含单位先验，按照逆方差精度相加；应用缺失和潜维掩码。',R`\tau=1+\sum_j(\sigma_j^2+10^{-8})^{-1}s_j`, 'multimodalVAE/PoE.py',18,'poe')
+ for(const [key,title] of [['joint','联合观测 PoE'],['one','仅模态 1 PoE'],['two','仅模态 2 PoE']])atom(`inference/${key}`,inference.id,title,'poe-precision','B × 6','含单位先验，按照逆方差精度相加；应用缺失和潜维掩码。',R`\tau=1+\sum_j(\sigma_j^2+10^{-8})^{-1}s_j`, 'multimodalVAE/PoE.py',18,'poe').math!.operation=`lab:poe-precision:${key}`
  const overview:string[]=[]
  for(const id of b.entries.root.children){if(['routes','inference'].includes(id))continue;const e=b.entries[id];if(e.overview)overview.push(...e.children);else overview.push(id)}
  overview.push(...routes.children)

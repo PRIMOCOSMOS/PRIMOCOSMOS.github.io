@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "verify:dist": "node scripts/verify-dist.mjs",
     "verify:model": "node scripts/verify-mmhvae.mjs",
+    "verify:research": "node scripts/verify-research.mjs",
     "verify:crystals": "node scripts/verify-crystals.mjs",
     "typecheck": "tsc -b --pretty false"
   },

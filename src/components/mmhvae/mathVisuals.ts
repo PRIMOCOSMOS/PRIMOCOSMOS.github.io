@@ -35,7 +35,7 @@ export function makeMathVisual(spec:MathStage):MathVisual{
  }else if(spec.kind==='linear'||spec.kind==='attention'||spec.kind==='composition'){
   const n=6,m=4,x=demoValues.slice(0,n),rawW=Array.from({length:n*m},(_,i)=>Math.sin(i*1.4)*.55),W=spec.weightNorm?rawW.map((w,i)=>w/Math.hypot(...rawW.slice(Math.floor(i/n)*n,(Math.floor(i/n)+1)*n))):rawW,positions:Array<V>=Array.from({length:n*m},(_,i)=>[(i%n-2.5)*.8,0,(Math.floor(i/n)-1.5)*1.05]),set=tiles(n*m),input=tiles(n),output=tiles(m)
   const xp:V[]=x.map((_,i)=>[(i-2.5)*.8,1.5,-3]),yp:V[]=Array.from({length:m},(_,i)=>[4.1,0,(i-1.5)*1.05])
-  const y=Array.from({length:m},(_,i)=>x.reduce((s,a,j)=>s+a*W[i*n+j],.1))
+  const y=Array.from({length:m},(_,i)=>x.reduce((s,a,j)=>s+a*W[i*n+j],spec.bias?.1:0))
   updates.push(f=>{const row=Math.min(m-1,Math.floor(f.probe*m)),col=Math.floor(f.phase*n)%n,cycle=f.phase*n%1;group.userData.readout=`y_${row}=${y[row].toFixed(3)}`;set(stage===1?W.map((a,i)=>a*x[i%n]):W,positions,{focus:row*n+col,active:Array.from({length:n},(_,j)=>row*n+j)});input(x,xp,col);output(y,yp,cycle>.65?row:-1);cursor.position.set(0,.3,(row-1.5)*1.05);cursor.scale.set(8,1,1.5);flow([xp[col],positions[row*n+col],yp[row]],cycle)})
  }else if(spec.kind==='activation'){
   const op=spec.operation,range=op.includes('clamp')?20:4,normalizer=op==='clamp-exp'?Math.exp(10*Math.tanh(2)):op==='clamp'?10:op==='sigmoid'||op==='tanh'?1:4

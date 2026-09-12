@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, type KeyboardEvent } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Github, ScanLine } from 'lucide-react'
 const MMVAEPlusExplorer = lazy(() => import('./components/MMVAEPlusExplorer').then(m => ({default:m.MMVAEPlusExplorer})))
 const PnPCosmoExplorer = lazy(() => import('./components/PnPCosmoExplorer').then(m => ({default:m.PnPCosmoExplorer})))
@@ -7,31 +7,9 @@ import { EditableText, NoteEditToolbar } from './components/EditableContent'
 
 const MMHVAEExplorer = lazy(() => import('./components/MMHVAEExplorer').then(module => ({ default: module.MMHVAEExplorer })))
 
-type PaperId = 'mmhvae' | 'pnp' | 'mmvae'
-
-const PAPERS: Array<{ id: PaperId; code: string; short: string; title: string; venue: string }> = [
-  {
-    id: 'mmhvae',
-    code: '01 / H-MOPE',
-    short: 'MMHVAE',
-    title: 'Unified Cross-Modal Medical Image Synthesis with Hierarchical Mixture of Product-of-Experts',
-    venue: 'IEEE TPAMI · Vol. 48(2)',
-  },
-  {
-    id: 'pnp',
-    code: '02 / C-S PNP',
-    short: 'PnP-CoSMo',
-    title: 'A Plug-and-Play Method for Guided Multi-contrast MRI Reconstruction Based on Content/Style Modeling',
-    venue: 'Medical Image Analysis · 2026',
-  },
-  {
-    id: 'mmvae',
-    code: '03 / S-P VAE',
-    short: 'MMVAE++',
-    title: 'Disentangling Shared and Private Latent Factors in Multimodal Variational Autoencoders',
-    venue: 'PMLR 240 · 2024',
-  },
-]
+import {PAPERS,type PaperId} from './papers'
+import {PaperLibrary} from './components/PaperLibrary'
+const CorePaperNote=lazy(()=>import('./components/CorePaperNote'))
 
 function BrandMark() {
   return (
@@ -58,7 +36,7 @@ function NoteHeader({ index, title, caption, captionKey }: { index: string; titl
 
 function MMHVAENote() {
   return (
-    <article className="paper-note paper-note--mmhvae" id="panel-mmhvae" role="tabpanel" aria-labelledby="tab-mmhvae">
+    <article className="paper-note paper-note--mmhvae" id="panel-mmhvae" aria-label="MMHVAE 文献笔记">
       <header className="paper-note-title">
         <div>
           <span className="paper-kicker">PAPER 01 · MISSING-MODALITY SYNTHESIS</span>
@@ -114,7 +92,7 @@ function MMHVAENote() {
 
 function PnPNote() {
   return (
-    <article className="paper-note paper-note--pnp" id="panel-pnp" role="tabpanel" aria-labelledby="tab-pnp">
+    <article className="paper-note paper-note--pnp" id="panel-pnp" aria-label="PnP-CoSMo 文献笔记">
       <header className="paper-note-title">
         <div>
           <span className="paper-kicker">PAPER 02 · GUIDED MRI RECONSTRUCTION</span>
@@ -172,7 +150,7 @@ function PnPNote() {
 
 function MMVAEPlusNote() {
   return (
-    <article className="paper-note paper-note--mmvae" id="panel-mmvae" role="tabpanel" aria-labelledby="tab-mmvae">
+    <article className="paper-note paper-note--mmvae" id="panel-mmvae" aria-label="MMVAE++ 文献笔记">
       <header className="paper-note-title">
         <div>
           <span className="paper-kicker">PAPER 03 · SHARED / PRIVATE LATENTS</span>
@@ -231,20 +209,6 @@ function ResearchPage({activePaper,onSelect}:{activePaper:PaperId;onSelect:(pape
   const selectPaper = onSelect
   useEffect(()=>{document.getElementById('main-content')?.focus({preventScroll:true})},[])
 
-  const handleTabKey = (event: KeyboardEvent<HTMLButtonElement>, paper: PaperId) => {
-    if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return
-    event.preventDefault()
-    const current = PAPERS.findIndex((entry) => entry.id === paper)
-    const next = event.key === 'Home'
-      ? 0
-      : event.key === 'End'
-        ? PAPERS.length - 1
-        : (current + (event.key === 'ArrowRight' ? 1 : -1) + PAPERS.length) % PAPERS.length
-    const nextId = PAPERS[next].id
-    selectPaper(nextId)
-    window.requestAnimationFrame(() => document.getElementById(`tab-${nextId}`)?.focus())
-  }
-
   return (
     <>
       <header className="site-header">
@@ -263,8 +227,8 @@ function ResearchPage({activePaper,onSelect}:{activePaper:PaperId;onSelect:(pape
         <section className="research-notebook" id="research" aria-labelledby="research-title">
           <div className="research-intro section-shell">
             <div>
-              <span className="section-code">RESEARCH / LITERATURE NOTEBOOK</span>
-              <h2 id="research-title">多模态医学影像与潜变量模型</h2>
+              
+              <h2 id="research-title">医学影像研究档案</h2>
             </div>
             <div className="research-intro-copy">
               <EditableText textKey="research-introduction">每篇笔记依次整理摘要、Method、评估方式与性能。架构图保留编码器、潜变量、融合算子、解码器、损失项和训练路径，并通过交互显示观测条件与梯度流向。</EditableText>
@@ -272,38 +236,19 @@ function ResearchPage({activePaper,onSelect}:{activePaper:PaperId;onSelect:(pape
             </div>
           </div>
 
-          <div className="paper-tabs section-shell" role="tablist" aria-label="选择文献笔记">
-            {PAPERS.map((paper) => (
-              <button
-                key={paper.id}
-                id={`tab-${paper.id}`}
-                type="button"
-                role="tab"
-                aria-selected={activePaper === paper.id}
-                aria-controls={`panel-${paper.id}`}
-                tabIndex={activePaper === paper.id ? 0 : -1}
-                className={activePaper === paper.id ? 'is-active' : ''}
-                onClick={() => selectPaper(paper.id)}
-                onKeyDown={(event) => handleTabKey(event, paper.id)}
-              >
-                <span>{paper.code}</span>
-                <strong>{paper.short}</strong>
-                <small>{paper.title}</small>
-                <em>{paper.venue}</em>
-              </button>
-            ))}
-          </div>
+          <PaperLibrary active={activePaper} onSelect={selectPaper}/>
 
           <div className="paper-panel section-shell">
             {activePaper === 'mmhvae' && <MMHVAENote />}
             {activePaper === 'pnp' && <PnPNote />}
             {activePaper === 'mmvae' && <MMVAEPlusNote />}
+            {(activePaper === 'ssdiff'||activePaper === 'metsc'||activePaper === 'pigment')&&<Suspense fallback={<p role="status">正在载入课题核心文献…</p>}><CorePaperNote key={activePaper} id={activePaper}/></Suspense>}
           </div>
         </section>
 
         <section className="archive-end section-shell" aria-label="科研笔记结尾">
           <ScanLine aria-hidden="true" />
-          <div><span>ARCHIVE STATUS</span><strong>3 PAPER NOTES / ACTIVE</strong></div>
+          <div><span>ARCHIVE STATUS</span><strong>{PAPERS.length} PAPER NOTES / ACTIVE</strong></div>
           <a href="#/">返回个人主页</a>
         </section>
       </main>

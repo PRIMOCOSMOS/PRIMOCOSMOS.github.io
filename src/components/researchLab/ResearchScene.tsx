@@ -101,6 +101,7 @@ export default function ResearchScene(props:Props){
   controls.addEventListener('change',()=>{dirty=true})
   const projectLabels=()=>{
    const rects:{x:number;y:number;w:number;h:number}[]=[],w=container.clientWidth,h=container.clientHeight
+   renderer.domElement.dataset.parts=JSON.stringify(nodes.map(n=>{const p=n.group.getWorldPosition(new T.Vector3()).project(camera);return {id:n.part.id,x:(p.x+1)*w/2,y:(1-p.y)*h/2}}))
    for(const l of [...labels].sort((a,b)=>(b.id===hoverId?100:b.priority)-(a.id===hoverId?100:a.priority))){
     const p=l.point.getWorldPosition(new T.Vector3()).project(camera),x=(p.x+1)*w/2,y=(1-p.y)*h/2,focusNode=latest.current.focus?nodes.find(n=>n.part.id===l.id):null
     let show=p.z<1&&p.z>0&&x>8&&x<w-8&&y>36&&y<h-24&&(!latest.current.focus||focusNode?.part.math?.stage===latest.current.step)

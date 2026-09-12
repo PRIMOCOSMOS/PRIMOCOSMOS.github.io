@@ -55,7 +55,8 @@ export function pnpModel():PaperModel{
   convBlock(`${decoder.id}/lift`,decoder.id,'内容提升到生成通道',2,32,1,1,'adain')
   for(let r=0;r<4;r++)residual(`${decoder.id}/res${r}`,decoder.id,`风格生成残差块 ${r+1}`,32,'adain')
   convBlock(`${decoder.id}/output`,decoder.id,'最终影像映射',32,1,7,1,'none','tanh',false);b.chain(decoder.id)
-  b.link(domain.id,`image${m}`,content.id);b.link(domain.id,`image${m}`,style.id);b.link(domain.id,style.id,mlp.id);b.link(domain.id,content.id,decoder.id,'空间内容');b.link(domain.id,mlp.id,decoder.id,'风格 → 全部 AdaIN')
+  b.link(domain.id,`image${m}`,content.id);b.link(domain.id,`image${m}`,style.id);b.link(domain.id,style.id,mlp.id);b.link(domain.id,content.id,decoder.id,'空间内容');
+  for(const item of Object.values(b.entries).filter(e=>e.id.startsWith(decoder.id+'/')&&e.id.endsWith('/adain/fc')))b.link(domain.id,mlp.id,item.id,'风格条件',true)
   const x=m===1?-22:22,color=m===1?'#83cce8':'#c4b0ed'
   b.entries[`image${m}`].position=[x,51,0]
   content.children.forEach((id,i)=>{b.entries[id].position=[x-6,43-i*5,0];b.entries[id].color=color})
@@ -91,11 +92,16 @@ export function pnpModel():PaperModel{
  const train=folder('training','root','离线训练与多尺度判别器','仅图像域监督','先进行无配对建模，再利用配准数据微调。','无 k-space 训练数据。两域生成器与判别器交替优化；body mask 与图像拼接成双通道判别器输入。',R`\mathcal L=\mathcal L_{GAN}+\mathcal L_{image}+\mathcal L_{content}+\mathcal L_{style}`,system,166);train.position=[0,-13,-10]
  for(const m of [1,2]){
   const dis=folder(`training/dis${m}`,train.id,`域 ${m} · 三尺度 PatchGAN`,'2 × H × W → 3 个 Patch 网格','在多个尺度约束合成影像。','每尺度独立权重：2→64/s2→128/s2→256/s2→512/s2→512/s1→1/s1。所有 Conv2dBlock 均保留默认 LeakyReLU，包括最后分数层。尺度间用 bilinear 0.5、align_corners=True。',R`D_m(x,b)=\{D_{m,r}(\operatorname{Down}_{2^r}[x,b])\}_{r=0}^2`,'pnp_cosmo/cosmo/discriminators.py',50)
+  atom(`${dis.id}/input`,dis.id,'图像与身体掩码拼接','tensor','B × 2 × H × W','cat([image,body_mask],dim=1)，不同通道保留同一空间坐标。',R`u=[x,b]`,'pnp_cosmo/cosmo/cosmo_systems.py',302)
   for(let s=0;s<3;s++){
+   if(s>0)atom(`${dis.id}/down${s}`,dis.id,`缩小至尺度 ${s+1}`,'bilinear',`H/${2**s} × W/${2**s}`,'F.interpolate(scale_factor=.5,mode=bilinear,align_corners=True)。','','pnp_cosmo/cosmo/discriminators.py',80,'up')
    const scale=folder(`${dis.id}/scale${s}`,dis.id,`Patch 判别尺度 ${s+1}`,`H/${2**s} × W/${2**s}`,'独立的局部真实性评分网络。',dis.implementation,dis.formula,'pnp_cosmo/cosmo/discriminators.py',10)
    const channels=[2,64,128,256,512,512,1]
    for(let j=0;j<6;j++)convBlock(`${scale.id}/conv${j}`,scale.id,`判别卷积 ${j+1}`,channels[j],channels[j+1],3,j<4?2:1)
    b.chain(scale.id)
+   const input=s===0?`${dis.id}/input`:`${dis.id}/down${s}`
+   b.link(dis.id,input,scale.id,'当前分辨率')
+   if(s>0)b.link(dis.id,s===1?`${dis.id}/input`:`${dis.id}/down${s-1}`,input,'二分之一采样')
   }
  }
  for(const [key,title,op] of [['gan','最小二乘对抗','lsgan'],['image','同域图像重建','l1'],['content','跨域后内容恢复','l1'],['style','随机风格恢复','l1'],['cross-image','配对跨域图像','l1'],['cross-content','配对内容对齐','l1']] as [string,string,Op][])atom(`training/${key}`,train.id,title,op,'scalar','具体权重由 pretrain / pft YAML 指定；无配对阶段随机采样目标 style，配对阶段采用目标真实编码 style。','',system,230,'sum')
@@ -104,6 +110,12 @@ export function pnpModel():PaperModel{
   const targetEntry=b.entries[target],callEntry=b.entries[call]
   const clone=(original:string,parent:string)=>{const source=b.entries[original],id=`${parent}/${original.split('/').at(-1)}`,copy:Entry={...source,id,parent,children:[] as string[],edges:[],position:undefined};b.entries[id]=copy;b.entries[parent].children.push(id);for(const child of source.children)clone(child,id);copy.edges=source.edges.map(edge=>({...edge,from:edge.from.replace(original,id),to:edge.to.replace(original,id)}));return id}
   if(target==='decoder2')clone('mlp2',callEntry.id);for(const child of targetEntry.children)clone(child,callEntry.id);b.chain(callEntry.id)
+  if(target==='decoder2'){
+   callEntry.edges=callEntry.edges.filter(e=>!e.from.endsWith('/mlp2'))
+   for(const item of Object.values(b.entries).filter(e=>e.id.startsWith(call+'/')&&e.id.endsWith('/adain/fc')))b.link(call,call+'/mlp2',item.id,'固定目标风格',true)
+   b.link('reconstruction', 'reconstruction/init', call+'/lift/conv','参考引导 content',true)
+  }
+
  }
  const overview:string[]=[]
  for(const m of [1,2]){overview.push(`image${m}`,...b.entries[`content${m}`].children,...b.entries[`style${m}`].children,`mlp${m}`,...b.entries[`decoder${m}`].children)}
