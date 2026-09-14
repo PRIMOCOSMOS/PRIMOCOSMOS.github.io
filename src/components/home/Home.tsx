@@ -21,11 +21,11 @@ export default function Home(){
  const enter=(e:MouseEvent<HTMLAnchorElement>)=>{if(e.metaKey||e.ctrlKey||e.shiftKey||e.altKey||e.button!==0||!motion)return;e.preventDefault();if(leaving)return;setLeaving(true);const url=e.currentTarget.hash;departure.current=window.setTimeout(()=>{window.location.hash=url},400)}
  return <div ref={root} className={`silicon-home${motion?' is-animated':''}${leaving?' is-departing':''}`}>
   <div className="silicon-atmosphere" aria-hidden="true"><img className="silicon-colossus" src="/assets/silicon-colossus.png" alt="" fetchPriority="high"/><div className="silicon-grazing-light"/><div className="silicon-haze"/></div>
-  <header className="silicon-header"><a className="silicon-signature" href="#/" aria-label="PRIMOCOSMOS 主页"><Sigil/></a><nav aria-label="主页导航"><a href="#/research/mmhvae" onClick={enter}>文献档案 <ArrowUpRight size={14}/></a><a href="https://github.com/PRIMOCOSMOS/PRIMOCOSMOS.github.io" target="_blank" rel="noreferrer">GitHub <Github size={14}/></a></nav></header>
+  <header className="silicon-header"><a className="silicon-signature" href="#/" aria-label="PRIMOCOSMOS 主页"><Sigil/></a><nav aria-label="主页导航"><a href="#/research/mmhvae" onClick={enter}>文献档案 <ArrowUpRight size={14}/></a><a href="#/workstation/conv2d" onClick={enter}>工作站 <ArrowUpRight size={14}/></a><a href="https://github.com/PRIMOCOSMOS/PRIMOCOSMOS.github.io" target="_blank" rel="noreferrer">GitHub <Github size={14}/></a></nav></header>
   <main id="main-content" className="silicon-main" tabIndex={-1}>
    <section className="silicon-identity" aria-label="PRIMOCOSMOS：SILICONDEVINE">
     <h1><span className="silicon-sr-only">PRIMOCOSMOS：SILICONDEVINE</span><Wordmark/></h1>
-    <div className="silicon-entry"><a className="silicon-enter" href="#/research/mmhvae" onClick={enter}><span>进入文献档案</span><ArrowUpRight size={26}/></a><EditableText textKey="silicon-home-description" className="silicon-description">qMRI · 多模态建模 · 交互式文献分析</EditableText></div>
+    <div className="silicon-entry"><a className="silicon-enter" href="#/research/mmhvae" onClick={enter}><span>进入文献档案</span><ArrowUpRight size={26}/></a><a className="silicon-workstation-enter" href="#/workstation/conv2d" onClick={enter}>进入神经网络工作站 <ArrowUpRight size={20}/></a><EditableText textKey="silicon-home-description" className="silicon-description">qMRI · 多模态建模 · 交互式文献分析</EditableText></div>
    </section>
    <nav className="silicon-archives" aria-label="直接打开文献">{papers.map(([id,title,topic])=><a key={id} href={`#/research/${id}`} onClick={enter}><span>{title}</span><small>{topic}</small><ArrowUpRight size={19}/></a>)}</nav>
   </main>

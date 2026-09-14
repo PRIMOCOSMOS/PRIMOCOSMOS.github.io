@@ -72,3 +72,7 @@ The site turns literature review into an explorable model laboratory: readers ca
 ## Accessibility & Inclusion
 
 The experience must remain understandable without color alone, support keyboard navigation, preserve text contrast, work at narrow mobile widths, and respect `prefers-reduced-motion`.
+
+## Research archive and neural-network workstation (2026-09-14)
+The home now provides two real destinations: the classified research archive and an independent operating workstation. Existing papers belong to 编码器; SSDiff, METSC, PIGMENT belong to 课题核心. The archive must grow through searchable metadata, not fixed-width paper tabs. PIGMENT has a paper-backed visualization until an official implementation is publicly verifiable.
+The workstation follows the user's TensorSpace-style crystal visualization direction: configurable actual tensor dimensions, complete numerical intermediates, precise dependencies, same-scene recursive exploration, full-screen calculation and exportable input/parameter/output records. It is a forward-computation inspector for initialized networks, not a claim of trained-model inference or a full training framework. MobileNet module units and Transformer layer stacks are named accordingly. Browser arithmetic is verified against PyTorch, with numerical tolerance disclosed.

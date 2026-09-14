@@ -61,7 +61,7 @@ export default function ResearchScene(props:Props){
     const position=layout.positions.get(part.id);if(!position)continue
     const item=new T.Group();item.position.copy(vec(position));group.add(item)
     const color=part.role==='input'?'#8cd4ed':part.role==='output'?'#d6e2b1':part.color??'#aacfdc',math=part.math?makeScientificVisual(part.math):undefined
-    const glyph=math?.group??makeGlyph(part.glyph,color);glyph.scale.setScalar(math?1:g.layout==='overview'?1.5:1.8);item.add(glyph)
+    const glyph=math?.group??makeGlyph(part.glyph,color);glyph.scale.setScalar(math?1:g.layout==='overview'?3.8:2.3);item.add(glyph)
     const hit=new T.Mesh(new T.BoxGeometry(math?12:3,math?7:2.6,math?8:3),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));item.add(hit);hit.userData.id=part.id
     nodes.push({part,group:item,hit,math});bounds.expandByPoint(vec(position).add(new T.Vector3(math?7:3,math?5:2.5,math?5:3)));bounds.expandByPoint(vec(position).sub(new T.Vector3(math?7:3,math?5:2.5,math?5:3)))
     const title=part.role?`${part.role==='input'?'来自':'流向'} · ${part.title}`:part.title

@@ -1,0 +1,14 @@
+---
+version: 1
+slug: "src-researchpage-tsx"
+primary_target: "src/ResearchPage.tsx"
+related_targets: ["src/components/PaperLibrary.tsx", "src/components/paperLibrary.css", "src/components/CorePaperNote.tsx", "src/components/researchLab/ResearchExplorer.tsx", "src/components/researchLab/ResearchScene.tsx", "src/components/researchLab/researchLab.css"]
+---
+Mode: Read with the existing orbital laboratory. FORM seed user-selected-orbital-lab, inherited from the user's approved MMHVAE structure and crystal material.
+THESIS: classify the research archive without restricting its future size, and inspect source-grounded model architectures recursively.
+OWN-WORLD: incumbent dark research notebook; crystal tensors, vertical trunks, peripheral contexts, directional arrows, KaTeX and editable prose.
+STORY: category/search/previous-next selects one paper; Method opens its full hierarchy and source evidence.
+FIRST VIEWPORT: archive selector and selected paper; three originals in 编码器, SSDiff/METSC/PIGMENT in 课题核心. A scrollable list replaces fixed-width three-tab navigation. Ctrl K searches across categories.
+FORM: same paper note order and laboratory controls, expandable categorized library, same-canvas recursive operator view and resource-manager index. No new visual comp or quality card; user explicitly requests MMHVAE parity.
+Evidence: pin SSDiff and METSC official source snapshots. PIGMENT arXiv v1 declares code/data will be released upon acceptance; label paper-only reconstruction and unknown convolution details explicitly, link PDF pages. The five new generic labs preserve original model differences. Deterministic atom examples are labeled and distinct from real trained dimensions. Highest-level subsets keep overview placements; external provenance remains outside containment cages.
+Local revision only. No upload of private research files, no deployment.
