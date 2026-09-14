@@ -23,7 +23,7 @@ export function execute(id:string,c:Config,customInput?:number[]):Run{
  let x=e.input=e.tensor('输入 X',shape,data)
  const group=(s:string)=>{e.group=s},act=(t:Tensor,k=c.activation)=>e.activation(t,k),bn=(t:Tensor)=>e.norm(t,'BatchNorm2d',1,id==='mobilev3'?1e-3:1e-5,c.training),drop=(t:Tensor)=>e.dropout(t,c.training?.1:0)
  const conv=(t:Tensor,out:number,k=3,stride=1,g=1,title='卷积',padding=Math.floor(k/2))=>e.conv(t,out,k,stride,padding,g,1,title,false)
- const se=(t:Tensor,hard=false)=>{const channels=t.shape[1],squeeze=hard?Math.max(8,Math.floor((channels/4+4)/8)*8):Math.max(1,Math.floor(channels/4));let z=e.pool(t,'global');z=e.conv(z,squeeze,1,1,0,1,1,'压缩通道');z=act(z,'ReLU');z=e.conv(z,channels,1,1,0,1,1,'恢复门控通道');z=act(z,hard?'Hardsigmoid':'Sigmoid');return e.binary(t,z,'mul','SE 广播调制')}
+ const se=(t:Tensor,hard=false)=>{const channels=t.shape[1],rounded=Math.max(8,Math.floor((channels/4+4)/8)*8),squeeze=hard?(rounded<.9*(channels/4)?rounded+8:rounded):Math.max(1,Math.floor(channels/4));let z=e.pool(t,'global');z=e.conv(z,squeeze,1,1,0,1,1,'压缩通道');z=act(z,'ReLU');z=e.conv(z,channels,1,1,0,1,1,'恢复门控通道');z=act(z,hard?'Hardsigmoid':'Sigmoid');return e.binary(t,z,'mul','SE 广播调制')}
  function attention(query:Tensor,memory:Tensor,causal=false){
   const [batch,n,d]=query.shape,m=memory.shape[1],h=c.heads,dh=d/h
   const project=(t:Tensor,name:string)=>{const y=e.linear(t,d,true,name);return e.permute(e.reshape(y,[batch,t.shape[1],h,dh],name+' · 拆出 head'),[0,2,1,3],name+' · head 轴前置')}

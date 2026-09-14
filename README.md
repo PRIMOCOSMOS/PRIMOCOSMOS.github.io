@@ -48,3 +48,11 @@ Before publishing, run `npm run build && npm run verify:dist`. A deployed homepa
 ## Research-content boundary
 
 The site distinguishes paper-reported facts from interactive explanatory redraws. Canvas-rendered MRI slices, temperature readouts, and trend curves are labeled as mechanism illustrations rather than experimental measurements.
+
+## Workstation tensor scaffold
+
+The workstation starts at the principal network structure: actual intermediate output tensors, not group-counter placeholders. Its catalog is organized as three roots → task family → module. A horizontal structural index names individual operations and can frame a stage while leaving the whole network in the scene. Normalization statistics and stable Softmax reductions unfold inside their owning layer; scalar computations retain all operands.
+
+Tensor planes follow their last two dimensions; preceding coordinates address a tiled plane array. Plane arrangement never changes numerical shapes or drops elements. Parallel branches use dependency depth, and long skip edges route outside the trunk. The implementation adapts ideas from TensorSpace's [LayerLocator](https://github.com/tensorspace-team/tensorspace/blob/master/src/utils/LayerLocator.js), [FeatureMap](https://github.com/tensorspace-team/tensorspace/blob/master/src/elements/FeatureMap.js), and [Conv2d](https://github.com/tensorspace-team/tensorspace/blob/master/src/layer/intermediate/Conv2d.js), inspected on 2026-09-14, using the project's current Three.js runtime and crystal primitives.
+
+Computation exports use JSON schema version 2: every full tensor is stored once; operator inputs and outputs reference tensor IDs. Formulas and operator settings remain in the record. Per-output dependencies are evaluated interactively rather than eagerly duplicating every trace in the download. Configured weights are initialized examples, not trained checkpoint weights.

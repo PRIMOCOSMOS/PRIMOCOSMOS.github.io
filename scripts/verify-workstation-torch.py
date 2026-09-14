@@ -9,8 +9,9 @@ maximum=0.; count=0
 for fixture in fixtures:
     data={t['id']:torch.tensor(t['values'],dtype=torch.float64).reshape(t['shape']) for t in fixture['tensors']}
     for step in fixture['steps']:
-        xs=[data[key] for key in step['inputs']]; x=xs[0]; kind=step['kind']; s=step['settings']; expected=data[step['output']]
-        if kind=='Linear': y=F.linear(x,xs[1],xs[2] if len(xs)>2 else None)
+        xs=[data[key] for key in step['inputs']]; x=xs[0] if xs else None; kind=step['kind']; s=step['settings']; expected=data[step['output']]
+        if 'constant' in s: y=torch.full(expected.shape,s['constant'],dtype=torch.float64)
+        elif kind=='Linear': y=F.linear(x,xs[1],xs[2] if len(xs)>2 else None)
         elif kind in ('Conv1d','Conv2d','Conv3d'): y=getattr(F,kind.lower())(x,xs[1],xs[2] if len(xs)>2 else None,stride=s['stride'],padding=s['padding'],dilation=s['dilation'],groups=s['groups'])
         elif kind.startswith('ConvTranspose'): y=getattr(F,'conv_transpose'+kind[-2:].lower())(x,xs[1],xs[2],stride=s['stride'],padding=s['padding'],output_padding=s['outputPadding'],groups=s['groups'],dilation=s['dilation'])
         elif kind=='Upsample': y=F.interpolate(x,scale_factor=s['scale'],mode=s['mode'],align_corners=s['alignCorners'] if s['mode']=='bilinear' else None)

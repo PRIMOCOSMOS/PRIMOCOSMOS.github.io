@@ -5,4 +5,48 @@
 @media(prefers-reduced-motion:reduce){.workstation *{scroll-behavior:auto!important;transition:none!important}}
 
 .ws-parameters-done{display:none!important}
+.ws-catalog-heading{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px;color:var(--ws-ink)}
+.ws-catalog-heading small{font-size:10px;color:var(--ws-muted)}
+.ws-catalog-tree{max-height:calc(100vh - 220px);overflow:auto;padding-bottom:16px}
+.ws-catalog-tree summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:8px;min-height:42px}
+.ws-catalog-tree summary::before{content:'';width:6px;height:6px;border-right:1px solid currentColor;border-bottom:1px solid currentColor;transform:rotate(-45deg);flex-shrink:0}
+.ws-catalog-tree details[open]>summary::before{transform:rotate(45deg)}
+.ws-catalog-tree summary small{margin-left:auto;color:var(--ws-muted);font-size:10px}
+.ws-catalog-root{border-bottom:1px solid var(--ws-line);padding:4px 0}
+.ws-catalog-root>summary strong{font-size:13px;font-weight:500}
+.ws-catalog-branch{margin-left:12px;padding:3px 0}
+.ws-catalog-branch>summary{font-size:11px;color:var(--ws-muted);padding-right:5px}
+.workstation .ws-catalog-branch button{display:flex;justify-content:space-between;align-items:center;width:100%;padding:10px 8px 10px 17px;text-align:left;font-size:11px;min-height:40px}
+.ws-catalog-branch button[aria-current]{background:#193740;color:#e9fafb}
+.ws-empty{padding:18px 5px;color:var(--ws-muted)}
+.ws-location{font-size:10px;color:var(--ws-muted);margin-bottom:8px}
+.ws-structure-strip{display:flex;gap:0;overflow:auto;border-bottom:1px solid var(--ws-line);background:#091720;max-height:130px;scrollbar-width:thin}
+.ws-structure-strip>div{flex:0 0 auto;max-width:400px;border-right:1px solid var(--ws-line);padding:8px 12px}
+.ws-structure-strip>div.is-focused{background:#17323d}
+.workstation .ws-stage-focus{display:block;min-height:28px;font-size:11px;color:#e2f3f5;text-align:left;padding:0 3px}
+.ws-structure-strip>div>div{display:flex;flex-wrap:wrap;gap:2px 9px;max-width:360px}
+.ws-structure-strip>div>div button{font-size:10px;min-height:26px;padding:2px 3px;color:var(--ws-muted)}
+.ws-structure-strip>div>div button+button::before{content:'→';margin-right:8px;opacity:.55}
+.workstation .ws-space-label{white-space:pre-line;text-align:left;background:#061018d9;line-height:1.5;padding:4px 7px;border-left:1px solid #73b6c8;max-width:220px}
+.ws-computation:fullscreen .ws-structure-strip{flex-shrink:0}
+@media(max-width:760px){.ws-catalog-tree{max-height:460px}.ws-structure-strip{max-height:100px}.ws-structure-strip>div{max-width:280px}.ws-structure-strip>div>div{max-width:250px}.ws-location{font-size:10px}.ws-computation:fullscreen .ws-scene{min-height:30vh}}
 @media(max-width:760px){.ws-title{flex-wrap:wrap;justify-content:flex-start;gap:12px}.ws-title>div{flex-basis:100%}.ws-catalog{order:0}.ws-workspace{order:2}.ws-parameters{order:1;display:none}.ws-parameters.is-open{display:block}.workstation .ws-parameters-done{display:flex!important;align-items:center;justify-content:space-between;width:100%;font-size:12px;border-bottom:1px solid #42616f;margin-bottom:18px;padding:8px 0}.ws-computation{scroll-margin-top:12px}}
+
+/* The strip is a structural index, not a second execution-flow diagram. */
+.ws-structure-strip{max-height:none;overflow-x:auto;overflow-y:hidden}
+.ws-structure-strip>div{max-width:none}
+.ws-structure-strip>div>div{flex-wrap:nowrap;max-width:none;white-space:nowrap}
+.ws-structure-strip>div>div button+button::before{content:none}
+.ws-structure-strip>div>div button{border-bottom:1px solid #28434e}
+
+.workstation .ws-location button{font-size:10px;min-height:28px;padding:0 2px;color:var(--ws-muted)}
+
+.ws-label-leaders{position:absolute;inset:0;width:100%;height:100%;overflow:hidden;pointer-events:none}
+.ws-label-leaders line{stroke:#83b9c9;stroke-width:1;opacity:.5}
+.ws-space-label.is-linked{border-color:#effaff!important;color:#fff!important;background:#1d3944!important}
+.ws-structure-strip>div>div button{display:flex;flex-direction:column;align-items:flex-start;gap:3px;padding:4px 5px;min-height:44px}
+.ws-structure-strip>div>div button small{font-size:10px;color:#bed6df}
+
+/* Absolute label positions must not change their intrinsic width after placement. */
+.workstation .ws-space-label{width:max-content;min-width:120px;max-width:min(220px,calc(100% - 16px));white-space:pre}
+@media(max-width:760px){.workstation .ws-space-label{min-width:120px;max-width:180px}}
