@@ -3,11 +3,11 @@ import {build} from 'esbuild'
 import {writeFile,mkdir} from 'node:fs/promises'
 import katex from 'katex'
 await mkdir('tmp',{recursive:true})
-await build({stdin:{contents:"export * from './src/components/workstation/engine'; export * from './src/components/workstation/models'; export * from './src/components/workstation/scaffold'; export * from './src/components/workstation/catalog'",resolveDir:process.cwd()},bundle:true,format:'esm',platform:'node',outfile:'tmp/workstation-engine.mjs'})
-const {execute,DEFAULT,MODULES,size,buildScaffold,tensorLayout,CATALOG,principalSteps}=await import('../tmp/workstation-engine.mjs')
+await build({stdin:{contents:"export * from './src/components/workstation/engine'; export * from './src/components/workstation/models'; export * from './src/components/workstation/scaffold'; export * from './src/components/workstation/catalog'; export * from './src/components/workstation/generative'; export * from './src/components/workstation/computation'",resolveDir:process.cwd()},bundle:true,format:'esm',platform:'node',outfile:'tmp/workstation-engine.mjs'})
+const {execute,DEFAULT,MODULES,size,buildScaffold,tensorLayout,CATALOG,principalSteps,moduleConfig,computation}=await import('../tmp/workstation-engine.mjs')
 const fixtures=[];let values=0
-for(const config of [DEFAULT,{...DEFAULT,batch:2,channels:4,out:4,groups:2,stride:2,training:true,preNorm:false,causal:true,dim:8,heads:4,seed:93}])for(const def of MODULES){
- const run=execute(def.id,config);
+for(const baseConfig of [DEFAULT,{...DEFAULT,batch:2,channels:4,out:4,groups:2,stride:2,training:true,preNorm:false,causal:true,dim:8,heads:4,seed:93}])for(const def of MODULES){
+ const config=moduleConfig(def.id,baseConfig),run=execute(def.id,config);
  const graph=buildScaffold(run),nodeMap=new Map(graph.nodes.map(n=>[n.tensor.id,n]));
  for(const edge of graph.edges)assert(nodeMap.get(edge.from).level<nodeMap.get(edge.to).level,'Graph must follow actual dependency depth');
  for(const t of run.tensors){const l=tensorLayout(t);assert.equal(l.positions.length,t.values.length);assert.equal(new Set(l.positions.map(p=>p.join(','))).size,t.values.length,'Every coordinate occupies its own crystal');}
@@ -23,6 +23,7 @@ assert.throws(()=>execute('linear',DEFAULT,[1]),/实际为/)
 const changed=execute('conv2d',{...DEFAULT,channels:4,out:6,kernel:3,stride:2,padding:1});assert.deepEqual(changed.output.shape,[1,6,3,3])
 assert.equal(execute('mobilev2',{...DEFAULT,out:2}).steps.at(-1).settings.operation,'add')
 assert.notEqual(execute('mobilev2',{...DEFAULT,stride:2,out:2}).steps.at(-1).settings.operation,'add')
+const linear=execute('linear',DEFAULT),calc=computation(linear.steps[0],0);assert.equal(calc.products.values.length,DEFAULT.batch*DEFAULT.out*DEFAULT.dim);for(let i=0;i<linear.output.values.length;i++)assert(Math.abs(calc.sums.values[i]+linear.steps[0].inputs[2].values[i%DEFAULT.out]-linear.output.values[i])<1e-12);
 const indexed=CATALOG.flatMap(r=>r.branches.flatMap(b=>b.ids));assert.equal(new Set(indexed).size,MODULES.length);assert.equal(indexed.length,MODULES.length);
 const v3=execute('mobilev3',{...DEFAULT,channels:8,expansion:5});assert.equal(v3.steps.find(s=>s.title==='压缩通道').output.shape[1],16,'Torchvision SE rounding includes the 0.9 safeguard');
 fixtures.push({id:'mobilev3-edge',config:{...DEFAULT,channels:8,expansion:5},tensors:v3.tensors,steps:v3.steps.map(({trace,...s})=>({...s,inputs:s.inputs.map(t=>t.id),output:s.output.id})),output:v3.output.id});

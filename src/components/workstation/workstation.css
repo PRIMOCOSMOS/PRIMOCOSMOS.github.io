@@ -5,6 +5,23 @@
 @media(prefers-reduced-motion:reduce){.workstation *{scroll-behavior:auto!important;transition:none!important}}
 
 .ws-parameters-done{display:none!important}
+.ws-stage-browser{padding:10px 14px;border-bottom:1px solid var(--ws-line);background:#0a1923}
+.ws-stage-actions{display:flex;align-items:center;gap:16px;justify-content:space-between}
+.ws-stage-actions label{display:flex;gap:12px;align-items:center;min-width:0;font-size:11px;color:var(--ws-muted)}
+.ws-stage-actions select{max-width:320px;min-width:0;font-size:11px}
+.ws-stage-actions>button{font-size:11px;white-space:nowrap;border-bottom:1px solid #547481}
+.ws-stage-operators{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;margin-top:12px;background:var(--ws-line)}
+.ws-stage-operators button{display:block;text-align:left;padding:10px;background:#0d202b;font-size:11px}
+.ws-stage-operators span,.ws-stage-operators small{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ws-stage-operators small{margin-top:4px;color:var(--ws-muted);font-size:10px}
+.ws-index-pages{display:flex;justify-content:flex-end;align-items:center;gap:18px;font-size:11px;padding-top:8px}
+.ws-live-math{position:absolute;left:14px;bottom:12px;max-width:calc(100% - 28px);padding:10px 14px;background:#102631f2;border:1px solid #365767;display:flex;align-items:center;gap:14px;flex-wrap:wrap;pointer-events:auto}
+.ws-live-math strong{font-size:11px;font-weight:500;color:#b9d7e2}
+.ws-live-math output{font-size:13px;color:#ebf8f8;overflow-wrap:anywhere}
+.ws-live-math button{font-size:11px;min-height:30px;border-bottom:1px solid #8abcc8}
+.ws-computation:fullscreen .ws-stage-browser{flex-shrink:0}
+.ws-toolbar{flex-wrap:wrap}.ws-toolbar>div{flex-wrap:wrap}
+@media(max-width:760px){.ws-stage-actions{gap:8px}.ws-stage-actions label{display:block}.ws-stage-actions select{display:block;max-width:185px;margin-top:4px}.ws-stage-operators{grid-template-columns:repeat(2,minmax(0,1fr))}.ws-live-math{gap:5px;padding:8px 10px}.ws-live-math output{font-size:11px;flex-basis:100%}.ws-toolbar>div:last-child{gap:2px}.ws-toolbar button{min-height:36px}.ws-scene{height:550px}}
 .ws-catalog-heading{display:flex;align-items:center;justify-content:space-between;margin:22px 0 12px;color:var(--ws-ink)}
 .ws-catalog-heading small{font-size:10px;color:var(--ws-muted)}
 .ws-catalog-tree{max-height:calc(100vh - 220px);overflow:auto;padding-bottom:16px}
@@ -50,3 +67,7 @@
 /* Absolute label positions must not change their intrinsic width after placement. */
 .workstation .ws-space-label{width:max-content;min-width:120px;max-width:min(220px,calc(100% - 16px));white-space:pre}
 @media(max-width:760px){.workstation .ws-space-label{min-width:120px;max-width:180px}}
+
+.ws-stage-note{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 10px;font-size:12px;color:var(--ws-muted)}
+.ws-stage-actions{flex-wrap:wrap}
+@media(max-width:700px){.ws-stage-actions label{flex-basis:100%}.ws-stage-actions label select{flex:1;max-width:none}}

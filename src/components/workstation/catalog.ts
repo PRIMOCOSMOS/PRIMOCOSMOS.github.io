@@ -2,6 +2,7 @@ import {MODULES} from './models'
 
 /** Learning/task hierarchy, independent of the implementation's execution groups. */
 export const CATALOG = [
+ {name:'生成与扩散',branches:[{name:'CUT · 非配对图像翻译',ids:['cut-generator','cut-patchgan','cut-projector','cut-nce','cut-objective']},{name:'Diffusion · 概率与采样',ids:['diffusion-forward','diffusion-reverse','diffusion-ddim']},{name:'Diffusion · 条件网络与训练',ids:['diffusion-time','diffusion-unet','diffusion-train']} ]},
  {name:'基础与张量', branches:[
   {name:'线性与数据组织',ids:['linear','mlp','add','concat','flatten']},
   {name:'激活函数',ids:['ReLU','ReLU6','LeakyReLU','Sigmoid','Tanh','SiLU','GELU','Hardswish','Hardsigmoid','Softplus']},

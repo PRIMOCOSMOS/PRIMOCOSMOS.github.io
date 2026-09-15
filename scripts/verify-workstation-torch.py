@@ -37,6 +37,28 @@ for fixture in fixtures:
                 if mode=='BatchNorm2d' and not s['training']: y=torch.full((z.shape[0],),1. if var else 0.,dtype=x.dtype)
                 elif mode=='RMSNorm': y=(z*z).mean(-1) if var else torch.zeros(z.shape[0],dtype=x.dtype)
                 else: y=z.var(-1,unbiased=False) if var else z.mean(-1)
+            elif s.get('operation')=='diffusion-coefficient':
+                v={key:float(value.item()) for key,value in zip(s['keys'],xs)}; name=s['name']; a=v.get('a',1); previous=v.get('p',1); beta=v.get('b',0); earlier=v.get('s',1); eta=s['eta']
+                import math
+                sigma=eta*math.sqrt(max(0,(1-earlier)/(1-a)*(1-a/earlier))) if 's' in v and 'a' in v else 0
+                result={'保留信号':lambda:math.sqrt(a),'注入噪声':lambda:math.sqrt(1-a),'缩放带噪输入':lambda:1/math.sqrt(a),'移除预测噪声':lambda:-math.sqrt(1/a-1),'x₀ 后验贡献':lambda:beta*math.sqrt(previous)/(1-a),'x_t 后验贡献':lambda:(1-previous)*math.sqrt(1-beta)/(1-a),'后验随机项':lambda:0 if s['t']==0 else math.sqrt(beta*(1-previous)/(1-a)),'干净样本方向':lambda:math.sqrt(earlier),'预测噪声方向':lambda:math.sqrt(max(0,1-earlier-sigma*sigma)),'η 控制的随机项':lambda:sigma}[name]()
+                y=torch.tensor([result],dtype=torch.float64)
+            elif s.get('operation')=='scale': y=x*s['scale']
+            elif s.get('operation')=='reduce-all': y=(x.mean() if s['mean'] else x.sum()).reshape(1)
+            elif s.get('operation')=='box-muller': y=(-2*x.log()).sqrt()*(2*torch.pi*xs[1]).cos()
+            elif s.get('operation')=='l2-norm': y=x.square().sum(-1,keepdim=True).sqrt()+s['eps']
+            elif s.get('operation')=='row-divide': y=x/xs[1]
+            elif s.get('operation')=='pad-right-bottom': y=F.pad(x,[0,1,0,1])
+            elif s.get('operation')=='reflect-pad': y=F.pad(x,[s['padding']]*4,mode='reflect')
+            elif s.get('operation')=='detach': y=x.detach()
+            elif s.get('operation')=='diagonal': y=x.diagonal(dim1=-2,dim2=-1).unsqueeze(-1)
+            elif s.get('operation')=='mask-diagonal': y=x.masked_fill(torch.eye(x.shape[-1],dtype=torch.bool),s['value'])
+            elif s.get('operation')=='cross-entropy-zero': y=F.cross_entropy(x.reshape(-1,x.shape[-1]),torch.zeros(x.numel()//x.shape[-1],dtype=torch.long),reduction='none').reshape(x.shape[:-1])
+            elif s.get('operation')=='target-square': y=(x-s['target']).square()
+            elif s.get('operation')=='cumprod': y=x.cumprod(0)
+            elif s.get('operation')=='clip': y=x.clamp(-1,1)
+            elif s.get('operation')=='time-embedding':
+                half=s['dim']//2; freq=torch.exp(-torch.log(torch.tensor(10000.,dtype=torch.float64))*torch.arange(half,dtype=torch.float64)/(half-1)); angles=x*freq; y=torch.cat([angles.sin(),angles.cos()],-1)
             elif s.get('operation')=='row-max': y=x.amax(-1,keepdim=True)
             elif s.get('operation')=='row-exp': y=(x-xs[1]).exp()
             elif s.get('operation')=='row-sum': y=x.sum(-1,keepdim=True)
