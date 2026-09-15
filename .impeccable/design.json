@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-09T05:09:38.085320+00:00",
+  "generatedAt": "2026-09-15T00:00:00+08:00",
   "title": "Design System: PRIMOCOSMOS — Silicon Idol & Multimodal Signal Lab",
   "extensions": {
     "colorMeta": {
@@ -408,6 +408,104 @@
           "oklch(87% 0.057 124.4)",
           "oklch(95% 0.057 124.4)"
         ]
+      },
+      "workstation-ground": {
+        "displayName": "Workstation Ground",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% .025 245)",
+          "oklch(27% .025 245)",
+          "oklch(39% .025 245)",
+          "oklch(51% .025 245)",
+          "oklch(63% .025 245)",
+          "oklch(75% .025 245)",
+          "oklch(87% .025 245)",
+          "oklch(95% .025 245)"
+        ]
+      },
+      "workstation-ink": {
+        "displayName": "Workstation Ink",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% .02 225)",
+          "oklch(27% .02 225)",
+          "oklch(39% .02 225)",
+          "oklch(51% .02 225)",
+          "oklch(63% .02 225)",
+          "oklch(75% .02 225)",
+          "oklch(87% .02 225)",
+          "oklch(95% .02 225)"
+        ]
+      },
+      "workstation-muted": {
+        "displayName": "Workstation Muted Ink",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% .035 230)",
+          "oklch(27% .035 230)",
+          "oklch(39% .035 230)",
+          "oklch(51% .035 230)",
+          "oklch(63% .035 230)",
+          "oklch(75% .035 230)",
+          "oklch(87% .035 230)",
+          "oklch(95% .035 230)"
+        ]
+      },
+      "workstation-hairline": {
+        "displayName": "Workstation Hairline",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% .035 235)",
+          "oklch(27% .035 235)",
+          "oklch(39% .035 235)",
+          "oklch(51% .035 235)",
+          "oklch(63% .035 235)",
+          "oklch(75% .035 235)",
+          "oklch(87% .035 235)",
+          "oklch(95% .035 235)"
+        ]
+      },
+      "workstation-positive": {
+        "displayName": "Workstation Positive Cyan",
+        "role": "primary",
+        "tonalRamp": [
+          "oklch(15% .10 220)",
+          "oklch(27% .10 220)",
+          "oklch(39% .10 220)",
+          "oklch(51% .10 220)",
+          "oklch(63% .10 220)",
+          "oklch(75% .10 220)",
+          "oklch(87% .10 220)",
+          "oklch(95% .10 220)"
+        ]
+      },
+      "workstation-negative": {
+        "displayName": "Workstation Negative Amber",
+        "role": "secondary",
+        "tonalRamp": [
+          "oklch(15% .10 60)",
+          "oklch(27% .10 60)",
+          "oklch(39% .10 60)",
+          "oklch(51% .10 60)",
+          "oklch(63% .10 60)",
+          "oklch(75% .10 60)",
+          "oklch(87% .10 60)",
+          "oklch(95% .10 60)"
+        ]
+      },
+      "workstation-selected": {
+        "displayName": "Workstation Selected White",
+        "role": "neutral",
+        "tonalRamp": [
+          "oklch(15% .025 215)",
+          "oklch(27% .025 215)",
+          "oklch(39% .025 215)",
+          "oklch(51% .025 215)",
+          "oklch(63% .025 215)",
+          "oklch(75% .025 215)",
+          "oklch(87% .025 215)",
+          "oklch(95% .025 215)"
+        ]
       }
     },
     "typographyMeta": {
@@ -446,6 +544,10 @@
       "home-archive-title": {
         "displayName": "Home Archive Name",
         "purpose": "Named real paper destinations on the independent home."
+      },
+      "workstation-body": {
+        "displayName": "Workstation Body",
+        "purpose": "Compact operating UI; local Chinese sans stack."
       }
     },
     "shadows": [],
@@ -593,6 +695,29 @@
       "responsive": "Two columns become one at 640px; fullscreen control panel scrolls within 34dvh, or 32dvh on narrow screens.",
       "normalizationStages": "Input values → squared centered deviations → normalized values.",
       "numericalSource": "Convolution geometry and control readout share convolutionDemo; other readouts follow the selected operator and coordinate."
+    },
+    "workstation": {
+      "scope": "src/components/workstation/; #/workstation/<module>",
+      "sourceFiles": [
+        "Workstation.tsx",
+        "WorkScene.tsx",
+        "operationMotion.ts",
+        "scaffold.ts",
+        "computation.ts",
+        "generative.ts",
+        "workstation.css"
+      ],
+      "direction": "TensorSpace/3Blue1Brown crystal interpretation; mathematics on the dominant dependency backbone.",
+      "formSeed": "user-pinned-tensorspace-crystal",
+      "catalog": "Four roots, task family, 61 executable modules; collapsed stage index pages six operators.",
+      "tensorGeometry": "Uniform cells, exact scalar coordinates and factor rectangles; 48 becomes 6 × 8, no empty corners.",
+      "linear": "Always full arithmetic; complete input/product/dot-sum/bias/output fabric. W is edge-encoded and retained in the complete inspector.",
+      "operationCorridor": "Function-specific abstract diagrams and actual operand links; no detached four-cube calculators.",
+      "longModels": "More than 100 operations initially focus a named stage, all stages and full graph retrievable; no global web through the focused view.",
+      "labels": "Hover or explicit reveal; KaTeX in Linear labels, full formulas below.",
+      "camera": "Cursor-targeted wheel zoom, plus/minus, pan/rotate, two-finger navigation, double-click tensor framing, reset, fullscreen.",
+      "sharedPrimitiveBoundary": "Value-colored edges are an optional workstation style; homepage/paper defaults preserved.",
+      "evidenceBoundary": "Local build documentation; no ship verdict or deployment claim."
     }
   },
   "components": [
@@ -702,11 +827,18 @@
       "description": "MMHVAE local step selection, numerical probe and explicit scale disclosure; the live component synchronizes these controls with the 3D stage.",
       "html": "<section class=\"ds-math-controls\" aria-label=\"原子运算数学实验\"><div class=\"ds-math-steps\" role=\"group\" aria-label=\"数学推导步骤\"><button>完整演算</button><button aria-pressed=\"true\"><span>1</span>概率密度</button><button aria-pressed=\"false\"><span>2</span>尺度与方差</button></div><div class=\"ds-math-body\"><div><strong>概率密度</strong><p>观察同一分布的尺度如何改变密度曲面。</p></div><div class=\"ds-math-inputs\"><label>调整尺度<input type=\"range\" min=\"0\" max=\"1\" step=\"0.01\" value=\"0.42\"/></label><output>示例 μ = 0 · s = 1.02 · Var = 1.034 · 显示高度 = 8×密度</output></div></div><details><summary>示意比例与坐标含义</summary><p>数值为小规模确定性教学示例，未加载训练权重。</p></details></section>",
       "css": ".ds-math-controls{border-top:1px solid #38515e;padding:18px 22px;background:#0b1a24;color:#dfebee;font-family:\"Noto Sans SC\",\"Microsoft YaHei UI\",sans-serif}.ds-math-steps{display:flex;gap:8px;overflow-x:auto;padding-bottom:12px}.ds-math-steps button{display:flex;align-items:center;gap:8px;text-align:left;font-size:12px;font-family:inherit;min-height:40px;padding:8px 12px;border:1px solid #34505e;background:transparent;color:inherit;white-space:nowrap;cursor:pointer}.ds-math-steps button[aria-pressed=true]{background:#203d4d;color:#e8ffbc}.ds-math-steps button>span{color:#bddf99;font-size:11px}.ds-math-steps button:hover{background:#1a303d}.ds-math-controls button:focus-visible,.ds-math-controls input:focus-visible,.ds-math-controls summary:focus-visible{outline:2px solid #d8ff45;outline-offset:2px}.ds-math-body{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(250px,1fr);gap:26px}.ds-math-body strong{font-size:14px;font-weight:500}.ds-math-body p{font-size:12px;line-height:1.8;color:#b7d0d9;max-width:70ch}.ds-math-inputs label{display:flex;flex-direction:column;gap:10px;font-size:12px;color:#c7dce3}.ds-math-inputs input{width:100%;accent-color:#c6e7a0;cursor:pointer}.ds-math-inputs output{display:block;font-size:12px;line-height:1.8;color:#e5d8b3;margin:10px 0 14px;font-variant-numeric:tabular-nums;min-height:42px}.ds-math-controls details{font-size:11px;color:#a5c0cd;margin-top:14px}.ds-math-controls summary{cursor:pointer;padding:6px 0}.ds-math-controls details p{font-size:12px;line-height:1.7;max-width:85ch}@media(max-width:640px){.ds-math-controls{padding:14px}.ds-math-body{grid-template-columns:1fr;gap:14px}.ds-math-steps button{font-size:11px}}"
+    },
+    {
+      "name": "Workstation Operator Index Toggle",
+      "kind": "button",
+      "description": "Reveals the initially collapsed paged operator index within a named stage.",
+      "html": "<button class=\"ds-ws-index\" aria-expanded=\"false\">Show operators</button>",
+      "css": ".ds-ws-index{font:11px/1.65 \"Microsoft YaHei UI\",\"Noto Sans SC\",sans-serif;color:#daeaf0;background:transparent;border:1px solid transparent;border-bottom-color:#547481;min-height:36px;cursor:pointer}.ds-ws-index:hover{background:#19313e}.ds-ws-index:focus-visible{outline:2px solid #b9e7ef;outline-offset:3px}.ds-ws-index:disabled{opacity:.4;cursor:not-allowed}"
     }
   ],
   "narrative": {
     "northStar": "Silicon Idol / Deep-Space Telemetry Array",
-    "overview": "PRIMOCOSMOS has two deliberately separate visual scopes. The home route uses the approved Silicon Idol identity: black sculptural material, white authored industrial lettering, a smooth curved sigil composed with the title without touching its letters, and restrained cold light. Research keeps its incumbent Deep-Space Telemetry Array notebook and scientific semantics. The shared identity and real paper destinations connect these scopes; their palettes and display treatments do not become interchangeable.\n\nScope authority: home rules apply to `src/components/home/` and `#/`; research rules apply to `src/ResearchPage.tsx`, the research components, and `#/research/<paper>`. The home wordmark preserves the exact spelling **PRIMOCOSMOS：SILICONDEVINE**. Its first-screen composition and generated colossus asset belong to `.impeccable/surfaces/src-components-home-home-tsx.md`, not a mandatory template for future pages. The legacy orbital-cover styles remain in the stylesheet but no longer define the home identity. Existing unprefixed frontmatter primitives remain research-scoped unless explicitly identified otherwise; `home-*` and `silicon-*` entries are home-scoped.\n\nThe notebook is intentionally dense and operational. Three mutually exclusive paper tabs expose complete notes in a stable Abstract → Method → Evaluation sequence. The Method band expands beyond the reading column and gives each paper a browser-native model laboratory: large labeled SVG schematics, controls that alter observed modalities or gradient routes, generated MRI slices, trend plots, formula disclosures, and plain-language status readouts. Expressive details must explain identity, hierarchy, state, information flow, or evidence—not decorate empty space.",
+    "overview": "**Creative North Star: \"Silicon Idol / Deep-Space Telemetry Array\"**\n\nPRIMOCOSMOS has two deliberately separate visual scopes. The home route uses the approved Silicon Idol identity: black sculptural material, white authored industrial lettering, a smooth curved sigil composed with the title without touching its letters, and restrained cold light. Research keeps its incumbent Deep-Space Telemetry Array notebook and scientific semantics. The shared identity and real paper destinations connect these scopes; their palettes and display treatments do not become interchangeable.\n\nScope authority: home rules apply to `src/components/home/` and `#/`; research rules apply to `src/ResearchPage.tsx`, the research components, and `#/research/<paper>`. The home wordmark preserves the exact spelling **PRIMOCOSMOS：SILICONDEVINE**. Its first-screen composition and generated colossus asset belong to `.impeccable/surfaces/src-components-home-home-tsx.md`, not a mandatory template for future pages. The legacy orbital-cover styles remain in the stylesheet but no longer define the home identity. Existing unprefixed frontmatter primitives remain research-scoped unless explicitly identified otherwise; `home-*` and `silicon-*` entries are home-scoped.\n\nThe notebook is intentionally dense and operational. Three mutually exclusive paper tabs expose complete notes in a stable Abstract → Method → Evaluation sequence. The Method band expands beyond the reading column and gives each paper a browser-native model laboratory: large labeled SVG schematics, controls that alter observed modalities or gradient routes, generated MRI slices, trend plots, formula disclosures, and plain-language status readouts. Expressive details must explain identity, hierarchy, state, information flow, or evidence—not decorate empty space.\n\nThe independent workstation at `#/workstation/<module>` adds a scoped TensorSpace/3Blue1Brown crystal interpretation: actual mathematics occupies the dominant dependency backbone. Its operating bench and signed scalar palette apply to `src/components/workstation/`; shared crystal primitives enable value-colored edges through an optional workstation style. Their defaults and the incumbent home and paper rules remain unchanged. The surface direction is recorded in `.impeccable/surfaces/src-components-workstation-workstation-tsx.md`.",
     "keyCharacteristics": [
       "Independent monochrome industrial home and dense scientific notebook, joined by direct paper navigation.",
       "Matte near-black and navy tonal decks, clipped instrument housings, one-pixel calibration rails, and almost no soft elevation.",
@@ -785,9 +917,31 @@
         "name": "The Numerical Correspondence Rule",
         "body": "The selected coordinate, scene value and control readout use the same operator-specific example. All examples are deterministic teaching data, not trained weights. Gaussian display height is explicitly scaled by eight for legibility; normalized probability remains separate from display coordinates. Blue/warm values distinguish positive/negative responses and pale highlights mark the current sample. Explanatory prose participates in the existing persistent editor.",
         "section": "components"
+      },
+      {
+        "name": "The Actual Backbone Rule",
+        "body": "Linear always enters complete arithmetic. Compound models expose principal output tensor planes along the longest dependency trunk, with local layer spacing and auxiliary branches beside it. Models with more than 100 operations initially focus a named stage; all stages and the full graph remain retrievable, without a global connection web crossing the focused view.",
+        "section": "layout"
+      },
+      {
+        "name": "The Exact Coordinate Rule",
+        "body": "Every actual scalar retains a uniform crystal and numerical coordinate. Last-two-axis tensor planes preserve their shape; leading planes and long vectors use exact factor rectangles, including 48 as 6 × 8, without empty corners or sampling. Explicit size rejection protects numerical completeness.",
+        "section": "layout"
+      },
+      {
+        "name": "The Arithmetic In Place Rule",
+        "body": "Linear's full connection fabric links every input to its weighted products, all dot sums, centered bias and output. Edge colors encode W and the complete weight tensor remains in the data inspector. Other layers use operation-specific abstract diagrams in the main inter-layer corridor: convolution scan frames, activation curves, reduction funnels, normalization tapers, gates and reindex braids, with actual operand links. Abstract operation diagrams explain a function; they are not sampled tensor planes or substitute neurons. Detached four-cube calculators are not part of this system.",
+        "section": "components"
+      },
+      {
+        "name": "The Stage Boundary Rule",
+        "body": "Focused groups keep attached labels for their local input tensors, terminal outputs and the operation driving the live equation. These boundary ports participate in camera fitting; other labels remain lazy. Restore full graph returns to the principal scaffold in the same canvas.",
+        "section": "components"
       }
     ],
     "dos": [
+      "Do preserve complete scalar coordinates and keep arithmetic on the workstation's principal dependency backbone.",
+      "Do scope signed crystal edges to the workstation's optional style while preserving shared primitive defaults.",
       "Do keep the Silicon Idol home and scientific notebook visually scoped while preserving their shared identity and real paper destinations.",
       "Do use signal colors according to scientific meaning and repeat every color-coded state in text, geometry, iconography, stroke, or position.",
       "Do keep paper switching as an accessible tab interaction with Arrow, Home, and End behavior and exactly one mounted panel.",
@@ -796,6 +950,7 @@
       "Do keep focus visible, expose status changes in adjacent text or live regions, include SVG title/description, and make reduced-motion transport explicit."
     ],
     "donts": [
+      "Don't replace actual workstation tensors with sampled proxies, empty grid corners, detached miniature calculators or a group shortcut into Linear.",
       "Don't turn either scope into a generic neon gradient, glassmorphism dashboard, or rounded SaaS card system; the home’s native cold lighting and MMHVAE’s spatial depth remain valid local materials.",
       "Don't use lime, blue, orange, violet, coral, lavender, amber, or green interchangeably; every one has a defined data or comparison role.",
       "Don't shrink, reorder, or redraw a scientific graph merely to fit a narrow viewport.",

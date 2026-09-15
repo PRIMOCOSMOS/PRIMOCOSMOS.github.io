@@ -27,6 +27,7 @@ const linear=execute('linear',DEFAULT),calc=computation(linear.steps[0],0);asser
 const indexed=CATALOG.flatMap(r=>r.branches.flatMap(b=>b.ids));assert.equal(new Set(indexed).size,MODULES.length);assert.equal(indexed.length,MODULES.length);
 const v3=execute('mobilev3',{...DEFAULT,channels:8,expansion:5});assert.equal(v3.steps.find(s=>s.title==='压缩通道').output.shape[1],16,'Torchvision SE rounding includes the 0.9 safeguard');
 fixtures.push({id:'mobilev3-edge',config:{...DEFAULT,channels:8,expansion:5},tensors:v3.tensors,steps:v3.steps.map(({trace,...s})=>({...s,inputs:s.inputs.map(t=>t.id),output:s.output.id})),output:v3.output.id});
+const oddConfig={...DEFAULT,dim:5};const odd=execute('diffusion-time',oddConfig);assert.equal(odd.steps[0].output.shape.at(-1),5);assert.equal(odd.steps[0].output.values[4],0);fixtures.push({id:'diffusion-time-odd',config:oddConfig,tensors:odd.tensors,steps:odd.steps.map(({trace,...s})=>({...s,inputs:s.inputs.map(t=>t.id),output:s.output.id})),output:odd.output.id});
 const bn=execute('BatchNorm2d',DEFAULT);assert(bn.steps.filter(s=>'constant' in s.settings&&s.settings.constant!==undefined).every(s=>s.inputs.length===0&&s.trace(0).length===0),'Fixed buffers must not pretend to read input values');
 await writeFile('tmp/workstation-fixtures.json',JSON.stringify(fixtures))
 console.log(`Verified ${MODULES.length} modules / ${fixtures.length} configurations, ${values.toLocaleString()} stored values, all traces, formulas, shape constraints and deterministic seeds. PyTorch fixtures ready.`)

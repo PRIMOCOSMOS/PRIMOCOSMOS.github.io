@@ -5,15 +5,16 @@ import type {Position3} from '../mmhvae/crystalPrimitives'
 // layers. Unlike its uniform sequential spacing, this layout uses the real DAG.
 // No numerical tensor is sampled, resized, or replaced by an operator marker.
 export function tensorLayout(t:Tensor){
- if(t.values.length>32&&(t.shape.length===1||t.shape.length===2&&t.shape[0]===1)){const cols=32,rows=Math.ceil(t.values.length/cols),width=cols*.57,depth=rows*.57;return {positions:t.values.map((_,i)=>[(i%cols-(cols-1)/2)*.57,0,(Math.floor(i/cols)-(rows-1)/2)*.57] as Position3),centers:[[0,0,0] as Position3],width,depth,planeWidth:width,planeDepth:depth,wrapped:true}}
+ if(t.values.length>32&&(t.shape.length===1||t.shape.length===2&&t.shape[0]===1)){const [rows,cols]=exactRectangle(t.values.length),width=cols*.57,depth=rows*.57;return {positions:t.values.map((_,i)=>[(i%cols-(cols-1)/2)*.57,0,(Math.floor(i/cols)-(rows-1)/2)*.57] as Position3),centers:[[0,0,0] as Position3],width,depth,planeWidth:width,planeDepth:depth,wrapped:true}}
 
  const w=t.shape.at(-1)!, h=t.shape.length>1?t.shape.at(-2)!:1;
- const count=t.values.length/(w*h), columns=Math.ceil(Math.sqrt(count)),rows=Math.ceil(count/columns),pitch=.57,gap=1.05;
+ const count=t.values.length/(w*h), [rows,columns]=exactRectangle(count),pitch=.57,gap=1.05;
  const width=columns*(w*pitch+gap)-gap,depth=rows*(h*pitch+gap)-gap;
  const centers:Position3[]=Array.from({length:count},(_,p)=>[(p%columns)*(w*pitch+gap)-(width-w*pitch)/2,0,Math.floor(p/columns)*(h*pitch+gap)-(depth-h*pitch)/2]);
  const positions:Position3[]=t.values.map((_,i)=>{const p=Math.floor(i/(w*h)),c=centers[p];return [c[0]+(i%w-(w-1)/2)*pitch,0,c[2]+(Math.floor(i/w)%h-(h-1)/2)*pitch]});
  return {positions,centers,width,depth,planeWidth:w*pitch,planeDepth:h*pitch,wrapped:false};
 }
+export function exactRectangle(count:number):[number,number]{let rows=Math.floor(Math.sqrt(count));while(count%rows)rows--;return [rows,count/rows]}
 const statistics=new Set(['norm-mean','norm-var','row-max','row-exp','row-sum']);
 export function principalSteps(run:Run){return run.steps.filter(s=>!statistics.has(String(s.settings.operation)))}
 export function childSteps(run:Run,step:Step){

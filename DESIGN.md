@@ -2,6 +2,13 @@
 name: PRIMOCOSMOS — Silicon Idol & Multimodal Signal Lab
 description: An independent industrial identity opening into a scientifically grounded interactive research notebook.
 colors:
+  workstation-ground: "#060d14"
+  workstation-ink: "#daeaf0"
+  workstation-muted: "#aac0cc"
+  workstation-hairline: "#2b424f"
+  workstation-positive: "#78cde7"
+  workstation-negative: "#e9af83"
+  workstation-selected: "#e3fbff"
   silicon-black: "#020305"
   silicon-white: "#fff"
   silicon-secondary-ink: "#a9b7c9"
@@ -30,6 +37,11 @@ colors:
   cool-telemetry-hairline: "rgba(203, 227, 213, 0.18)"
   active-lime-hairline: "rgba(216, 255, 69, 0.34)"
 typography:
+  workstation-body:
+    fontFamily: '"Microsoft YaHei UI", "Noto Sans SC", sans-serif'
+    fontSize: "13px"
+    fontWeight: 400
+    lineHeight: 1.65
   home-navigation:
     fontFamily: '"Microsoft YaHei UI", "Segoe UI", sans-serif'
     fontSize: "18px"
@@ -174,6 +186,8 @@ The notebook is intentionally dense and operational. Three mutually exclusive pa
 - Exhaustive interactive architectures whose controls, routes, captions, readouts, and equations stay synchronized.
 - Responsive reflow around scientific topology: existing planar diagrams scroll horizontally; MMHVAE preserves its vertical spatial hierarchy and accessible hierarchy browser.
 
+The independent workstation at `#/workstation/<module>` adds a scoped TensorSpace/3Blue1Brown crystal interpretation: actual mathematics occupies the dominant dependency backbone. Its operating bench and signed scalar palette apply to `src/components/workstation/`; shared crystal primitives enable value-colored edges through an optional workstation style. Their defaults and the incumbent home and paper rules remain unchanged. The surface direction is recorded in `.impeccable/surfaces/src-components-workstation-workstation-tsx.md`.
+
 ## Colors
 
 The following primary/secondary/tertiary scientific roles are research-scoped. The home uses Silicon Black, Silicon White, and cool secondary ink; ice-blue hover/focus feedback and material lighting stay restrained. Its white action and pale focus ring do not inherit the research lime action treatment. The shared skip link and browser-local edit tools retain their existing accessible research styling.
@@ -221,6 +235,10 @@ The MMHVAE numerical teaching models have a local value palette: **Math Positive
 
 ## Typography
 
+### Workstation scope
+
+The workstation uses the local Chinese sans stack for its compact operating UI, Tektur for module titles, and KaTeX for mathematical expressions. Body copy follows the workstation-body token; the implemented title hierarchy is 26px page title, 23px module title and 17px mathematical section title. Complex scene labels appear on hover or explicit reveal; Linear labels contain KaTeX and full formulas remain in the inspector below. Wrapping labels and their leader lines keep coordinates attached to their tensors.
+
 ### Silicon Idol home
 
 The display identity is authored SVG geometry, not a font substitution: two lines of engineered glyphs, cut strokes, and a curved sigil separated from the letterforms. Keep the semantic HTML heading and hidden full brand text paired with the decorative SVG. The inherited Tektur face is used for paper names; ordinary home navigation and prose use the local Microsoft YaHei UI / Segoe UI sans stack.
@@ -257,6 +275,14 @@ The implemented desktop hierarchy is navigation and archive names at 18px, the a
 
 ## Layout
 
+### Workstation scope
+
+The operating bench uses a 210px catalog, flexible scene and 260px parameter column with 24px gaps inside a 1920px maximum shell. At 1250px the parameters move below the workspace; at 760px the catalog and parameters become explicit disclosures, with open parameters before the viewer. The operator index is initially collapsed and pages six operators per stage.
+
+**The Actual Backbone Rule.** Linear always enters complete arithmetic. Compound models expose principal output tensor planes along the longest dependency trunk, with local layer spacing and auxiliary branches beside it. Models with more than 100 operations initially focus a named stage; all stages and the full graph remain retrievable, without a global connection web crossing the focused view.
+
+**The Exact Coordinate Rule.** Every actual scalar retains a uniform crystal and numerical coordinate. Last-two-axis tensor planes preserve their shape; leading planes and long vectors use exact factor rectangles, including 48 as 6 × 8, without empty corners or sampling. Explicit size rejection protects numerical completeness.
+
 ### Silicon Idol home
 
 Use a minimum full small-viewport-height canvas with generous side gutters, an open identity area, and a rail-separated archive navigation area. At 760px and below, the archive links become a vertical list and the full wordmark remains visible. The background image may crop more tightly while the heading, archive action, and navigation remain real responsive content. Do not assign the home’s image crop, exact letter coordinates, or hero offsets to a global spacing system.
@@ -277,6 +303,8 @@ The existing PnP-CoSMo and MMVAE++ planar architecture SVGs retain their `92rem`
 **The One-Paper Rule.** Keep exactly one tabpanel mounted. The tab row is orientation-stable—three columns on wide screens and one horizontal scroller on narrow screens—so comparison order never changes.
 
 ## Elevation & Depth
+
+Workstation depth is the actual three-dimensional tensor arrangement, with transparent crystal bodies, signed value-colored edges and directional connection pulses. Cyan denotes nonnegative values, amber negative values and pale white the selection; coordinate readouts and dependencies provide the corresponding non-color evidence. These workstation tokens and optional primitive styling do not replace paper scientific semantics or the home material.
 
 The research notebook is flat by default; the existing MMHVAE spatial viewer has its own local depth and hover-label treatment. The home conveys depth through the generated textured colossus, slow grazing light, haze, and subtle wordmark separation. This atmospheric material is home-specific, not a card-elevation vocabulary.
 
@@ -300,6 +328,14 @@ Pills (`999px`) are reserved for compact controls and outbound source links, eac
 **The Hard-Housing Rule.** Structural containers are square or clipped; pill geometry belongs to touch targets, not content surfaces.
 
 ## Components
+
+### Workstation computation corridor
+
+**The Arithmetic In Place Rule.** Linear's full connection fabric links every input to its weighted products, all dot sums, centered bias and output. Edge colors encode W and the complete weight tensor remains in the data inspector. Other layers use operation-specific abstract diagrams in the main inter-layer corridor: convolution scan frames, activation curves, reduction funnels, normalization tapers, gates and reindex braids, with actual operand links. Abstract operation diagrams explain a function; they are not sampled tensor planes or substitute neurons. Detached four-cube calculators are not part of this system.
+
+**The Stage Boundary Rule.** Focused groups keep attached labels for their local input tensors, terminal outputs and the operation driving the live equation. These boundary ports participate in camera fitting; other labels remain lazy. Restore full graph returns to the principal scaffold in the same canvas.
+
+The four-root searchable catalog leads through task family to executable module. Stage selection, same-scene hierarchy and the paged operator index lead to full tensors, dependencies, formulas and export. Camera controls combine cursor-targeted wheel zoom, plus/minus zoom, pan/rotate, two-finger navigation, double-click tensor framing, reset and fullscreen. Playback and manual progression remain available with reduced-motion support.
 
 ### Home navigation and identity
 
@@ -380,6 +416,9 @@ Equations use native `details`/`summary` rows with lime-tinted rails and a rotat
 
 ### Do:
 
+- **Do** preserve complete scalar coordinates and keep arithmetic on the workstation's principal dependency backbone.
+- **Do** scope signed crystal edges to the workstation's optional style while preserving shared primitive defaults.
+
 - **Do** keep the Silicon Idol home and scientific notebook visually scoped while preserving their shared identity and real paper destinations.
 - **Do** use signal colors according to scientific meaning and repeat every color-coded state in text, geometry, iconography, stroke, or position.
 - **Do** keep paper switching as an accessible tab interaction with Arrow, Home, and End behavior and exactly one mounted panel.
@@ -388,6 +427,8 @@ Equations use native `details`/`summary` rows with lime-tinted rails and a rotat
 - **Do** keep focus visible, expose status changes in adjacent text or live regions, include SVG title/description, and make reduced-motion transport explicit.
 
 ### Don't:
+
+- **Don't** replace actual workstation tensors with sampled proxies, empty grid corners, detached miniature calculators or a group shortcut into Linear.
 
 - **Don't** turn either scope into a generic neon gradient, glassmorphism dashboard, or rounded SaaS card system; the home’s native cold lighting and MMHVAE’s spatial depth remain valid local materials.
 - **Don't** use lime, blue, orange, violet, coral, lavender, amber, or green interchangeably; every one has a defined data or comparison role.

@@ -6,7 +6,7 @@ export type CrystalSelection = number | { focus?: number; active?: number[]; hid
 const positive = new T.Color('#78cde7'), negative = new T.Color('#e9af83'), selected = new T.Color('#e3fbff')
 
 /** Uniform tensor cells: values affect tint, never geometry. Four instanced draws per tensor. */
-export function createCrystalTensor(parent: T.Group, count: number, size = .42) {
+export function createCrystalTensor(parent: T.Group, count: number, size = .42, style?:{valueEdges?:boolean;bodyOpacity?:number;edgeOpacity?:number}) {
   const group = new T.Group()
   group.userData.crystalTensor = true
   parent.add(group)
@@ -21,6 +21,9 @@ export function createCrystalTensor(parent: T.Group, count: number, size = .42) 
   edgeParts.forEach(g => g.dispose())
   const bodyMaterial = new T.MeshPhysicalMaterial({ color: '#ffffff', roughness: .13, metalness: .08, clearcoat: 1, clearcoatRoughness: .08, transparent: true, opacity: .12, depthWrite: false })
   const edgeMaterial = new T.MeshBasicMaterial({ color: '#a3d4e4', transparent: true, opacity: .25, depthWrite: false })
+  if(style?.bodyOpacity!==undefined)bodyMaterial.opacity=style.bodyOpacity
+  if(style?.edgeOpacity!==undefined)edgeMaterial.opacity=style.edgeOpacity
+  if(style?.valueEdges)edgeMaterial.color.set('#ffffff')
   const activeMaterial = bodyMaterial.clone(); activeMaterial.opacity = .68; activeMaterial.emissive.set('#70bfd2'); activeMaterial.emissiveIntensity = .13
   const activeEdgeMaterial = new T.MeshBasicMaterial({ transparent: true, opacity: .94, depthWrite: false })
   const body = new T.InstancedMesh(cube, bodyMaterial, count), edge = new T.InstancedMesh(edges, edgeMaterial, count)
@@ -37,7 +40,9 @@ export function createCrystalTensor(parent: T.Group, count: number, size = .42) 
       transform.position.set(...positions[i]); transform.updateMatrix()
       tint.copy((values[i] ?? 0) < 0 ? negative : positive).multiplyScalar(.5 + .5 * Math.min(1, Math.abs(values[i] ?? 0)))
       body.setMatrixAt(visibleCount, transform.matrix); body.setColorAt(visibleCount, tint)
-      edge.setMatrixAt(visibleCount++, transform.matrix)
+      edge.setMatrixAt(visibleCount, transform.matrix)
+      if(style?.valueEdges)edge.setColorAt(visibleCount,tint)
+      visibleCount++
       if (i === state.focus || active.has(i)) {
         lit.setMatrixAt(activeCount, transform.matrix); lit.setColorAt(activeCount, i === state.focus ? selected : tint.clone().multiplyScalar(.65))
         litEdge.setMatrixAt(activeCount, transform.matrix); litEdge.setColorAt(activeCount++, i === state.focus ? selected : tint)

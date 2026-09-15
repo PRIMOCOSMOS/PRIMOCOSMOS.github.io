@@ -59,6 +59,7 @@ for fixture in fixtures:
             elif s.get('operation')=='clip': y=x.clamp(-1,1)
             elif s.get('operation')=='time-embedding':
                 half=s['dim']//2; freq=torch.exp(-torch.log(torch.tensor(10000.,dtype=torch.float64))*torch.arange(half,dtype=torch.float64)/(half-1)); angles=x*freq; y=torch.cat([angles.sin(),angles.cos()],-1)
+                if s['dim']%2: y=F.pad(y,(0,1))
             elif s.get('operation')=='row-max': y=x.amax(-1,keepdim=True)
             elif s.get('operation')=='row-exp': y=(x-xs[1]).exp()
             elif s.get('operation')=='row-sum': y=x.sum(-1,keepdim=True)
