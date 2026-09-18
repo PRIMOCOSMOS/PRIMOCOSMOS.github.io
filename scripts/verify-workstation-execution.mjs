@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import katex from 'katex';
-import {MODULES,DEFAULT,moduleConfig,execute,executionGraph,executionCoordinates,streamedIndex,buildScaffold} from '../tmp/workstation-engine.mjs';
+import {MODULES,DEFAULT,moduleConfig,execute,executionGraph,executionCoordinates,streamedIndex,buildScaffold,activationValue} from '../tmp/workstation-engine.mjs';
 const close=(a,b)=>assert(Math.abs(a-b)<=1e-9*Math.max(1,Math.abs(a),Math.abs(b)),`${a} != ${b}`);
 let stages=0;
 for(const def of MODULES){
@@ -30,3 +30,7 @@ for(const def of MODULES){
 assert.deepEqual(Array.from({length:8},(_,pass)=>streamedIndex(4,pass,0,true)),[0,1,2,3,0,1,2,3]);
 assert.equal(streamedIndex(4,9,2,false),2);
 console.log(`Verified ${stages} concrete arithmetic stages across all 61 modules: unique IDs, exact coordinates, formulas, full dependency DAGs, streaming registers and output sweeps.`);
+
+for(const kind of ['ReLU','ReLU6','LeakyReLU','Sigmoid','Tanh','SiLU','GELU','Hardswish','Hardsigmoid','Softplus']){const values=[-12,-6,-3,0,1,3,6,12],r=execute(kind,{...DEFAULT,dim:8},values);r.output.values.forEach((v,i)=>close(v,activationValue(kind,values[i])));const graph=executionGraph(r,r.steps,true);assert.equal(graph.run.steps.length,1,'Activation must preserve its layer instead of replacing it with prose stages');}
+for(const batch of [1,2]){const r=execute('mlp',{...DEFAULT,batch,dim:6,hidden:8,out:4,layers:2}),graph=executionGraph(r,r.steps,true);assert.equal(graph.run.steps.length,5);let edges=0;for(const s of graph.run.steps.filter(s=>s.kind==='Linear'))for(let i=0;i<s.output.values.length;i++)edges+=s.trace(i).filter(t=>t.factorTensor===s.inputs[1].id).length;assert.equal(edges,batch*(6*8+8*8+8*4));}
+console.log('Neural layer silhouettes, all MLP weights across batches and ten exact activation transfer functions passed.');

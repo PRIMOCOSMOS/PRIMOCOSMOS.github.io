@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-17T19:38:08.568639+00:00",
+  "generatedAt": "2026-09-18T05:39:48.924971+00:00",
   "title": "Design System: PRIMOCOSMOS — Silicon Idol & Multimodal Signal Lab",
   "extensions": {
     "colorMeta": {
@@ -706,21 +706,23 @@
         "scaffold.ts",
         "computation.ts",
         "generative.ts",
-        "workstation.css"
+        "workstation.css",
+        "activationTransfer.ts"
       ],
-      "direction": "TensorSpace/3Blue1Brown crystal interpretation; actual arithmetic dependency graph at overview, group, layer and operator scope.",
+      "direction": "Actual dense neuron layers and every weight connection remain visible; exact activation transfers and concrete convolution arithmetic inhabit the existing crystal world.",
       "formSeed": "user-pinned-tensorspace-crystal",
       "catalog": "Four roots, task family, 61 executable modules; collapsed stage index pages six operators.",
-      "tensorGeometry": "Uniform cells, exact scalar coordinates and factor rectangles; 48 becomes 6 × 8, no empty corners.",
-      "linear": "Always full arithmetic; complete input/product/dot-sum/bias/output fabric. W is edge-encoded and retained in the complete inspector.",
-      "operationCorridor": "Concrete arithmetic tensor stages, including activation intermediates, normalization statistics and generative calculations. Convolution and large reductions stream exact per-output contributions and all partial sums; no abstract layer-transform substitutes.",
+      "tensorGeometry": "Full coordinates and batch retained. Vector neurons use uniform .58 cells and 3.6 horizontal pitch factor; other tensors retain uniform .36 cells and exact factor rectangles.",
+      "linear": "Input, hidden and output neuron layers remain visible with every one-to-one weight edge. Numerical W stays inspectable; bias is docked to output.",
+      "operationCorridor": "Linear and activation source layers remain in the visible execution graph. Per-coordinate f(x) transfer traces occupy aligned lanes with moving crystals and actual formulas. Convolution and reductions retain exact streamed terms, partial sums and persistent inter-stage links; auxiliary parameters sit near consumers and zero padding beside input.",
       "longModels": "Graphs deeper than 24 levels enable camera following of the current operator with every stage retained; mathematical timeline, follow toggle and full-graph fit remain available.",
       "labels": "Hover or explicit reveal; KaTeX mathematical stage formulas, full formulas below; boundary inputs and outputs remain identifiable.",
-      "camera": "Cursor-targeted wheel zoom, plus/minus, pan/rotate, two-finger navigation, double-click tensor framing, reset, fullscreen. Follow current operator, mathematical step navigation and full-graph fitting.",
+      "camera": "Upright camera, cursor-targeted wheel zoom, plus/minus, pan/rotate, two-finger navigation, double-click tensor framing, reset, fullscreen, follow current operator and full-graph fitting.",
       "sharedPrimitiveBoundary": "Value-colored edges are an optional workstation style; homepage/paper defaults preserved.",
       "evidenceBoundary": "Local build documentation; no ship verdict or deployment claim.",
-      "streaming": "Dense edges remain dim; the active output and term are highlighted using the same execution trace as coordinate selection and live equations.",
-      "editing": "Top toolbar enables persistent editing of explanatory prose independently of live equations, values and controls."
+      "streaming": "All dense edges stay baseline-visible. Smooth overlapping Gaussian highlights sweep neighboring outputs and terms instead of hard single-group selection.",
+      "editing": "Top toolbar enables persistent editing of explanatory prose independently of live equations, values and controls.",
+      "quickParameters": "MLP/Linear rail above canvas, also in fullscreen: Batch, input/output features, MLP hidden width and layer count; sidebar remains available."
     }
   },
   "components": [
@@ -841,7 +843,7 @@
   ],
   "narrative": {
     "northStar": "Silicon Idol / Deep-Space Telemetry Array",
-    "overview": "**Creative North Star: \"Silicon Idol / Deep-Space Telemetry Array\"**\n\nPRIMOCOSMOS has two deliberately separate visual scopes. The home route uses the approved Silicon Idol identity: black sculptural material, white authored industrial lettering, a smooth curved sigil composed with the title without touching its letters, and restrained cold light. Research keeps its incumbent Deep-Space Telemetry Array notebook and scientific semantics. The shared identity and real paper destinations connect these scopes; their palettes and display treatments do not become interchangeable.\n\nScope authority: home rules apply to `src/components/home/` and `#/`; research rules apply to `src/ResearchPage.tsx`, the research components, and `#/research/<paper>`. The home wordmark preserves the exact spelling **PRIMOCOSMOS：SILICONDEVINE**. Its first-screen composition and generated colossus asset belong to `.impeccable/surfaces/src-components-home-home-tsx.md`, not a mandatory template for future pages. The legacy orbital-cover styles remain in the stylesheet but no longer define the home identity. Existing unprefixed frontmatter primitives remain research-scoped unless explicitly identified otherwise; `home-*` and `silicon-*` entries are home-scoped.\n\nThe notebook is intentionally dense and operational. Three mutually exclusive paper tabs expose complete notes in a stable Abstract → Method → Evaluation sequence. The Method band expands beyond the reading column and gives each paper a browser-native model laboratory: large labeled SVG schematics, controls that alter observed modalities or gradient routes, generated MRI slices, trend plots, formula disclosures, and plain-language status readouts. Expressive details must explain identity, hierarchy, state, information flow, or evidence—not decorate empty space.\n\nThe independent workstation at `#/workstation/<module>` adds a scoped TensorSpace/3Blue1Brown crystal interpretation: a shared expansion graph presents actual arithmetic at overview, group, layer and operator scope. Its operating bench and signed scalar palette apply to `src/components/workstation/`; shared crystal primitives enable value-colored edges through an optional workstation style. Their defaults and the incumbent home and paper rules remain unchanged. The surface direction is recorded in `.impeccable/surfaces/src-components-workstation-workstation-tsx.md`.",
+    "overview": "**Creative North Star: \"Silicon Idol / Deep-Space Telemetry Array\"**\n\nPRIMOCOSMOS has two deliberately separate visual scopes. The home route uses the approved Silicon Idol identity: black sculptural material, white authored industrial lettering, a smooth curved sigil composed with the title without touching its letters, and restrained cold light. Research keeps its incumbent Deep-Space Telemetry Array notebook and scientific semantics. The shared identity and real paper destinations connect these scopes; their palettes and display treatments do not become interchangeable.\n\nScope authority: home rules apply to `src/components/home/` and `#/`; research rules apply to `src/ResearchPage.tsx`, the research components, and `#/research/<paper>`. The home wordmark preserves the exact spelling **PRIMOCOSMOS：SILICONDEVINE**. Its first-screen composition and generated colossus asset belong to `.impeccable/surfaces/src-components-home-home-tsx.md`, not a mandatory template for future pages. The legacy orbital-cover styles remain in the stylesheet but no longer define the home identity. Existing unprefixed frontmatter primitives remain research-scoped unless explicitly identified otherwise; `home-*` and `silicon-*` entries are home-scoped.\n\nThe notebook is intentionally dense and operational. Three mutually exclusive paper tabs expose complete notes in a stable Abstract → Method → Evaluation sequence. The Method band expands beyond the reading column and gives each paper a browser-native model laboratory: large labeled SVG schematics, controls that alter observed modalities or gradient routes, generated MRI slices, trend plots, formula disclosures, and plain-language status readouts. Expressive details must explain identity, hierarchy, state, information flow, or evidence—not decorate empty space.\n\nThe independent workstation at `#/workstation/<module>` adds a scoped TensorSpace/3Blue1Brown crystal interpretation: a shared execution graph preserves actual neuron layers and complete weighted connections while exposing exact arithmetic at every scope. Its operating bench and signed scalar palette apply to `src/components/workstation/`; shared crystal primitives enable value-colored edges through an optional workstation style. Their defaults and the incumbent home and paper rules remain unchanged. The surface direction is recorded in `.impeccable/surfaces/src-components-workstation-workstation-tsx.md`.",
     "keyCharacteristics": [
       "Independent monochrome industrial home and dense scientific notebook, joined by direct paper navigation.",
       "Matte near-black and navy tonal decks, clipped instrument housings, one-pixel calibration rails, and almost no soft elevation.",
@@ -923,17 +925,17 @@
       },
       {
         "name": "The Actual Backbone Rule",
-        "body": "Every scope, including the overview, shows the expanded arithmetic dependency graph for all source operators in that scope. Inputs and constants sit near their consumers; branches follow dependency depth with local spacing. Graphs deeper than 24 levels enable camera following of the current operator while retaining the entire graph. Mathematical step navigation, follow controls and full-graph fitting make long executions inspectable.",
+        "body": "Every scope preserves the actual dependency graph. Dense MLP input, hidden and output neuron layers stay visible with every weight edge; Linear and activation source layers are retained rather than replaced by arrays of intermediate arithmetic. Other operators retain their concrete mathematical stages. Inputs and auxiliary parameters sit near consumers, bias beside its output and convolution zero padding beside its input. Graphs deeper than 24 levels enable camera following while retaining the entire graph; mathematical navigation and full-graph fitting remain available.",
         "section": "layout"
       },
       {
         "name": "The Exact Coordinate Rule",
-        "body": "Every actual scalar retains a uniform crystal and numerical coordinate. Last-two-axis tensor planes preserve their shape; leading planes and long vectors use exact factor rectangles, including 48 as 6 × 8, without empty corners or sampling. Explicit size rejection protects numerical completeness.",
+        "body": "Every actual scalar retains its numerical coordinate and batch identity. Vector neuron layers use uniform larger crystals with increased horizontal spacing; tensor planes retain their own uniform cell size. Last-two-axis tensor planes preserve their shape; leading planes and long vectors use exact factor rectangles, including 48 as 6 × 8, without empty corners or sampling. Explicit size rejection protects numerical completeness.",
         "section": "layout"
       },
       {
         "name": "The Arithmetic In Place Rule",
-        "body": "Concrete tensor stages carry the mathematics at every scope. Linear exposes all input-weight products, sums and bias; activations, normalization statistics and generative operations expose their intermediate arithmetic. Convolution and large reductions stream the exact contributions and partial sums for each output; pooling exposes running comparisons. Keep every original tensor coordinate available. Do not substitute abstract layer-transform symbols or detached miniature calculators for these stages.",
+        "body": "A dense weight is represented one-to-one by a visible connection, with the complete numerical weight tensor inspectable below. Activation functions use per-coordinate f(x) transfer traces in aligned lanes, actual formulas and moving crystal units that preserve each coordinate between input and output. These traces use the implemented activation mathematics, including the GELU approximation. Transfer curves cover the actual inputs and at least [−6, 6] (ReLU6: [−8, 8]); 64 segments and faint axes share the same coordinate mapping as each actual (xᵢ, f(xᵢ)) point. Mapping the true function-output range to readable vertical height changes display coordinates only, never computation values. Convolution and large reductions retain concrete contributions, partial sums and persistent inter-stage links; the main dependency trunk remains intact.",
         "section": "components"
       },
       {
@@ -943,12 +945,12 @@
       },
       {
         "name": "The Computation Stream Rule",
-        "body": "Dense connections remain dim context. The current output and arithmetic term receive the bright pulse and coordinate selection, driven by the same execution trace as the live equation; playback is a mathematical sequence, not a decorative all-edge animation.",
+        "body": "Every dense weight edge remains visible at baseline. Smooth overlapping Gaussian highlight envelopes pass across neighboring outputs and terms, synchronized with the computation trace. Avoid hard one-group selection or hiding inactive weights. Continuous transfer motion communicates each activation without adding explanatory prose panels.",
         "section": "components"
       }
     ],
     "dos": [
-      "Do preserve complete scalar coordinates and show concrete arithmetic stages at every workstation scope, including the overview.",
+      "Do preserve actual neuron layers, complete baseline-visible dense weights and exact scalar coordinates at every workstation scope.",
       "Do scope signed crystal edges to the workstation's optional style while preserving shared primitive defaults.",
       "Do keep the Silicon Idol home and scientific notebook visually scoped while preserving their shared identity and real paper destinations.",
       "Do use signal colors according to scientific meaning and repeat every color-coded state in text, geometry, iconography, stroke, or position.",
@@ -958,7 +960,7 @@
       "Do keep focus visible, expose status changes in adjacent text or live regions, include SVG title/description, and make reduced-motion transport explicit."
     ],
     "donts": [
-      "Don't replace actual workstation arithmetic with abstract layer-transform symbols, sampled proxies, empty grid corners or detached miniature calculators.",
+      "Don't hide inactive dense weights, replace activation transfers with stacks of arithmetic arrays, or substitute abstract symbols and sampled proxies for actual computation.",
       "Don't turn either scope into a generic neon gradient, glassmorphism dashboard, or rounded SaaS card system; the home’s native cold lighting and MMHVAE’s spatial depth remain valid local materials.",
       "Don't use lime, blue, orange, violet, coral, lavender, amber, or green interchangeably; every one has a defined data or comparison role.",
       "Don't shrink, reorder, or redraw a scientific graph merely to fit a narrow viewport.",
