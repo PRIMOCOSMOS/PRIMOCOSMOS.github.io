@@ -11,6 +11,7 @@ import {scalarEquation} from './computation'
 import {executionGraph,streamedIndex,executionCoordinates,activationKinds} from './execution'
 import {activationTransfer} from './activationTransfer'
 import {connectionFabric,type Connection} from './operationMotion'
+import {valueExtent,numericPalette} from '../mmhvae/numericPalette'
 import {buildScaffold,childSteps,principalSteps,stepLabel,tensorLayout} from './scaffold'
 interface Props {run:Run;scope:string;index:number;progress:number;playing:boolean;reset:number;focus:string;highlight:string;zoom:number;pan:boolean;showLabels:boolean;onScope:(s:string)=>void;onIndex:(i:number)=>void;onProgress:(p:number)=>void;onPlaying:(p:boolean)=>void}
 type Field={tensor:Tensor;crystals:ReturnType<typeof createCrystalTensor>;positions:Position3[];group:T.Group;selectionKey?:string}
@@ -47,17 +48,24 @@ export default function WorkScene(props:Props){const viewAction=useRef<(action:s
   const label=(text:string,point:T.Vector3,select:string,priority=0,formula?:string)=>{const button=document.createElement('button');button.className='ws-space-label';button.textContent=text;if(formula){const math=document.createElement('span');math.className='ws-label-formula';math.innerHTML=katex.renderToString(formula,{throwOnError:false,trust:false});button.appendChild(math)}button.title=text;button.dataset.scope=select;button.onclick=()=>latest.current.onScope(select);labels.appendChild(button);const line=document.createElementNS('http://www.w3.org/2000/svg','line');leaders.appendChild(line);tags.push({el:button,point,line,priority,scope:select})}
 
   const field=(t:Tensor,origin:T.Vector3,select?:string,title?:string,formula?:string)=>{
-   const group=new T.Group();group.position.copy(origin);body.add(group);const stretch=neuronTensors.has(t.id)?3.6:1,positions=tensorPositions(t).map(p=>[p[0]*stretch,p[1],p[2]*(stretch>1?1.7:1)] as Position3),crystals=createCrystalTensor(group,t.values.length,stretch>1?.58:.36,{valueEdges:true,bodyOpacity:.23,edgeOpacity:.5});crystals.update(t.values,positions,{focus:-1});const f={tensor:t,group,positions,crystals};fields.push(f);fieldMap.set(t.id,f)
+   const group=new T.Group();group.position.copy(origin);body.add(group);const stretch=neuronTensors.has(t.id)?3.6:1,positions=tensorPositions(t).map(p=>[p[0]*stretch,p[1],p[2]*(stretch>1?1.7:1)] as Position3),crystals=createCrystalTensor(group,t.values.length,stretch>1?.58:.36,{valueEdges:true,bodyOpacity:.3,edgeOpacity:.72,valueScale:()=>valueExtent(t.values)});crystals.update(t.values,positions,{focus:-1});const f={tensor:t,group,positions,crystals};fields.push(f);fieldMap.set(t.id,f)
    for(const mesh of [crystals.body]){mesh.userData.tensor=t.id;mesh.userData.scope=select;clicks.push(mesh)}
    const layout=tensorLayout(t),segments:T.Vector3[]=[];
    for(const c of layout.centers){const w=layout.planeWidth/2,d=layout.planeDepth/2;const corners=[[-w,-.24,-d],[w,-.24,-d],[w,-.24,d],[-w,-.24,d]];for(let i=0;i<4;i++){const a=corners[i],b=corners[(i+1)%4];segments.push(new T.Vector3((c[0]+a[0])*stretch,a[1],(c[2]+a[2])*(stretch>1?1.7:1)),new T.Vector3((c[0]+b[0])*stretch,b[1],(c[2]+b[2])*(stretch>1?1.7:1)))}}
-   group.add(new T.LineSegments(new T.BufferGeometry().setFromPoints(segments),new T.LineBasicMaterial({color:t.parameter?'#ddb889':'#76bdcf',transparent:true,opacity:.48})));
+   group.add(new T.LineSegments(new T.BufferGeometry().setFromPoints(segments),new T.LineBasicMaterial({color:t.parameter?numericPalette.relation:'#76bdcf',transparent:true,opacity:.48})));
    const b=new T.Box3().setFromObject(group);fieldBounds.set(t.id,b.clone());
    label(`${title??t.name}${layout.wrapped?' · 连续索引折行':''}\n[${t.shape.join(' × ')}]`,new T.Vector3(b.max.x+.35,origin.y+.4,origin.z),select??latest.current.scope,t.id===latest.current.run.input.id||t.id===(latest.current.run.steps.find(s=>s.id===latest.current.scope)?.output.id??latest.current.run.output.id)?100:0,formula);tags.at(-1)!.el.dataset.tensor=t.id;return b
   }
   const paint=(f:Field,selection:{focus?:number;active?:number[]})=>{const key=String(selection.focus??-1)+':'+(selection.active??[]).join(',');if(f.selectionKey===key)return;f.selectionKey=key;f.crystals.update(f.tensor.values,f.positions,selection)};
   const point=(id:string,i:number)=>{const f=fieldMap.get(id),p=f?.positions[i];return f&&p?[p[0]+f.group.position.x,p[1]+f.group.position.y,p[2]+f.group.position.z] as Position3:undefined};
-  const linksFor=(step:Step,index:number,terms=step.trace(index)):Connection[]=>{const to=point(step.output.id,index),via=transfers.get(step.id)?.positions[index];if(!to)return [];return terms.flatMap((t,j)=>{const from=point(t.tensor,t.index),weight=t.factorTensor?point(t.factorTensor,t.factorIndex!):undefined;return [...from?[{from,to,weight:t.factor??1,output:index,term:j,...via?{via:[via]}:{}}]:[],...weight?[{from:weight,to,weight:t.factor??1,output:index,term:j,...via?{via:[via]}:{}}]:[]]})};
+  const scaleCache=new WeakMap<Tensor,number>();
+  const coefficientScale=(step:Step,t:ReturnType<Step['trace']>[number])=>{
+   const factor=step.inputs.find(input=>input.id===t.factorTensor)??(t.factorTensor?latest.current.run.tensors.find(input=>input.id===t.factorTensor):undefined);
+   if(!factor)return 1;
+   let scale=scaleCache.get(factor);if(scale===undefined){scale=valueExtent(factor.values);scaleCache.set(factor,scale)}
+   const value=factor.values[t.factorIndex??0];return scale*(value?Math.abs((t.factor??value)/value):Math.abs(Number(step.settings.scale??1)));
+  };
+  const linksFor=(step:Step,index:number,terms=step.trace(index)):Connection[]=>{const to=point(step.output.id,index),via=transfers.get(step.id)?.positions[index];if(!to)return [];return terms.flatMap((t,j)=>{const from=point(t.tensor,t.index),weight=t.factorTensor?point(t.factorTensor,t.factorIndex!):undefined,numeric=t.factorTensor!==undefined||(t.factor!==undefined&&t.factor!==1),style={weight:numeric?t.factor:undefined,weightScale:coefficientScale(step,t),output:index,term:j,...via?{via:[via]}:{}};return [...from?[{from,to,...style}]:[],...weight?[{from:weight,to,...style}]:[]]})};
   const rebuild=()=>{
    const p=latest.current;setHover('');setLive({title:'',equation:'',step:''});lastLive=-Infinity;manualFrame=undefined;fabrics=[];activeFabric=undefined;activeKey='';hoveredScope='';fieldBounds.clear();fieldMap.clear();transfers=new Map();streamedKeys=new Map();scene.remove(body);disposeGroup(body);body=new T.Group();scene.add(body);labels.replaceChildren(leaders);leaders.replaceChildren();fields=[];clicks=[];tags=[];oldIndex=-1;pass=0;coordinateKey=''
    const box=new T.Box3(),parent=p.run.steps.find(s=>s.id===p.scope.slice(6)),atom=p.run.steps.find(s=>s.id===p.scope);

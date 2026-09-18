@@ -9,6 +9,7 @@ import {CATALOG,catalogPath,matchesModule} from './catalog'
 import {principalSteps,childSteps,stepLabel,initialScope} from './scaffold'
 import {EditableText,NoteEditToolbar} from '../EditableContent'
 import './workstation.css'
+import ColorLegend from './ColorLegend'
 const WorkScene=lazy(()=>import('./WorkScene'))
 const STORAGE='primocosmos-workstation-v1'
 function Formula({value}:{value:string}){return <div className="ws-formula" tabIndex={0} dangerouslySetInnerHTML={{__html:katex.renderToString(value,{displayMode:true,throwOnError:false,trust:false})}}/>}
@@ -51,7 +52,7 @@ export default function Workstation({module='conv2d',onModule}:{module?:string;o
       {['mlp','linear'].includes(id)&&<div className="ws-dense-parameters" aria-label="全连接网络参数">{number('batch','Batch 批次数',1,2)}{number('dim','输入通道 / 特征数',2,16)}{number('out','输出通道 / 特征数',1,16)}{id==='mlp'&&<>{number('hidden','隐藏层通道',2,32)}{number('layers','隐藏层数量',1,4)}</>}</div>}
       <div className="ws-path"><button disabled={!history.length} aria-label="返回上一个计算视图" onClick={()=>{const prev=history.at(-1);if(prev){setHistory(h=>h.slice(0,-1));setScope(prev);setIndex(0)}}}><ArrowLeft size={15}/></button><button onClick={()=>navigate('root')}>{def.name}</button>{group&&mainSteps.length>1&&<><ChevronRight size={12}/><button onClick={()=>navigate(`group:${group}`)}>{group}</button></>}{current&&<><ChevronRight size={12}/><span>{current.title}</span></>}</div>
       {run?<Suspense fallback={<div className="ws-scene ws-loading">正在构建全部张量元素…</div>}><WorkScene run={run} scope={scope} index={selectedIndex} progress={progress} playing={playing} reset={reset} focus={scope==='root'?focus:''} highlight={highlight} zoom={zoom} pan={pan} showLabels={showLabels} onScope={navigate} onIndex={setIndex} onProgress={setProgress} onPlaying={setPlaying}/></Suspense>:<div className="ws-scene ws-error" role="alert"><h3>当前参数无法组成有效模型</h3><p>{result.error}</p><button onClick={()=>{setConfig(moduleConfig(id,DEFAULT));setInput(undefined)}}>恢复默认参数</button></div>}
-      <div className="ws-caption"><EditableText as="span" textKey="ws-controls-help">拖动旋转 / 右键平移 · 滚轮指向缩放 · 双击聚焦</EditableText><EditableText as="span" textKey="ws-colors-help">青 = 正值 · 琥珀 = 负值 · 明亮程度 = 幅度 · 白 = 当前元素</EditableText></div>
+      <div className="ws-caption"><EditableText as="span" textKey="ws-controls-help">拖动旋转 / 右键平移 · 滚轮指向缩放 · 双击聚焦</EditableText><ColorLegend/></div>
       {current&&<div className="ws-playback"><label>输出元素 <output>[{coords(selectedIndex,current.output.shape).join(', ')}]</output><input type="range" min={0} max={current.output.values.length-1} step={1} value={selectedIndex} onChange={e=>{setIndex(Number(e.target.value));setPlaying(false)}} aria-label="选择输出张量元素"/></label><label>逐项计算 <output>{Math.min(terms.length,Math.floor(progress*terms.length)+1)} / {terms.length}</output><input type="range" min={0} max={1} step={.001} value={progress} onChange={e=>{setProgress(Number(e.target.value));setPlaying(false)}} aria-label="逐项计算进度"/></label><strong>{current.output.values[selectedIndex].toPrecision(7)}</strong></div>}
      </div>
      {run&&<div className="ws-run-status"><span>输入 [{run.input.shape.join(' × ')}]</span><ChevronRight size={14}/><span>输出 [{run.output.shape.join(' × ')}]</span><span>{run.steps.length} 个算子 · {run.parameters.toLocaleString()} 个参数</span></div>}

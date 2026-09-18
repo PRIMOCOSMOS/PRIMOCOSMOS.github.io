@@ -1,12 +1,13 @@
 import * as T from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
+import {numericColor} from './numericPalette'
 
 export type Position3 = [number, number, number]
 export type CrystalSelection = number | { focus?: number; active?: number[]; hidden?: number[] }
 const positive = new T.Color('#78cde7'), negative = new T.Color('#e9af83'), selected = new T.Color('#e3fbff')
 
 /** Uniform tensor cells: values affect tint, never geometry. Four instanced draws per tensor. */
-export function createCrystalTensor(parent: T.Group, count: number, size = .42, style?:{valueEdges?:boolean;bodyOpacity?:number;edgeOpacity?:number}) {
+export function createCrystalTensor(parent: T.Group, count: number, size = .42, style?:{valueEdges?:boolean;bodyOpacity?:number;edgeOpacity?:number;valueScale?:number|(()=>number)}) {
   const group = new T.Group()
   group.userData.crystalTensor = true
   parent.add(group)
@@ -34,17 +35,19 @@ export function createCrystalTensor(parent: T.Group, count: number, size = .42, 
   function update(values: number[], positions: Position3[], selection: CrystalSelection = -1) {
     const state = typeof selection === 'number' ? { focus: selection } : selection
     const active = new Set(state.active ?? []), hidden = new Set(state.hidden ?? [])
+    const colorScale=typeof style?.valueScale==='function'?style.valueScale():style?.valueScale
     let visibleCount = 0, activeCount = 0
     for (let i = 0; i < count; i++) {
       if (hidden.has(i) || !positions[i]) continue
       transform.position.set(...positions[i]); transform.updateMatrix()
-      tint.copy((values[i] ?? 0) < 0 ? negative : positive).multiplyScalar(.5 + .5 * Math.min(1, Math.abs(values[i] ?? 0)))
+      if(colorScale!==undefined)numericColor(values[i]??0,colorScale,tint)
+      else tint.copy((values[i] ?? 0) < 0 ? negative : positive).multiplyScalar(.5 + .5 * Math.min(1, Math.abs(values[i] ?? 0)))
       body.setMatrixAt(visibleCount, transform.matrix); body.setColorAt(visibleCount, tint)
       edge.setMatrixAt(visibleCount, transform.matrix)
       if(style?.valueEdges)edge.setColorAt(visibleCount,tint)
       visibleCount++
       if (i === state.focus || active.has(i)) {
-        lit.setMatrixAt(activeCount, transform.matrix); lit.setColorAt(activeCount, i === state.focus ? selected : tint.clone().multiplyScalar(.65))
+        lit.setMatrixAt(activeCount, transform.matrix); lit.setColorAt(activeCount, style?.valueScale!==undefined?tint.clone().lerp(selected,i===state.focus?.28:.1):i === state.focus ? selected : tint.clone().multiplyScalar(.65))
         litEdge.setMatrixAt(activeCount, transform.matrix); litEdge.setColorAt(activeCount++, i === state.focus ? selected : tint)
       }
     }
