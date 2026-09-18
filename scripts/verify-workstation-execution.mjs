@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import katex from 'katex';
+import {MODULES,DEFAULT,moduleConfig,execute,executionGraph,executionCoordinates,streamedIndex,buildScaffold} from '../tmp/workstation-engine.mjs';
+const close=(a,b)=>assert(Math.abs(a-b)<=1e-9*Math.max(1,Math.abs(a),Math.abs(b)),`${a} != ${b}`);
+let stages=0;
+for(const def of MODULES){
+ const original=execute(def.id,moduleConfig(def.id,DEFAULT)),{run,blocks}=executionGraph(original);
+ assert.equal(new Set(run.steps.map(s=>s.id)).size,run.steps.length,'Every arithmetic stage needs a unique address');
+ for(const s of original.steps)assert(run.steps.some(v=>v.output.id===s.output.id),`${def.id}: hidden operator ${s.title}`);
+ const graph=buildScaffold(run,run.steps,true),nodes=new Map(graph.nodes.map(n=>[n.tensor.id,n]));
+ for(const e of graph.edges)assert(nodes.get(e.from).level<nodes.get(e.to).level,'Strict dependency levels');
+ for(const block of blocks){
+  for(const index of [0,block.source.output.values.length-1]){
+   block.select(index);const coordinates=executionCoordinates(block,index);
+   assert(coordinates.get(block.source.output.id).has(index));
+   for(const s of block.steps){
+    katex.renderToString(s.formula,{throwOnError:true,strict:'ignore'});
+    assert.equal(s.output.shape.reduce((a,b)=>a*b,1),s.output.values.length);
+    assert(s.output.values.every(Number.isFinite));
+    for(const i of coordinates.get(s.output.id)??[]){assert(i>=0&&i<s.output.values.length);for(const t of s.trace(i)){assert(Number.isFinite(t.value));if(t.index>=0){const tensor=run.tensors.find(v=>v.id===t.tensor);assert(tensor,`${def.id}: missing ${t.tensor}`);assert.equal(t.value,tensor.values[t.index]);}}}
+   }
+   if(block.streamed)close(block.steps.at(-2).output.values.at(-1),block.source.output.values[index]);
+   if(block.source.kind==='Linear'){const sum=block.steps[1].output,bias=block.source.inputs[2];close(sum.values[index]+(bias?.values[index%bias.values.length]??0),block.source.output.values[index]);}
+   if(block.source.kind==='Sigmoid'||block.source.kind==='SiLU'){const gate=block.steps.at(-2).output.values[index],x=block.source.inputs[0].values[index];close(gate*(block.source.kind==='SiLU'?x:1),block.source.output.values[index]);}
+   if(block.source.kind==='GELU')close(block.steps.at(-2).output.values[index]*block.source.inputs[0].values[index],block.source.output.values[index]);
+  }
+  stages+=block.steps.length;
+ }
+}
+assert.deepEqual(Array.from({length:8},(_,pass)=>streamedIndex(4,pass,0,true)),[0,1,2,3,0,1,2,3]);
+assert.equal(streamedIndex(4,9,2,false),2);
+console.log(`Verified ${stages} concrete arithmetic stages across all 61 modules: unique IDs, exact coordinates, formulas, full dependency DAGs, streaming registers and output sweeps.`);

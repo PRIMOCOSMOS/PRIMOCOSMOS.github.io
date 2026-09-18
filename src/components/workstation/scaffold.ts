@@ -23,18 +23,20 @@ export function childSteps(run:Run,step:Step){
 }
 export interface ScaffoldNode {tensor:Tensor;step?:Step;position:Position3;width:number;depth:number;level:number;external:boolean;backbone?:boolean}
 export interface ScaffoldEdge {from:string;to:string;skip:boolean}
-export function buildScaffold(run:Run,selected:Step[]=principalSteps(run)){
+export function buildScaffold(run:Run,selected:Step[]=principalSteps(run),includeParameters=false){
  const byOutput=new Map(run.steps.map(s=>[s.output.id,s])),chosen=new Set(selected.map(s=>s.id));
  const resolve=(t:Tensor):Tensor[]=>{const p=byOutput.get(t.id);return p&&!chosen.has(p.id)&&statistics.has(String(p.settings.operation))?p.inputs.flatMap(resolve):[t]};
  const nodes:ScaffoldNode[]=[],edges:ScaffoldEdge[]=[],seen=new Set<string>();
  const add=(tensor:Tensor,step?:Step)=>{if(seen.has(tensor.id))return;seen.add(tensor.id);const l=tensorLayout(tensor);nodes.push({tensor,step,position:[0,0,0],width:l.width,depth:l.depth,level:0,external:!step})};
  for(const step of selected){
-  const data=[...new Map(step.inputs.flatMap(resolve).filter(t=>!t.parameter&&!t.constant).map(t=>[t.id,t])).values()];
+  const data=[...new Map(step.inputs.flatMap(resolve).filter(t=>includeParameters||!t.parameter&&!t.constant).map(t=>[t.id,t])).values()];
   for(const t of data){add(t,selected.find(s=>s.output.id===t.id));edges.push({from:t.id,to:step.output.id,skip:false})}add(step.output,step);
  }
  // Topological depth keeps Q/K/V and shortcut branches adjacent, not serialized.
  const map=new Map(nodes.map(n=>[n.tensor.id,n]));
  for(let pass=0;pass<nodes.length;pass++){let changed=false;for(const e of edges){const a=map.get(e.from)!,b=map.get(e.to)!;if(b.level<=a.level){b.level=a.level+1;changed=true}}if(!changed)break}
+ // Parameters sit beside their first consumer, not in a detached top row.
+ if(includeParameters)for(const n of nodes)if(n.external&&n.tensor.id!==run.input.id){const children=edges.filter(e=>e.from===n.tensor.id).map(e=>map.get(e.to)!.level);if(children.length)n.level=Math.max(0,Math.min(...children)-1)}
  const levels=Math.max(0,...nodes.map(n=>n.level))+1;
  const spacing=3;
  const rowDepths=Array.from({length:levels},(_,i)=>Math.max(1,...nodes.filter(n=>n.level===i).map(n=>n.depth)));
@@ -42,7 +44,7 @@ export function buildScaffold(run:Run,selected:Step[]=principalSteps(run)){
  // Anchor the longest input-to-output dependency path at x=0; auxiliary
  // branches occupy stable side lanes and never shift the central trunk.
  const backbone=new Set<string>();let cursor=selected.at(-1)?.output.id;
- while(cursor){backbone.add(cursor);const parents=edges.filter(e=>e.to===cursor).map(e=>map.get(e.from)!).sort((a,b)=>b.level-a.level||b.tensor.values.length-a.tensor.values.length);cursor=parents[0]?.tensor.id}
+ while(cursor){backbone.add(cursor);const parents=edges.filter(e=>e.to===cursor).map(e=>map.get(e.from)!).sort((a,b)=>Number(!!a.tensor.parameter)-Number(!!b.tensor.parameter)||b.level-a.level||b.tensor.values.length-a.tensor.values.length);cursor=parents[0]?.tensor.id}
  for(let level=0;level<levels;level++){
   const row=nodes.filter(n=>n.level===level),main=row.find(n=>backbone.has(n.tensor.id))??row[0];if(!main)continue;
   main.position=[0,-heights[level],0];main.backbone=true;let left=-main.width/2-3,right=main.width/2+3;

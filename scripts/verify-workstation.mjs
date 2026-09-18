@@ -3,7 +3,7 @@ import {build} from 'esbuild'
 import {writeFile,mkdir} from 'node:fs/promises'
 import katex from 'katex'
 await mkdir('tmp',{recursive:true})
-await build({stdin:{contents:"export * from './src/components/workstation/engine'; export * from './src/components/workstation/models'; export * from './src/components/workstation/scaffold'; export * from './src/components/workstation/catalog'; export * from './src/components/workstation/generative'; export * from './src/components/workstation/computation'",resolveDir:process.cwd()},bundle:true,format:'esm',platform:'node',outfile:'tmp/workstation-engine.mjs'})
+await build({stdin:{contents:"export * from './src/components/workstation/engine'; export * from './src/components/workstation/models'; export * from './src/components/workstation/scaffold'; export * from './src/components/workstation/catalog'; export * from './src/components/workstation/generative'; export * from './src/components/workstation/computation'; export * from './src/components/workstation/execution'",resolveDir:process.cwd()},bundle:true,format:'esm',platform:'node',outfile:'tmp/workstation-engine.mjs'})
 const {execute,DEFAULT,MODULES,size,buildScaffold,tensorLayout,CATALOG,principalSteps,moduleConfig,computation}=await import('../tmp/workstation-engine.mjs')
 const fixtures=[];let values=0
 for(const baseConfig of [DEFAULT,{...DEFAULT,batch:2,channels:4,out:4,groups:2,stride:2,training:true,preNorm:false,causal:true,dim:8,heads:4,seed:93}])for(const def of MODULES){

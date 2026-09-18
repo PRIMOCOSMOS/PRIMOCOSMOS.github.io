@@ -75,3 +75,20 @@
 .workstation .ws-space-label{white-space:pre-line;overflow-wrap:anywhere}
 .ws-label-formula{display:block;margin-top:4px;font-size:12px;overflow:hidden}
 @media(max-width:760px){.workstation .ws-space-label{width:160px;min-width:120px;max-width:160px}}
+
+/* The numerical sweep and camera operate independently of hierarchy. */
+.ws-execution-nav{display:flex;align-items:center;gap:10px;flex-basis:100%;flex-wrap:wrap}
+.ws-execution-nav label{display:flex;align-items:center;gap:8px;flex:1;min-width:120px;color:#b9e7ef}
+.ws-execution-nav input{width:100%;min-width:60px;max-width:220px;accent-color:#b9e7ef}
+.ws-execution-nav button{min-width:32px;min-height:32px}
+.workstation .note-edit-toolbar{margin-bottom:20px}
+.workstation .note-edit-primary{background:#b9e7ef;color:#050c12}
+@media(max-width:760px){.ws-execution-nav{gap:4px}.ws-execution-nav label{flex-basis:calc(100% - 80px)}.ws-execution-nav input{max-width:150px}.ws-live-math{max-width:calc(100% - 24px)}}
+
+/* Reserve the whole canvas for data; arithmetic controls are a sibling rail. */
+.workstation .ws-live-math{position:relative;left:auto;bottom:auto;max-width:none;margin:0;padding:10px 14px;border:0;border-top:1px solid var(--ws-line);background:#0d1b25}
+.ws-scene-container{min-height:0;min-width:0}
+.ws-computation:fullscreen .ws-scene-container{display:flex;flex:1;flex-direction:column;min-height:0}
+.ws-computation:fullscreen .ws-scene-container .ws-scene{flex:1;height:auto;min-height:180px}
+.ws-computation:fullscreen .ws-live-math{flex-shrink:0}
+@media(max-width:760px){.workstation .ws-space-label{width:140px;max-width:140px;min-width:100px}.ws-execution-nav label{white-space:nowrap}.workstation .ws-live-math{padding:8px 12px}}

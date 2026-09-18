@@ -186,7 +186,7 @@ The notebook is intentionally dense and operational. Three mutually exclusive pa
 - Exhaustive interactive architectures whose controls, routes, captions, readouts, and equations stay synchronized.
 - Responsive reflow around scientific topology: existing planar diagrams scroll horizontally; MMHVAE preserves its vertical spatial hierarchy and accessible hierarchy browser.
 
-The independent workstation at `#/workstation/<module>` adds a scoped TensorSpace/3Blue1Brown crystal interpretation: actual mathematics occupies the dominant dependency backbone. Its operating bench and signed scalar palette apply to `src/components/workstation/`; shared crystal primitives enable value-colored edges through an optional workstation style. Their defaults and the incumbent home and paper rules remain unchanged. The surface direction is recorded in `.impeccable/surfaces/src-components-workstation-workstation-tsx.md`.
+The independent workstation at `#/workstation/<module>` adds a scoped TensorSpace/3Blue1Brown crystal interpretation: a shared expansion graph presents actual arithmetic at overview, group, layer and operator scope. Its operating bench and signed scalar palette apply to `src/components/workstation/`; shared crystal primitives enable value-colored edges through an optional workstation style. Their defaults and the incumbent home and paper rules remain unchanged. The surface direction is recorded in `.impeccable/surfaces/src-components-workstation-workstation-tsx.md`.
 
 ## Colors
 
@@ -279,7 +279,7 @@ The implemented desktop hierarchy is navigation and archive names at 18px, the a
 
 The operating bench uses a 210px catalog, flexible scene and 260px parameter column with 24px gaps inside a 1920px maximum shell. At 1250px the parameters move below the workspace; at 760px the catalog and parameters become explicit disclosures, with open parameters before the viewer. The operator index is initially collapsed and pages six operators per stage.
 
-**The Actual Backbone Rule.** Linear always enters complete arithmetic. Compound models expose principal output tensor planes along the longest dependency trunk, with local layer spacing and auxiliary branches beside it. Models with more than 100 operations initially focus a named stage; all stages and the full graph remain retrievable, without a global connection web crossing the focused view.
+**The Actual Backbone Rule.** Every scope, including the overview, shows the expanded arithmetic dependency graph for all source operators in that scope. Inputs and constants sit near their consumers; branches follow dependency depth with local spacing. Graphs deeper than 24 levels enable camera following of the current operator while retaining the entire graph. Mathematical step navigation, follow controls and full-graph fitting make long executions inspectable.
 
 **The Exact Coordinate Rule.** Every actual scalar retains a uniform crystal and numerical coordinate. Last-two-axis tensor planes preserve their shape; leading planes and long vectors use exact factor rectangles, including 48 as 6 × 8, without empty corners or sampling. Explicit size rejection protects numerical completeness.
 
@@ -331,9 +331,13 @@ Pills (`999px`) are reserved for compact controls and outbound source links, eac
 
 ### Workstation computation corridor
 
-**The Arithmetic In Place Rule.** Linear's full connection fabric links every input to its weighted products, all dot sums, centered bias and output. Edge colors encode W and the complete weight tensor remains in the data inspector. Other layers use operation-specific abstract diagrams in the main inter-layer corridor: convolution scan frames, activation curves, reduction funnels, normalization tapers, gates and reindex braids, with actual operand links. Abstract operation diagrams explain a function; they are not sampled tensor planes or substitute neurons. Detached four-cube calculators are not part of this system.
+The top-of-workstation editing toolbar exposes persistent editing for explanatory prose, including module descriptions, captions, operator explanations and implementation boundaries. Live equations, tensor values and structural controls remain independent of the saved text.
 
-**The Stage Boundary Rule.** Focused groups keep attached labels for their local input tensors, terminal outputs and the operation driving the live equation. These boundary ports participate in camera fitting; other labels remain lazy. Restore full graph returns to the principal scaffold in the same canvas.
+**The Arithmetic In Place Rule.** Concrete tensor stages carry the mathematics at every scope. Linear exposes all input-weight products, sums and bias; activations, normalization statistics and generative operations expose their intermediate arithmetic. Convolution and large reductions stream the exact contributions and partial sums for each output; pooling exposes running comparisons. Keep every original tensor coordinate available. Do not substitute abstract layer-transform symbols or detached miniature calculators for these stages.
+
+**The Computation Stream Rule.** Dense connections remain dim context. The current output and arithmetic term receive the bright pulse and coordinate selection, driven by the same execution trace as the live equation; playback is a mathematical sequence, not a decorative all-edge animation.
+
+**The Stage Boundary Rule.** Focused groups keep attached labels for their local input tensors, terminal outputs and the operation driving the live equation. These boundary ports participate in camera fitting; other labels remain lazy. Restore full graph returns to the complete arithmetic graph in the same canvas.
 
 The four-root searchable catalog leads through task family to executable module. Stage selection, same-scene hierarchy and the paged operator index lead to full tensors, dependencies, formulas and export. Camera controls combine cursor-targeted wheel zoom, plus/minus zoom, pan/rotate, two-finger navigation, double-click tensor framing, reset and fullscreen. Playback and manual progression remain available with reduced-motion support.
 
@@ -416,7 +420,7 @@ Equations use native `details`/`summary` rows with lime-tinted rails and a rotat
 
 ### Do:
 
-- **Do** preserve complete scalar coordinates and keep arithmetic on the workstation's principal dependency backbone.
+- **Do** preserve complete scalar coordinates and show concrete arithmetic stages at every workstation scope, including the overview.
 - **Do** scope signed crystal edges to the workstation's optional style while preserving shared primitive defaults.
 
 - **Do** keep the Silicon Idol home and scientific notebook visually scoped while preserving their shared identity and real paper destinations.
@@ -428,7 +432,7 @@ Equations use native `details`/`summary` rows with lime-tinted rails and a rotat
 
 ### Don't:
 
-- **Don't** replace actual workstation tensors with sampled proxies, empty grid corners, detached miniature calculators or a group shortcut into Linear.
+- **Don't** replace actual workstation arithmetic with abstract layer-transform symbols, sampled proxies, empty grid corners or detached miniature calculators.
 
 - **Don't** turn either scope into a generic neon gradient, glassmorphism dashboard, or rounded SaaS card system; the home’s native cold lighting and MMHVAE’s spatial depth remain valid local materials.
 - **Don't** use lime, blue, orange, violet, coral, lavender, amber, or green interchangeably; every one has a defined data or comparison role.
