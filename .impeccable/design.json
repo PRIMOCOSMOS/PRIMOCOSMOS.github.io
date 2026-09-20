@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-18T05:39:48.924971+00:00",
+  "generatedAt": "2026-09-20T09:53:27.425616+00:00",
   "title": "Design System: PRIMOCOSMOS — Silicon Idol & Multimodal Signal Lab",
   "extensions": {
     "colorMeta": {
@@ -707,22 +707,25 @@
         "computation.ts",
         "generative.ts",
         "workstation.css",
-        "activationTransfer.ts"
+        "activationTransfer.ts",
+        "vae.ts"
       ],
       "direction": "Actual dense neuron layers and every weight connection remain visible; exact activation transfers and concrete convolution arithmetic inhabit the existing crystal world.",
       "formSeed": "user-pinned-tensorspace-crystal",
-      "catalog": "Four roots, task family, 61 executable modules; collapsed stage index pages six operators.",
+      "catalog": "Four roots, task family, 67 executable modules; collapsed stage index pages six operators.",
       "tensorGeometry": "Full coordinates and batch retained. Vector neurons use uniform .58 cells and 3.6 horizontal pitch factor; other tensors retain uniform .36 cells and exact factor rectangles.",
       "linear": "Input, hidden and output neuron layers remain visible with every one-to-one weight edge. Numerical W stays inspectable; bias is docked to output.",
-      "operationCorridor": "Linear and activation source layers remain in the visible execution graph. Per-coordinate f(x) transfer traces occupy aligned lanes with moving crystals and actual formulas. Convolution and reductions retain exact streamed terms, partial sums and persistent inter-stage links; auxiliary parameters sit near consumers and zero padding beside input.",
+      "operationCorridor": "Linear and activation source layers remain in the visible execution graph. Per-coordinate f(x) transfer traces occupy aligned lanes with moving crystals and actual formulas. Convolution and reductions retain exact streamed terms, partial sums and persistent inter-stage links; auxiliary parameters sit near consumers and zero padding beside input. Scalar exponential, square and negative-log curves reuse the numerical-transfer mapping.",
       "longModels": "Graphs deeper than 24 levels enable camera following of the current operator with every stage retained; mathematical timeline, follow toggle and full-graph fit remain available.",
-      "labels": "Hover or explicit reveal; KaTeX mathematical stage formulas, full formulas below; boundary inputs and outputs remain identifiable.",
-      "camera": "Upright camera, cursor-targeted wheel zoom, plus/minus, pan/rotate, two-finger navigation, double-click tensor framing, reset, fullscreen, follow current operator and full-graph fitting.",
+      "labels": "The label selector has three modes: hover, show all and hide all. Hover reveals only the exact pointed tensor/module, not every item in its group; labels and leader lines follow the same visibility state.",
+      "camera": "Upright camera, cursor-targeted wheel zoom, plus/minus, pan/rotate, two-finger navigation, double-click tensor framing, reset, fullscreen, follow current operator and full-graph fitting. More level viewing angle; graph-depth scene height ranges from 580px to 1100px.",
       "sharedPrimitiveBoundary": "Value-colored edges are an optional workstation style; homepage/paper defaults preserved.",
       "evidenceBoundary": "Local build documentation; no ship verdict or deployment claim.",
       "streaming": "All dense edges stay baseline-visible. Smooth overlapping Gaussian highlights sweep neighboring outputs and terms instead of hard single-group selection.",
       "editing": "Top toolbar enables persistent editing of explanatory prose independently of live equations, values and controls.",
-      "quickParameters": "MLP/Linear rail above canvas, also in fullscreen: Batch, input/output features, MLP hidden width and layer count; sidebar remains available."
+      "quickParameters": "MLP/Linear rail above canvas, also in fullscreen: Batch, input/output features, MLP hidden width and layer count; sidebar remains available.",
+      "stratification": "Stratification follows topological depth, then separates role, operation, shape and parameter consumer into independent planes without changing real dependency edges. Unlike steps or data never share a plane. Independent branches move nearer their consumers; Linear projections stay immediately after the encoder so the μ/log-variance heads retain their proper position.",
+      "vae": "Six VAE modules add dual Gaussian heads (vae-head), an MLP encoder (vae-mlp), a teaching convolutional encoder (vae-conv: stride-2 convolution plus global average pooling), reparameterization (vae-reparameter), diagonal-Gaussian KL (vae-kl: latent-axis sum retaining Batch) and two-expert Gaussian fusion with a standard-normal prior (vae-poe). The convolutional example is not an official full-network reproduction. Box–Muller noise is reproducible but does not claim the same random sequence as torch.randn_like."
     }
   },
   "components": [
@@ -925,7 +928,7 @@
       },
       {
         "name": "The Actual Backbone Rule",
-        "body": "Every scope preserves the actual dependency graph. Dense MLP input, hidden and output neuron layers stay visible with every weight edge; Linear and activation source layers are retained rather than replaced by arrays of intermediate arithmetic. Other operators retain their concrete mathematical stages. Inputs and auxiliary parameters sit near consumers, bias beside its output and convolution zero padding beside its input. Graphs deeper than 24 levels enable camera following while retaining the entire graph; mathematical navigation and full-graph fitting remain available.",
+        "body": "Every scope preserves the actual dependency graph. Dense MLP input, hidden and output neuron layers stay visible with every weight edge; Linear and activation source layers are retained rather than replaced by arrays of intermediate arithmetic. Other operators retain their concrete mathematical stages. Inputs and auxiliary parameters sit near consumers, bias beside its output and convolution zero padding beside its input. Stratification follows topological depth, then separates role, operation, shape and parameter consumer into independent planes without changing real dependency edges. Unlike steps or data never share a plane. Independent branches move nearer their consumers; Linear projections stay immediately after the encoder so the μ/log-variance heads retain their proper position. Graphs deeper than 24 levels enable camera following while retaining the entire graph; mathematical navigation and full-graph fitting remain available.",
         "section": "layout"
       },
       {
@@ -935,12 +938,12 @@
       },
       {
         "name": "The Arithmetic In Place Rule",
-        "body": "A dense weight is represented one-to-one by a visible connection, with the complete numerical weight tensor inspectable below. Activation functions use per-coordinate f(x) transfer traces in aligned lanes, actual formulas and moving crystal units that preserve each coordinate between input and output. These traces use the implemented activation mathematics, including the GELU approximation. Transfer curves cover the actual inputs and at least [−6, 6] (ReLU6: [−8, 8]); 64 segments and faint axes share the same coordinate mapping as each actual (xᵢ, f(xᵢ)) point. Mapping the true function-output range to readable vertical height changes display coordinates only, never computation values. Convolution and large reductions retain concrete contributions, partial sums and persistent inter-stage links; the main dependency trunk remains intact.",
+        "body": "A dense weight is represented one-to-one by a visible connection, with the complete numerical weight tensor inspectable below. Activation functions use per-coordinate f(x) transfer traces in aligned lanes, actual formulas and moving crystal units that preserve each coordinate between input and output. These traces use the implemented activation mathematics, including the GELU approximation. Scalar exponential, square and negative-log operations reuse this numerical-transfer convention. Transfer curves cover the actual inputs and at least [−6, 6] (ReLU6: [−8, 8]); 64 segments and faint axes share the same coordinate mapping as each actual (xᵢ, f(xᵢ)) point. Mapping the true function-output range to readable vertical height changes display coordinates only, never computation values. Convolution and large reductions retain concrete contributions, partial sums and persistent inter-stage links; the main dependency trunk remains intact.",
         "section": "components"
       },
       {
         "name": "The Stage Boundary Rule",
-        "body": "Focused groups keep attached labels for their local input tensors, terminal outputs and the operation driving the live equation. These boundary ports participate in camera fitting; other labels remain lazy. Restore full graph returns to the complete arithmetic graph in the same canvas.",
+        "body": "The label selector has three modes: hover, show all and hide all. Hover reveals only the exact pointed tensor/module, not every item in its group; labels and leader lines follow the same visibility state. Boundary tensors participate in camera fitting regardless of label mode. Restore full graph returns to the complete computation graph in the same canvas.",
         "section": "components"
       },
       {

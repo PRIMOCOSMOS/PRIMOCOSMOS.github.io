@@ -23,6 +23,42 @@ export function childSteps(run:Run,step:Step){
 }
 export interface ScaffoldNode {tensor:Tensor;step?:Step;position:Position3;width:number;depth:number;level:number;external:boolean;backbone?:boolean}
 export interface ScaffoldEdge {from:string;to:string;skip:boolean}
+/** A shared plane means a shared operation AND data role, not merely equal DAG depth.
+ * Ordering independent lanes vertically is visual organisation, never a new edge. */
+export function stratifyScaffold(graph:{nodes:ScaffoldNode[];edges:ScaffoldEdge[];levels:number}){
+ const byId=new Map(graph.nodes.map(n=>[n.tensor.id,n]));
+ // Keep the longest data path fixed. Delay independent branches (e.g. random
+ // noise) towards their consumer instead of stretching them from the input roof.
+ const trunk=new Set<string>();let cursor=[...graph.nodes].sort((a,b)=>b.level-a.level)[0];
+ while(cursor){trunk.add(cursor.tensor.id);const parents=graph.edges.filter(e=>e.to===cursor.tensor.id).map(e=>byId.get(e.from)!).filter(n=>!n.tensor.parameter&&!n.tensor.constant).sort((a,b)=>b.level-a.level);cursor=parents[0]}
+ for(const n of [...graph.nodes].sort((a,b)=>b.level-a.level)){n.backbone=trunk.has(n.tensor.id);if(n.backbone||n.step?.kind==='Linear')continue;const children=graph.edges.filter(e=>e.from===n.tensor.id).map(e=>byId.get(e.to)!.level);if(children.length)n.level=Math.max(n.level,Math.min(...children)-1)}
+ const consumerRole=(n:ScaffoldNode)=>graph.edges.filter(e=>e.from===n.tensor.id).map(e=>{const consumer=byId.get(e.to)?.step;return `${consumer?.group??''}/${consumer?.title??''}`}).sort();
+ const signature=(n:ScaffoldNode)=>JSON.stringify([
+  n.tensor.parameter?'parameter':n.tensor.constant?'constant':n.step?'computed':'input',
+  n.step?.kind??'',n.step?.settings.operation??'',n.step?.settings.layoutRole??n.step?.title??n.tensor.name,n.tensor.shape,
+  n.tensor.parameter?consumerRole(n):null,
+ ]);
+ const original=[...new Set(graph.nodes.map(n=>n.level))].sort((a,b)=>a-b);
+ const originalRows=new Map(original.map(depth=>[depth,graph.nodes.filter(n=>n.level===depth)]));
+ let level=0,y=0,previousDepth=0;
+ for(const depth of original){
+  const groups=new Map<string,ScaffoldNode[]>();
+  // External data precede constants/parameters, then computed outputs.
+  const order=(n:ScaffoldNode)=>n.step?3:n.tensor.parameter?2:n.tensor.constant?1:0;
+  for(const n of originalRows.get(depth)!.sort((a,b)=>order(a)-order(b))){const key=signature(n);groups.set(key,[...groups.get(key)??[],n])}
+  for(const row of groups.values()){
+   const rowDepth=Math.max(...row.map(n=>n.depth)),kind=row[0].step?.kind;
+   const bias=row.every(n=>n.tensor.parameter&&n.tensor.name==='b');
+   if(level)y-=Math.max(bias?1.2:kind==='Linear'?4.5:kind&&['ReLU','ReLU6','LeakyReLU','Sigmoid','Tanh','SiLU','GELU','Hardswish','Hardsigmoid','Softplus'].includes(kind)?4:2.5,(previousDepth+rowDepth)*.42+(bias?.4:1.4));
+   const total=row.reduce((n,item)=>n+item.width,0)+(row.length-1)*2;let x=-total/2;
+   for(const n of row){n.level=level;n.position=[x+n.width/2,y,0];x+=n.width+2}
+   previousDepth=rowDepth;level++;
+  }
+ }
+ graph.levels=level;
+ for(const edge of graph.edges)edge.skip=byId.get(edge.to)!.level-byId.get(edge.from)!.level>1;
+ return graph;
+}
 export function buildScaffold(run:Run,selected:Step[]=principalSteps(run),includeParameters=false){
  const byOutput=new Map(run.steps.map(s=>[s.output.id,s])),chosen=new Set(selected.map(s=>s.id));
  const resolve=(t:Tensor):Tensor[]=>{const p=byOutput.get(t.id);return p&&!chosen.has(p.id)&&statistics.has(String(p.settings.operation))?p.inputs.flatMap(resolve):[t]};

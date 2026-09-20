@@ -2,6 +2,7 @@ import {MODULES} from './models'
 
 /** Learning/task hierarchy, independent of the implementation's execution groups. */
 export const CATALOG = [
+ {name:'概率编码与 VAE',branches:[{name:'编码器与后验参数',ids:['vae-head','vae-mlp','vae-conv']},{name:'采样、融合与正则',ids:['vae-reparameter','vae-poe','vae-kl']}]},
  {name:'生成与扩散',branches:[{name:'CUT · 非配对图像翻译',ids:['cut-generator','cut-patchgan','cut-projector','cut-nce','cut-objective']},{name:'Diffusion · 概率与采样',ids:['diffusion-forward','diffusion-reverse','diffusion-ddim']},{name:'Diffusion · 条件网络与训练',ids:['diffusion-time','diffusion-unet','diffusion-train']} ]},
  {name:'基础与张量', branches:[
   {name:'线性与数据组织',ids:['linear','mlp','add','concat','flatten']},

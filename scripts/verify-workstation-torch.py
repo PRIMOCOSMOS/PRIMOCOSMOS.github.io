@@ -44,6 +44,12 @@ for fixture in fixtures:
                 result={'保留信号':lambda:math.sqrt(a),'注入噪声':lambda:math.sqrt(1-a),'缩放带噪输入':lambda:1/math.sqrt(a),'移除预测噪声':lambda:-math.sqrt(1/a-1),'x₀ 后验贡献':lambda:beta*math.sqrt(previous)/(1-a),'x_t 后验贡献':lambda:(1-previous)*math.sqrt(1-beta)/(1-a),'后验随机项':lambda:0 if s['t']==0 else math.sqrt(beta*(1-previous)/(1-a)),'干净样本方向':lambda:math.sqrt(earlier),'预测噪声方向':lambda:math.sqrt(max(0,1-earlier-sigma*sigma)),'η 控制的随机项':lambda:sigma}[name]()
                 y=torch.tensor([result],dtype=torch.float64)
             elif s.get('operation')=='scale': y=x*s['scale']
+            elif s.get('operation')=='vae-exp': y=x.exp()
+            elif s.get('operation')=='vae-square': y=x.square()
+            elif s.get('operation')=='vae-minus-one': y=x-1
+            elif s.get('operation')=='vae-negative-log': y=-x.log()
+            elif s.get('operation')=='vae-divide': y=x/xs[1]
+            elif s.get('operation')=='vae-row-sum': y=x.sum(-1,keepdim=True)
             elif s.get('operation')=='reduce-all': y=(x.mean() if s['mean'] else x.sum()).reshape(1)
             elif s.get('operation')=='box-muller': y=(-2*x.log()).sqrt()*(2*torch.pi*xs[1]).cos()
             elif s.get('operation')=='l2-norm': y=x.square().sum(-1,keepdim=True).sqrt()+s['eps']
@@ -79,3 +85,25 @@ for fixture in fixtures:
         error=(y-expected).abs().max().item();maximum=max(maximum,error);count+=1
         assert torch.allclose(y,expected,atol=3e-7,rtol=3e-7), (fixture['id'],step['id'],kind,error)
 print(f'PyTorch {torch.__version__}: {count} complete operator outputs matched across {len(fixtures)} configurations. Max absolute difference: {maximum:.3g} (GELU erf approximation allowed 3e-7).')
+
+# End-to-end distribution checks, independent of the recorded intermediate DAG.
+for fixture in fixtures:
+    if not fixture['id'].startswith('vae-'): continue
+    named={t['name']:torch.tensor(t['values'],dtype=torch.float64).reshape(t['shape']) for t in fixture['tensors']}
+    output=next(t for t in fixture['tensors'] if t['id']==fixture['output'])
+    actual=torch.tensor(output['values'],dtype=torch.float64).reshape(output['shape'])
+    if fixture['id']=='vae-kl':
+        mu=named['均值 μ₁']; std=(named['输入 log σ²']*.5).exp()
+        q=torch.distributions.Normal(mu,std)
+        expected=torch.distributions.kl_divergence(q,torch.distributions.Normal(torch.zeros_like(mu),torch.ones_like(std))).sum(-1,keepdim=True)
+        assert torch.allclose(actual,expected,atol=1e-12,rtol=1e-12)
+    elif fixture['id']=='vae-poe':
+        t1=(-named['专家 1 · 对数方差']).exp();t2=(-named['专家 2 · 对数方差']).exp()
+        variance=1/(1+t1+t2);mu=variance*(t1*named['均值 μ₁']+t2*named['专家 2 · 均值 μ₂'])
+        expected=mu+variance.sqrt()*named['标准正态噪声 ε']
+        assert torch.allclose(actual,expected,atol=1e-12,rtol=1e-12)
+    elif fixture['id'] in ('vae-mlp','vae-conv','vae-reparameter'):
+        mu=named['均值 μ'] if '均值 μ' in named else named['均值 μ₁']
+        logvar=named['对数方差 log σ²'] if '对数方差 log σ²' in named else named['输入 log σ²']
+        assert torch.allclose(actual,mu+(logvar*.5).exp()*named['标准正态噪声 ε'],atol=1e-12,rtol=1e-12)
+print('VAE complete KL distribution, Gaussian product and reparameterized outputs independently matched.')

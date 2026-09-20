@@ -1,6 +1,7 @@
 import {GENERATIVE,executeGenerative} from './generative'
+import {VAE_MODULES,executeVAE} from './vae'
 import {Engine,type Tensor,type Run,size} from './engine'
-export type Family='基础运算'|'卷积与空间'|'归一化与门控'|'MobileNet'|'Transformer'|'循环网络'|'CUT'|'Diffusion'
+export type Family='基础运算'|'卷积与空间'|'归一化与门控'|'MobileNet'|'Transformer'|'循环网络'|'CUT'|'Diffusion'|'VAE'
 export interface ModuleDef {id:string;name:string;family:Family;description:string;format:'image'|'sequence'|'vector';source:string}
 const torch='https://docs.pytorch.org/docs/stable/nn.html',vision='https://docs.pytorch.org/vision/stable/_modules/torchvision/models/'
 const BASE_MODULES:ModuleDef[]=[
@@ -14,10 +15,11 @@ const BASE_MODULES:ModuleDef[]=[
  ['attention','多头自注意力','Transformer','Q/K/V、head 拆分、QKᵀ、Softmax、AV与输出投影','sequence'],['cross','多头交叉注意力','Transformer','query 与 memory 独立来源','sequence'],['encoder','Transformer Encoder','Transformer','多层注意力、前馈与可选 pre/post norm','sequence'],['decoder','Transformer Decoder','Transformer','因果自注意力、交叉注意力与前馈','sequence'],['vit','ViT 编码器','Transformer','真实 patch 卷积、CLS、位置向量、Encoder与分类头','image'],['gpt','GPT 风格解码器','Transformer','学习位置向量、因果 pre-norm 层与最终读出','sequence'],['swiglu','SwiGLU 前馈','Transformer','SiLU门控与独立value投影，逐项相乘后读出','sequence'],
  ['rnn','RNN 展开','循环网络','完整时间展开与隐状态传递','sequence'],['gru','GRU 展开','循环网络','reset/update/new三门与PyTorch的候选隐状态顺序','sequence'],['lstm','LSTM 展开','循环网络','四门、cell state与hidden state逐步更新','sequence'],
 ].map(([id,name,family,description,format])=>({id,name,family:family as Family,description,format:format as ModuleDef['format'],source:id==='mobilev2'?vision+'mobilenetv2.html':id==='mobilev3'?vision+'mobilenetv3.html':id==='residual'?vision+'resnet.html':id==='mobilev1'?'https://arxiv.org/abs/1704.04861':torch})).sort((a,b)=>['基础运算','卷积与空间','归一化与门控','MobileNet','Transformer','循环网络'].indexOf(a.family)-['基础运算','卷积与空间','归一化与门控','MobileNet','Transformer','循环网络'].indexOf(b.family))
-export const MODULES=[...BASE_MODULES,...GENERATIVE]
+export const MODULES=[...BASE_MODULES,...GENERATIVE,...VAE_MODULES]
 export interface Config {temperature:number;allNegatives:boolean;diffusionSteps:number;timeStep:number;previousStep:number;eta:number;clipDenoised:boolean;batch:number;channels:number;out:number;spatial:number;depth:number;kernel:number;stride:number;padding:number;groups:number;dilation:number;tokens:number;dim:number;heads:number;hidden:number;layers:number;expansion:number;activation:string;seed:number;training:boolean;preNorm:boolean;causal:boolean;se:boolean;pattern:string;alignCorners:boolean;outputPadding:number}
 export const DEFAULT:Config={temperature:.07,allNegatives:false,diffusionSteps:1000,timeStep:499,previousStep:199,eta:0,clipDenoised:true,batch:1,channels:2,out:4,spatial:5,depth:3,kernel:3,stride:1,padding:1,groups:1,dilation:1,tokens:4,dim:4,heads:2,hidden:8,layers:2,expansion:3,activation:'ReLU',seed:17,training:false,preNorm:true,causal:false,se:true,pattern:'random',alignCorners:false,outputPadding:0}
 export function execute(id:string,c:Config,customInput?:number[]):Run{
+ if(VAE_MODULES.some(m=>m.id===id))return executeVAE(id,c,customInput)
  if(GENERATIVE.some(m=>m.id===id))return executeGenerative(id,c,customInput)
  const def=MODULES.find(v=>v.id===id)!;if(!def)throw Error('未找到模块')
  if(['attention','cross','encoder','decoder','gpt','vit'].includes(id)&&c.dim%c.heads)throw Error('embedding 维度必须能被注意力 head 数整除')

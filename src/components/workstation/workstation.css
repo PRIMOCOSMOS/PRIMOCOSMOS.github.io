@@ -98,6 +98,9 @@
 .ws-color-scale,.ws-color-roles{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .ws-color-roles span{display:inline-flex;gap:6px;align-items:center}
 .ws-color-roles i{display:inline-block;width:16px;height:3px}
+.ws-label-mode{display:inline-flex;align-items:center;gap:4px}
+.ws-label-mode select{max-width:110px;min-height:32px;background:transparent;color:var(--ws-ink);border:0;font:inherit}
+.ws-scene-container .ws-scene{height:var(--ws-scene-height,580px)}
 .ws-computation:fullscreen .ws-scene-container{display:flex;flex:1;flex-direction:column;min-height:0}
 .ws-computation:fullscreen .ws-scene-container .ws-scene{flex:1;height:auto;min-height:180px}
 .ws-computation:fullscreen .ws-live-math{flex-shrink:0}
