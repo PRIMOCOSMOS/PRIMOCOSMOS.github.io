@@ -6,11 +6,11 @@ import {scientificExample} from './operators'
 const positions=(count:number,y:number):Position3[]=>Array.from({length:count},(_,i)=>[(i%4-1.5)*1.15,y+Math.floor(i/16)*.65,(Math.floor(i/4)%4-1.5)*1.15])
 export function makeScientificVisual(spec:MathStage):MathVisual{
  if(!/^(lab|core):/.test(spec.operation))return makeMathVisual(spec)
- const group=new T.Group(),op=spec.operation.split(':')[1],initial=scientificExample(spec,.42),input=createCrystalTensor(group,initial.a.length),output=createCrystalTensor(group,initial.out.length)
+ const group=new T.Group(),op=spec.operation.split(':')[1],initial=scientificExample(spec,.42),input=createCrystalTensor(group,initial.a.length,.42,{valueEdges:true,valueScale:2}),output=createCrystalTensor(group,initial.out.length,.42,{valueEdges:true,valueScale:2})
  const aPos=positions(initial.a.length,1.8),outPos=positions(initial.out.length,-1.6),streams=Array.from({length:op==='fft'||op==='ifft'?4:2},(_,i)=>createArrowStream(group,i?'#efc399':'#c4f3fa',.13,2))
  if(op==='split')outPos.forEach((pos,i)=>{const mode=spec.operation.split(':')[2],chunk=mode==='unequal'?(i===6?1:0):Math.floor(i/(mode==='3'?4:4));pos[0]=(i%4-1.5)*.85+(chunk-1)*2.1;pos[2]=(Math.floor(i/4)%2)*1.1+chunk*1.1;pos[1]=-1.6-chunk*.5})
  const hasOperand=['norm-affine','adain','latent-mask','spatial-mask','poe-precision','likelihood','kl','gradient','l1','complex-multiply','subtract','magnitude','spectral','scores','weighted','vq','noise','ddim','tensor-signal','rotation','angular','dropout'].includes(op)
- const bPos:Position3[]=positions(initial.b.length,0).map(p=>[p[0]-5.3,p[1],p[2]]),operand=hasOperand?createCrystalTensor(group,initial.b.length):null
+ const bPos:Position3[]=positions(initial.b.length,0).map(p=>[p[0]-5.3,p[1],p[2]]),operand=hasOperand?createCrystalTensor(group,initial.b.length,.42,{valueEdges:true,valueScale:2}):null
  let barrier:T.Mesh|undefined
  if(op==='detach'){
   barrier=new T.Mesh(new T.PlaneGeometry(5.2,.9),new T.MeshStandardMaterial({color:'#e6b490',transparent:true,opacity:.16,side:T.DoubleSide,depthWrite:false}));barrier.rotation.x=-Math.PI/2;group.add(barrier)

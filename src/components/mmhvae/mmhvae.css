@@ -107,3 +107,5 @@
 .mm-crystal-key-active{background:#426f84;border:1px solid #83c8e0}
 .mm-crystal-key-idle{background:#152e3b;border:1px solid #547585}
 @media(max-width:640px){.mm-math-controls{padding:14px}.mm-math-controls-body{grid-template-columns:1fr;gap:14px}.mm-math-steps button{font-size:11px}.mm-math-current .mm-math{font-size:12px}.mm-viewer:fullscreen .mm-math-controls{max-height:32dvh}.mm-viewer:fullscreen .mm-math-controls-body{grid-template-columns:1fr}.mm-viewer:fullscreen .mm-math-current p{display:none}}
+.mm-label-mode{display:flex;align-items:center;gap:7px;color:#a7c1cd;font-size:11px}.mm-label-mode select{max-width:115px;min-height:34px;border:1px solid #324956;background:#0d1b25;color:#d5e8ee;padding:5px 7px;border-radius:2px}.mm-label-mode select:focus-visible{outline:2px solid #b6e3ed;outline-offset:2px}
+@media(max-width:760px){.mm-view-toolbar{height:auto;min-height:51px;flex-wrap:wrap;gap:6px;padding-block:7px}.mm-view-toolbar>div:last-child{flex-wrap:wrap}.mm-label-mode{font-size:10px}.mm-label-mode select{max-width:103px}}

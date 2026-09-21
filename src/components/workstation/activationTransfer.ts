@@ -40,7 +40,7 @@ export function activationTransfer(parent:T.Group,step:Step,inputs:Position3[],o
  group.add(new T.LineSegments(new T.BufferGeometry().setFromPoints(segments),new T.LineBasicMaterial({color:numericPalette.relation,transparent:true,opacity:.68})));
  const inputScale=valueExtent(x),outputScale=valueExtent(y);
  const moving=createCrystalTensor(group,x.length,.22,{valueEdges:true,bodyOpacity:.36,edgeOpacity:.8,valueScale:1});
- return {group,positions,body:points.body,update:(phase:number)=>{
+ return {group,positions,body:points.body,motion:moving.group,update:(phase:number)=>{
   const transformed:number[]=[],travellers:Position3[]=x.map((value,i)=>{const t=(phase+i*.075)%1,a=t<.5?inputs[i]:positions[i],b=t<.5?positions[i]:outputs[i],u=t<.5?t*2:(t-.5)*2,e=u*u*(3-2*u);transformed.push(t<.5?value/inputScale:y[i]/outputScale);return [a[0]+(b[0]-a[0])*e,a[1]+(b[1]-a[1])*e,a[2]+(b[2]-a[2])*e]});moving.update(transformed,travellers,{focus:-1});
  }}
 }

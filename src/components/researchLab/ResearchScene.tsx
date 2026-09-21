@@ -3,15 +3,17 @@ import * as T from 'three'
 import {OrbitControls} from 'three/addons/controls/OrbitControls.js'
 import katex from 'katex'
 import {detailLayout} from '../mmhvae/detailLayout'
+import {holographicLabel,sizeHolographicLabel} from '../mmhvae/holographicLabel'
+import {sourceTensor} from '../mmhvae/sourceTensor'
 import {makeGlyph,disposeGroup} from '../mmhvae/glyphs'
 import {createArrowStream} from '../mmhvae/crystalPrimitives'
 import {makeScientificVisual} from './scientificVisuals'
 import type {MathVisual} from '../mmhvae/mathVisuals'
 import type {AnatomyGraph,AnatomyPart} from '../mmhvae/anatomy'
 
-interface Props {graph:AnatomyGraph;selected:string;playing:boolean;reduced:boolean;probe:number;progress:number;step:number;focus:boolean;view:'orbit'|'front'|'top';reset:number;zoom:number;onSelect:(id:string)=>void;onStep:(n:number)=>void}
+interface Props {labelMode:'hover'|'all'|'none';graph:AnatomyGraph;selected:string;playing:boolean;reduced:boolean;probe:number;progress:number;step:number;focus:boolean;view:'orbit'|'front'|'top';reset:number;zoom:number;onSelect:(id:string)=>void;onStep:(n:number)=>void}
 type Label={el:HTMLButtonElement;point:T.Object3D;priority:number;id:string;always?:boolean}
-type Node={part:AnatomyPart;group:T.Group;hit:T.Mesh;math?:MathVisual}
+type Node={part:AnatomyPart;group:T.Group;hit:T.Mesh;math?:MathVisual;holo:T.Group}
 const vec=(p:number[])=>new T.Vector3(p[0],p[1],p[2])
 const tex=(s:string)=>katex.renderToString(s,{throwOnError:false,trust:false,output:'htmlAndMathml'})
 
@@ -29,8 +31,8 @@ export default function ResearchScene(props:Props){
   const rim=new T.DirectionalLight('#84bfdf',1.8);rim.position.set(40,10,-35);scene.add(rim)
   const labelLayer=document.createElement('div');labelLayer.className='rl-label-layer';container.appendChild(labelLayer)
   let group=new T.Group();scene.add(group)
-  let labels:Label[]=[],nodes:Node[]=[],flows:{stream:ReturnType<typeof createArrowStream>;curve:T.CatmullRomCurve3}[]=[],ghost:T.Group|undefined
-  let graph:AnatomyGraph|null=null,sceneKey='',focusKey='',viewKey='',zoom=1,reset=-1,visible=true,hoverId='',raf=0,dirty=true,phase=0,lastTime=0,lastProgress=-1
+  let labels:Label[]=[],nodes:Node[]=[],flows:{stream:ReturnType<typeof createArrowStream>;curve:T.CatmullRomCurve3;from:string;to:string}[]=[],ghost:T.Group|undefined
+  let graph:AnatomyGraph|null=null,sceneKey='',focusKey='',viewKey='',zoom=1,reset=-1,visible=true,hoverId='',raf=0,dirty=true,phase=0,lastTime=0,lastProgress=-1,lastMode='',activeNode=''
   let center=new T.Vector3(),extent=new T.Vector3(30,50,20),anchor=new T.Vector3(),tween:{position:T.Vector3;target:T.Vector3;from:T.Vector3;fromTarget:T.Vector3;start:number}|null=null
   const addLabel=(parent:T.Object3D,title:string,pos:number[],id:string,priority=1,math=false,always=false)=>{
    const point=new T.Object3D();point.position.copy(vec(pos));parent.add(point)
@@ -61,9 +63,11 @@ export default function ResearchScene(props:Props){
     const position=layout.positions.get(part.id);if(!position)continue
     const item=new T.Group();item.position.copy(vec(position));group.add(item)
     const color=part.role==='input'?'#8cd4ed':part.role==='output'?'#d6e2b1':part.color??'#aacfdc',math=part.math?makeScientificVisual(part.math):undefined
-    const glyph=math?.group??makeGlyph(part.glyph,color);glyph.scale.setScalar(math?1:g.layout==='overview'?3.8:2.3);item.add(glyph)
+    const glyph=math?.group??sourceTensor(part.glyph,part.shape,color);glyph.scale.setScalar(math?1:g.layout==='overview'?2.1:1.8);item.add(glyph)
     const hit=new T.Mesh(new T.BoxGeometry(math?12:3,math?7:2.6,math?8:3),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));item.add(hit);hit.userData.id=part.id
-    nodes.push({part,group:item,hit,math});bounds.expandByPoint(vec(position).add(new T.Vector3(math?7:3,math?5:2.5,math?5:3)));bounds.expandByPoint(vec(position).sub(new T.Vector3(math?7:3,math?5:2.5,math?5:3)))
+    math?.update({phase:latest.current.progress,probe:latest.current.probe,temperature:1})
+    const holo=holographicLabel(part.title,math?'可核算数值示例':part.shape,math?6:5);holo.position.set(math?4.3:2.5,.9,0);item.add(holo)
+    nodes.push({part,group:item,hit,math,holo});bounds.expandByPoint(vec(position).add(new T.Vector3(math?10:8,math?5:2.5,math?5:3)));bounds.expandByPoint(vec(position).sub(new T.Vector3(math?10:8,math?5:2.5,math?5:3)))
     const title=part.role?`${part.role==='input'?'来自':'流向'} · ${part.title}`:part.title
     addLabel(item,title,[0,math?4.7:1.7,0],part.id,part.role?4:math?5:1)
     if(g.layout!=='overview'&&!math)addLabel(item,part.shape,[0,-1.6,0],part.id,0)
@@ -76,7 +80,8 @@ export default function ResearchScene(props:Props){
     const a=layout.positions.get(edge.from),b=layout.positions.get(edge.to);if(!a||!b)continue
     const start=vec(a),end=vec(b),direction=end.clone().sub(start).normalize();start.addScaledVector(direction,1.1);end.addScaledVector(direction,-1.1)
     const mid=start.clone().lerp(end,.5);if(edge.residual){mid.x+=5;mid.z+=4}else if(Math.abs(a[0]-b[0])>2)mid.z+=2
-    const curve=new T.CatmullRomCurve3([start,mid,end]),stream=createArrowStream(group,edge.residual?'#e4b896':'#93c5d7',g.mathematics?.16:.2,3);stream.update(curve,.3);flows.push({stream,curve})
+    const curve=new T.CatmullRomCurve3([start,mid,end]),stream=createArrowStream(group,edge.residual?'#e4b896':'#93c5d7',g.mathematics?.16:.2,3);stream.update(curve,.3);flows.push({stream,curve,from:edge.from,to:edge.to})
+    const track=new T.Line(new T.BufferGeometry().setFromPoints(curve.getPoints(24)),new T.LineBasicMaterial({color:edge.residual?'#c6a681':'#799bac',transparent:true,opacity:.22,depthWrite:false}));group.add(track)
     if(edge.label&&g.layout!=='overview')addLabel(group,edge.label,[mid.x+1,mid.y,mid.z],edge.to,0)
    }
    if(latest.current.selected!=='root'){
@@ -96,6 +101,7 @@ export default function ResearchScene(props:Props){
   const pointerDown=(e:PointerEvent)=>{down=[e.clientX,e.clientY];tween=null;dirty=true}
   const pointerUp=(e:PointerEvent)=>{if(Math.hypot(e.clientX-down[0],e.clientY-down[1])<7){const id=pick(e);if(id)activate(id)}}
   const pointerMove=(e:PointerEvent)=>{const id=pick(e)??'';if(id!==hoverId){hoverId=id;setHover(nodes.find(n=>n.part.id===id)?.part.title??'');dirty=true}}
+  const leave=()=>{hoverId='';setHover('');dirty=true};renderer.domElement.addEventListener('pointerleave',leave)
   const keydown=(e:KeyboardEvent)=>{if(e.key==='+'||e.key==='='){camera.position.lerp(controls.target,.12);dirty=true;e.preventDefault()}else if(e.key==='-'){camera.position.sub(controls.target).multiplyScalar(1.12).add(controls.target);dirty=true;e.preventDefault()}}
   renderer.domElement.addEventListener('pointerdown',pointerDown);renderer.domElement.addEventListener('pointerup',pointerUp);renderer.domElement.addEventListener('pointermove',pointerMove);renderer.domElement.addEventListener('keydown',keydown)
   controls.addEventListener('change',()=>{dirty=true})
@@ -104,7 +110,7 @@ export default function ResearchScene(props:Props){
    renderer.domElement.dataset.parts=JSON.stringify(nodes.map(n=>{const p=n.group.getWorldPosition(new T.Vector3()).project(camera);return {id:n.part.id,x:(p.x+1)*w/2,y:(1-p.y)*h/2}}))
    for(const l of [...labels].sort((a,b)=>(b.id===hoverId?100:b.priority)-(a.id===hoverId?100:a.priority))){
     const p=l.point.getWorldPosition(new T.Vector3()).project(camera),x=(p.x+1)*w/2,y=(1-p.y)*h/2,focusNode=latest.current.focus?nodes.find(n=>n.part.id===l.id):null
-    let show=p.z<1&&p.z>0&&x>8&&x<w-8&&y>36&&y<h-24&&(!latest.current.focus||focusNode?.part.math?.stage===latest.current.step)
+    let show=(latest.current.labelMode==='all'||latest.current.labelMode==='hover'&&l.id===hoverId)&&p.z<1&&p.z>0&&x>8&&x<w-8&&y>36&&y<h-24&&(!latest.current.focus||focusNode?.part.math?.stage===latest.current.step)
     const lw=Math.min(l.el.offsetWidth||150,w-20),lh=l.el.offsetHeight||24,r={x:x-lw/2,y:y-lh/2,w:lw,h:lh}
     if(r.x<4||r.x+r.w>w-4)show=false
     if(show&&rects.some(a=>r.x<a.x+a.w+8&&r.x+r.w+8>a.x&&r.y<a.y+a.h+6&&r.y+r.h+6>a.y))show=false
@@ -115,6 +121,7 @@ export default function ResearchScene(props:Props){
    raf=requestAnimationFrame(tick);const p=latest.current
    if(graph!==p.graph||sceneKey!==p.selected){graph=p.graph;sceneKey=p.selected;build(graph);focusKey=''}
    if(focusKey!==`${p.focus}:${p.step}`||viewKey!==p.view||zoom!==p.zoom||reset!==p.reset){focusKey=`${p.focus}:${p.step}`;viewKey=p.view;zoom=p.zoom;reset=p.reset;fit()}
+   if(lastMode!==p.labelMode){lastMode=p.labelMode;dirty=true}
    if(p.progress!==lastProgress){phase=p.progress;lastProgress=p.progress;dirty=true}
    if(!visible||document.hidden){lastTime=now;return}
    const dt=Math.min((now-lastTime)/1000,.06);lastTime=now
@@ -122,8 +129,15 @@ export default function ResearchScene(props:Props){
    if(tween){const t=Math.min(1,(now-tween.start)/650),k=1-(1-t)**4;camera.position.lerpVectors(tween.from,tween.position,k);controls.target.lerpVectors(tween.fromTarget,tween.target,k);if(t===1)tween=null;dirty=true}
    controls.update()
    if(dirty||p.probe!==Number(container.dataset.probe)){
-    for(const n of nodes)n.math?.update({phase,probe:p.probe,temperature:1})
-    for(const f of flows)f.stream.update(f.curve,phase)
+    activeNode=hoverId||(graph?.mathematics?nodes.find(n=>n.part.math?.stage===p.step)?.part.id:nodes.filter(n=>!n.part.role)[Math.floor(phase*nodes.filter(n=>!n.part.role).length)]?.part.id)||''
+    for(const n of nodes){
+     const active=n.part.id===activeNode
+     n.holo.visible=p.labelMode==='hover'&&(nodes.length<18||active||!!n.part.role||graph?.layout==='overview'&&!/block\d+|iteration\d+/.test(n.part.id));if(n.holo.visible)sizeHolographicLabel(n.holo,camera,container.clientHeight,container.clientWidth<600?145:220)
+     if(n.math){if(active||p.probe!==Number(container.dataset.probe))n.math.update({phase,probe:p.probe,temperature:1});n.math.group.traverse(o=>{if(o.userData.directionalFlow&&!active)o.visible=false})}
+    }
+    for(const f of flows){const active=f.from===activeNode||f.to===activeNode;f.stream.group.visible=active;if(active)f.stream.update(f.curve,phase)}
+    const occupied:{x:number;y:number}[]=[];for(const n of [...nodes].sort((a,b)=>Number(b.part.id===activeNode)-Number(a.part.id===activeNode))){if(!n.holo.visible)continue;const pos=n.holo.getWorldPosition(new T.Vector3()).project(camera),x=(pos.x+1)*container.clientWidth/2,y=(1-pos.y)*container.clientHeight/2;if(occupied.some(p=>Math.abs(x-p.x)<220&&Math.abs(y-p.y)<45))n.holo.visible=false;else occupied.push({x,y})}
+    container.dataset.activeLayer=activeNode;container.dataset.activeConnections=String(flows.filter(f=>f.stream.group.visible).length)
     container.dataset.probe=String(p.probe);container.dataset.focus=p.focus?String(p.step):'all';container.dataset.phase=phase.toFixed(3)
     renderer.render(scene,camera);projectLabels();dirty=false
    }

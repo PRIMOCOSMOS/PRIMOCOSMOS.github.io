@@ -6,13 +6,15 @@ import { glyphFor, type AnatomyGraph, type AnatomyPart } from './anatomy'
 import { labelHTML, MathLabel } from './MathLabel'
 import { detailLayout } from './detailLayout'
 import { atomId, moduleName, partName } from './navigation'
-import { makeGlyph, disposeGroup } from './glyphs'
+import { disposeGroup } from './glyphs'
 import { modelTopology, levelY } from './topology'
 import { makeMathVisual, type MathVisual } from './mathVisuals'
 import { createArrowStream } from './crystalPrimitives'
+import {holographicLabel,sizeHolographicLabel} from './holographicLabel'
+import {sourceTensor} from './sourceTensor'
 
 export interface SceneProps {
-  selected:string; observed:string[]; target:string; level:number; isolate:boolean; spread:number
+  labelMode:'hover'|'all'|'none';selected:string; observed:string[]; target:string; level:number; isolate:boolean; spread:number
   playing:boolean; stage:number; temperature:number; view:'orbit'|'front'|'top'; reset:number; zoom:number; focus:number
   reducedMotion:boolean; onNavigate:(id:string)=>void; onSelect:(id:string)=>void
   detailId?:string; detailGraph:AnatomyGraph|null; activePart:string|null; detailMotion:boolean; detailZoom:number; onPart:(id:string)=>void
@@ -20,7 +22,7 @@ export interface SceneProps {
 }
 type Visual={node:ModelNode;group:T.Group;label?:T.Sprite;materials:Map<T.Material,number>;hit:T.Mesh;origin:T.Vector3}
 type Flow={from:string;to:string;curve:T.CatmullRomCurve3;line:T.Line;arrow:T.Mesh;stream:ReturnType<typeof createArrowStream>;label?:T.Sprite;l?:number;mod?:string}
-type PartVisual={part:AnatomyPart;group:T.Group;dest:T.Vector3;label:T.Sprite;dim:T.Sprite;hit:T.Mesh;mathematics?:MathVisual;readout?:T.Sprite;axes?:T.Sprite[]}
+type PartVisual={part:AnatomyPart;group:T.Group;dest:T.Vector3;label:T.Sprite;dim:T.Sprite;hit:T.Mesh;mathematics?:MathVisual;readout?:T.Sprite;axes?:T.Sprite[];holo:T.Group}
 const vector=(p:[number,number,number])=>new T.Vector3(...p)
 
 export default function OrbitScene(props:SceneProps){
@@ -54,7 +56,7 @@ export default function OrbitScene(props:SceneProps){
    return {from,to,curve,line,arrow,stream,label:tag}
   }
   for(const [id,point] of topology.positions){
-   const node=NODE_MAP.get(id)!,color=colorFor(node),group=new T.Group(),glyph=makeGlyph(glyphFor(node.kind),color),large=['encoder','output','input','image'].includes(node.kind)
+   const node=NODE_MAP.get(id)!,color=colorFor(node),group=new T.Group(),glyph=sourceTensor(glyphFor(node.kind),node.shape,color),large=['encoder','output','input','image'].includes(node.kind)
    glyph.scale.setScalar(large?1.65:.85);group.position.copy(vector(point));group.add(glyph)
    const tag=label(['input','image'].includes(node.kind)?`${node.kind==='input'?'INPUT':'OUTPUT'} / ${MODALITIES.find(m=>m.id===node.mod)!.label}`:moduleName(node),color,large?.9:.68,large?6:4.5);tag.position.set(large?2.6:1.65,.25,.4);tag.userData.id=id;group.add(tag)
    const materials=new Map<T.Material,number>();group.traverse(o=>{const m=o as T.Mesh;if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(mat=>materials.set(mat,mat.opacity))})
@@ -65,6 +67,7 @@ export default function OrbitScene(props:SceneProps){
   for(const m of MODALITIES){const point=topology.positions.get(`${m.id}-encoder-7`)!,tag=label(`${m.label} 编码塔`,m.color);tag.position.set(point[0],point[1]+5,point[2]);tag.userData.route=`encoder:${m.id}`;tag.userData.priority=4;overview.add(tag);decorations.push(tag)}
   for(const v of LEVELS){const tag=label(`z${v.l} · ${v.l===7?'256-vector':`${v.channels} × ${v.size}²`}`,'#e4ead6');tag.position.set(7,levelY(v.l)-2.2,2);tag.userData.route=`layer-${v.l}`;tag.userData.priority=2;overview.add(tag);decorations.push(tag)}
   for(const [name,route,point] of [['层次潜变量 · 先验 / 融合 / 采样','core',[0,123,0]],['观测输入 · 二维切片','encoders',[-26,3,14]],['四模态独立影像生成器','outputs',[12,-9,14]]] as const){const tag=label(name,'#b9d7e3');tag.position.set(point[0],point[1],point[2]);tag.userData.route=route;tag.userData.priority=5;overview.add(tag);decorations.push(tag)}
+  for(const m of MODALITIES){const point=topology.positions.get(`${m.id}-encoder-7`)!,holo=holographicLabel(`${m.label} 编码塔`,'二维切片 · 七级特征',10);holo.position.set(point[0],point[1]+8,point[2]);overview.add(holo);decorations.push(holo)}
   const floor=new T.GridHelper(62,16,'#3c5c6a','#18313e');floor.position.y=-6;overview.add(floor);decorations.push(floor)
   let detail:T.Group|null=null,cage:T.LineSegments|null=null,parts:PartVisual[]=[],detailFlows:Flow[]=[],connectors:Flow[]=[]
   let detailKey:AnatomyGraph|null=null,detailStart=0,anchor=new T.Vector3(),detailExtent=new T.Vector3(),cageExtent=new T.Vector3(),detailCenter=new T.Vector3(),hoverPart=''
@@ -90,13 +93,15 @@ export default function OrbitScene(props:SceneProps){
    for(const p of graph.parts){
     const dest=vector(layout.positions.get(p.id)!)
     const color=MODALITIES.find(m=>m.id===p.mod)?.color??(p.role==='input'?'#91ddf5':p.role==='output'?'#dcff91':p.glyph==='poe'?'#eaddb5':'#9dc9dd')
-    const group=new T.Group(),mathematics=p.math?makeMathVisual(p.math):undefined,glyph=mathematics?.group??makeGlyph(p.glyph,color);glyph.scale.setScalar(mathematics?1:graph.layout==='overview'?['encoder','output','input','image'].includes(NODE_MAP.get(p.id)?.kind??'')?1.65:.85:p.position?1.4:1.7);group.add(glyph)
+    const group=new T.Group(),mathematics=p.math?makeMathVisual(p.math):undefined,glyph=mathematics?.group??sourceTensor(p.glyph,p.shape,color);glyph.scale.setScalar(mathematics?1:graph.layout==='overview'?['encoder','output','input','image'].includes(NODE_MAP.get(p.id)?.kind??'')?1.65:.85:p.position?1.4:1.7);group.add(glyph)
+    mathematics?.update({phase:latest.current.mathProgress,probe:latest.current.mathProbe,temperature:latest.current.temperature})
+    const holo=holographicLabel(partName(p),p.math?'可核算数值示例':p.shape,p.math?6:4.5);holo.position.set(p.math?4.3:2.5,.9,0);group.add(holo)
     const caption=p.role?`${p.role==='input'?'来自':'流向'} · ${partName(p)}`:partName(p)
     const tag=label(caption,color,.68,p.role?7:5.5);tag.position.set(0,p.math?4.3:1.65,0);tag.userData.baseScale=tag.scale.clone();tag.userData.part=p.id;tag.userData.priority=p.math?5:0;group.add(tag)
     const dim=label(p.math?'':p.shape,'#b3cbd4',.48,5.4,true);dim.position.set(0,.8,0);dim.userData.baseScale=dim.scale.clone();dim.userData.part=p.id;dim.userData.dimension=true;group.add(dim)
     let readout:T.Sprite|undefined,axes:T.Sprite[]|undefined
     if(p.math){readout=label('','#e7d5b0',.5,7,true);readout.position.set(0,-3.7,1);readout.userData.priority=6;group.add(readout);const kind=p.math.kind,names=kind==='activation'?['x','f(x)','C']:kind==='distribution'?['z₁','8p(z₁,z₂)','z₂']:kind==='sampling'?['ε₁','ε₂','ε₃']:kind==='linear'?['输入 n','输出 m','权重 W']:kind==='fusion'?[]:['W','C','H'];axes=names.map((name,i)=>{const a=label(name,'#a2bcc6');a.position.copy(vector([[3.5,-.6,0],[-3.5,2,0],[0,-.6,3.6]][i] as [number,number,number]));group.add(a);return a});for(const item of mathematics?.group.userData.annotations??[]){const a=label('\\displaystyle '+item.text,'#c6e6f0',.5,5,true);a.position.copy(vector(item.position));a.userData.priority=4;group.add(a);axes.push(a)}}
-    const hit=new T.Mesh(new T.BoxGeometry(p.math?12:2.6,p.math?5:1.5,p.math?8:2.6),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.userData.part=p.id;group.add(hit);detail.add(group);parts.push({part:p,group,dest,label:tag,dim,hit,mathematics,readout,axes})
+    const hit=new T.Mesh(new T.BoxGeometry(p.math?12:2.6,p.math?5:1.5,p.math?8:2.6),new T.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));hit.userData.part=p.id;group.add(hit);detail.add(group);parts.push({part:p,group,dest,label:tag,dim,hit,mathematics,readout,axes,holo})
    }
    const coords=new Map(parts.map(p=>[p.part.id,p.dest]))
    for(const e of graph.edges)detailFlows.push(addFlow(detail,e.from,e.to,coords.get(e.from)!,coords.get(e.to)!,e.residual?'#e8ad7c':graph.parts.find(p=>p.id===e.from)?.role==='input'?'#87cbe6':'#84b0ba',e.label,e.residual))
@@ -104,7 +109,7 @@ export default function OrbitScene(props:SceneProps){
    cage=new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(1,1,1)),new T.LineBasicMaterial({color:'#c4dae1',transparent:true,opacity:.2}));cage.position.copy(bounds.getCenter(new T.Vector3()));detail.add(cage)
    // The expanded boundary is the selected module itself. Context stays outside it.
    const frameBounds=bounds.clone()
-   for(const v of parts){frameBounds.expandByPoint(v.dest.clone().add(new T.Vector3(4,2,2)));frameBounds.expandByPoint(v.dest.clone().sub(new T.Vector3(4,2,2)));anchors.set(atomId(id,v.part.id),v.dest.clone().add(anchor))}
+   for(const v of parts){frameBounds.expandByPoint(v.dest.clone().add(new T.Vector3(9,5,5)));frameBounds.expandByPoint(v.dest.clone().sub(new T.Vector3(9,5,5)));anchors.set(atomId(id,v.part.id),v.dest.clone().add(anchor))}
    frameBounds.getSize(detailExtent);detailCenter.copy(frameBounds.getCenter(new T.Vector3()).add(anchor));transition(fit(detailCenter,detailExtent,latest.current.detailZoom,graph.layout==='overview'))
    renderer.domElement.dataset.layout=graph.layout??'vertical';renderer.domElement.dataset.spine=JSON.stringify(layout.spine.map(key=>({id:key,position:layout.positions.get(key)})));renderer.domElement.dataset.envelope=JSON.stringify({min:layout.min,max:layout.max,ports:parts.filter(v=>v.part.role).map(v=>({id:v.part.id,position:v.dest.toArray()}))})
    renderer.domElement.dataset.anatomy='in-place-3d';renderer.domElement.dataset.depthRange=String(bounds.max.z-bounds.min.z);renderer.domElement.dataset.mathKind=graph.mathematics?.kind??''
@@ -147,21 +152,21 @@ export default function OrbitScene(props:SceneProps){
    const focusKey=`${p.detailId}/${p.activePart}/${p.mathFocus}`
    if(detailKey?.mathematics&&focusKey!==lastMathFocus){lastMathFocus=focusKey;const stage=parts.find(v=>v.part.id===p.activePart);if(p.mathFocus&&stage)transition(fit(stage.dest.clone().add(anchor),new T.Vector3(13,9,11),p.detailZoom*1.4));else transition(fit(detailCenter,detailExtent,p.detailZoom));dirty=true}
    if(tween){const t=p.reducedMotion?1:Math.min((now-tween.start)/850,1),k=t*t*(3-2*t);camera.position.lerpVectors(tween.from.position,tween.to.position,k);controls.target.lerpVectors(tween.from.target,tween.to.target,k);camera.zoom=T.MathUtils.lerp(tween.from.zoom,tween.to.zoom,k);camera.updateProjectionMatrix();dirty=true;if(t===1){tween=null;controls.enabled=true}}
-   const sig=[p.selected,p.observed.join(),p.level,p.isolate,p.spread,p.playing,p.stage,p.activePart,p.detailMotion,p.detailId,p.mathProbe,p.mathProgress,p.temperature,hoverPart].join('|')
+   const sig=[p.selected,p.observed.join(),p.level,p.isolate,p.spread,p.playing,p.stage,p.activePart,p.detailMotion,p.detailId,p.mathProbe,p.mathProgress,p.temperature,p.labelMode,hoverPart].join('|')
    if(sig!==signature||dirty){signature=sig;dirty=true
     for(const v of visuals.values()){
      const observed=!v.node.mod||p.observed.includes(v.node.mod)||['output','image'].includes(v.node.kind),local=v.node.l===p.level
      v.group.visible=!!detail||!p.isolate||local||['input','image','output'].includes(v.node.kind)
      for(const [mat,base] of v.materials)mat.opacity=base*(detail?.025:observed?1:.19)
-     if(v.label)v.label.visible=!detail&&(p.isolate&&local||['input','image'].includes(v.node.kind))
+     if(v.label)v.label.visible=p.labelMode!=='none'&&!detail&&(p.labelMode==='all'||p.isolate&&local||['input','image'].includes(v.node.kind))
      if(v.node.mod)v.group.position.x=v.origin.x*(1+p.spread*.12)
     }
-    decorations.forEach(d=>d.visible=!detail&&!p.isolate)
+    decorations.forEach(d=>d.visible=!detail&&!p.isolate&&(p.labelMode!=='none'||d instanceof T.GridHelper))
     for(const f of overviewFlows){const active=(!f.mod||p.observed.includes(f.mod)||f.to.includes('output')||f.to.includes('image'))&&(!p.isolate||f.l===p.level||f.l===0),focused=f.l===p.level
      f.line.visible=!detail&&active&&p.spread===0;(f.line.material as T.LineBasicMaterial).opacity=focused?.65:.12;f.arrow.visible=f.line.visible&&(focused||!f.mod);f.stream.group.visible=f.line.visible&&(focused||p.stage===0&&f.mod!==undefined)
     }
-    for(const v of parts){const active=v.part.id===(hoverPart||p.activePart),major=!!v.part.math||!!v.part.role||!!v.part.child||['tensor','image','gaussian','poe','sample','se'].includes(v.part.glyph);v.label.visible=major||active;v.dim.visible=active&&!v.part.math;v.group.scale.setScalar(active&&!v.part.math?1.12:1);if(v.readout)v.readout.visible=active;v.axes?.forEach(a=>a.visible=active&&p.mathFocus)}
-    for(const f of [...detailFlows,...connectors]){const active=!p.activePart||f.from===p.activePart||f.to===p.activePart;(f.line.material as T.LineBasicMaterial).opacity=active?.67:.16;f.arrow.visible=true;f.stream.group.visible=active;if(f.label)f.label.visible=!!(hoverPart||p.activePart)&&[f.from,f.to].includes(hoverPart||p.activePart!)}
+    for(const v of parts){const active=v.part.id===(hoverPart||p.activePart);v.holo.visible=p.labelMode==='hover';v.label.visible=p.labelMode==='all'||p.labelMode==='hover'&&v.part.id===hoverPart;v.dim.visible=v.label.visible&&!v.part.math;v.group.scale.setScalar(1);if(v.readout)v.readout.visible=p.labelMode!=='none'&&active;v.axes?.forEach(a=>a.visible=p.labelMode!=='none'&&active&&p.mathFocus)}
+    for(const f of [...detailFlows,...connectors]){const active=!p.activePart||f.from===p.activePart||f.to===p.activePart;(f.line.material as T.LineBasicMaterial).opacity=active?.67:.16;f.arrow.visible=true;f.stream.group.visible=active;if(f.label)f.label.visible=p.labelMode==='all'||p.labelMode==='hover'&&!!hoverPart&&[f.from,f.to].includes(hoverPart)}
    }
    if(detail){const t=p.reducedMotion?1:Math.min((now-detailStart)/900,1),k=1-(1-t)**3
     if(t<1||parts.some(v=>!v.group.userData.arrived)){for(const v of parts){v.group.position.copy(v.dest).multiplyScalar(v.part.position?1:k);v.group.userData.arrived=t===1}if(cage)cage.scale.copy(cageExtent).multiplyScalar(.08+.92*k);dirty=true}
@@ -170,14 +175,14 @@ export default function OrbitScene(props:SceneProps){
    if(detailKey?.mathematics){
     if(lastProgress!==p.mathProgress||lastMath!==p.detailId){mathClock=p.mathProgress;lastProgress=p.mathProgress;lastMath=p.detailId??'';dirty=true}
     if(p.detailMotion&&!p.reducedMotion){mathClock=(mathClock+dt*.15)%1;dirty=true}
-    if(dirty){parts.forEach(v=>{v.mathematics?.update({phase:mathClock,probe:p.mathProbe,temperature:p.temperature});if(v.readout){const text=v.mathematics?.group.userData.readout??'';const element=labels.get(v.readout)!;if(element.dataset.value!==text){element.dataset.value=text;element.innerHTML=labelHTML('\\displaystyle '+text,true)}}});renderer.domElement.dataset.mathPhase=mathClock.toFixed(4);renderer.domElement.dataset.mathProbe=String(p.mathProbe)}
+    if(dirty){parts.forEach(v=>{const active=v.part.id===(hoverPart||p.activePart||parts[0]?.part.id);if(active)v.mathematics?.update({phase:mathClock,probe:p.mathProbe,temperature:p.temperature});v.mathematics?.group.traverse(o=>{if(o.userData.directionalFlow&&!active)o.visible=false});if(v.readout){const text=v.mathematics?.group.userData.readout??'';const element=labels.get(v.readout)!;if(element.dataset.value!==text){element.dataset.value=text;element.innerHTML=labelHTML('\\displaystyle '+text,true)}}});renderer.domElement.dataset.mathPhase=mathClock.toFixed(4);renderer.domElement.dataset.mathProbe=String(p.mathProbe)}
    }
    controls.update();if(dirty){
     // DOM labels retain KaTeX/MathML and fixed text size at every camera distance.
-    scene.updateMatrixWorld(true);camera.updateMatrixWorld(true)
+    scene.updateMatrixWorld(true);camera.updateMatrixWorld(true);for(const v of parts)if(v.holo.visible)sizeHolographicLabel(v.holo,camera,container.clientHeight,container.clientWidth<600?145:220)
     const w=container.clientWidth,h=container.clientHeight,occupied:{x:number;y:number;w:number;h:number}[]=[]
     const visibleInScene=(o:T.Object3D)=>{let cursor:T.Object3D|null=o;while(cursor){if(!cursor.visible)return false;if(cursor===scene)return true;cursor=cursor.parent}return false}
-    const candidates=[...labels].filter(([tag,element])=>{element.style.visibility='hidden';return visibleInScene(tag)}).sort(([a],[b])=>Number(b.userData.part===(hoverPart||p.activePart))*10+(b.userData.priority??0)-Number(a.userData.part===(hoverPart||p.activePart))*10-(a.userData.priority??0))
+    const candidates=[...labels].filter(([tag,element])=>{element.style.visibility='hidden';element.tabIndex=-1;return p.labelMode!=='none'&&visibleInScene(tag)}).sort(([a],[b])=>Number(b.userData.part===(hoverPart||p.activePart))*10+(b.userData.priority??0)-Number(a.userData.part===(hoverPart||p.activePart))*10-(a.userData.priority??0))
     for(const [tag,element] of candidates){
      const world=tag.getWorldPosition(new T.Vector3()),point=world.clone().project(camera);if(point.z<=-1||point.z>=1)continue
      const width=element.offsetWidth,height=element.offsetHeight,x=(point.x+1)*w/2,y=(1-point.y)*h/2

@@ -27,6 +27,7 @@ const IMPLEMENTATION=String.raw`\begin{aligned}w_l&=s_{p,l}^{-1}+\sum_{j\in r}e^
 
 export function MMHVAEExplorer() {
   const { editing } = useEditableContent()
+  const [labelMode,setLabelMode]=useState<'hover'|'all'|'none'>('hover')
   const [observed,setObserved]=useState<string[]>(['us','t2'])
   const [target,setTarget]=useState('flair'),[selected,setSelected]=useState('poe-4'),[level,setLevel]=useState(4)
   const [isolate,setIsolate]=useState(false),[spread,setSpread]=useState(0)
@@ -82,7 +83,7 @@ export function MMHVAEExplorer() {
       <fieldset><legend>追踪输出 <span>模型同时生成四个模态</span></legend><div className="mm-output-buttons">{MODALITIES.map(m=><button type="button" key={m.id} aria-pressed={target===m.id} onClick={()=>{setTarget(m.id);select(`${m.id}-output`)}}>{m.label}</button>)}</div></fieldset>
     </div>
     <div className="mm-workbench"><div className="mm-scene-column">
-      <div ref={viewer} className="mm-viewer"><div className="mm-view-toolbar"><div role="group" aria-label="相机预设">{([['orbit','轨道'],['front','正视'],['top','俯视']] as const).map(([v,label])=><button key={v} aria-pressed={view===v} onClick={()=>{closeDetail();setView(v);setReset(n=>n+1);setZoom(1)}}>{label}</button>)}</div><div>
+      <div ref={viewer} className="mm-viewer"><div className="mm-view-toolbar"><div role="group" aria-label="相机预设">{([['orbit','轨道'],['front','正视'],['top','俯视']] as const).map(([v,label])=><button key={v} aria-pressed={view===v} onClick={()=>{closeDetail();setView(v);setReset(n=>n+1);setZoom(1)}}>{label}</button>)}</div><div><label className="mm-label-mode">标注<select aria-label="文献模型标注" value={labelMode} onChange={e=>setLabelMode(e.target.value as typeof labelMode)}><option value="hover">悬停详解</option><option value="all">全部显示</option><option value="none">全部隐藏</option></select></label>
         <button title="聚焦所选模块" aria-label="聚焦所选模块" onClick={()=>{openDetail(selected)}}><Focus size={16}/></button>
         <button title="放大" aria-label="放大模型" onClick={()=>detailId?setDetailZoom(z=>Math.min(z+.2,2.4)):setZoom(z=>Math.min(z+0.2,2.4))}><ZoomIn size={16}/></button><button title="缩小" aria-label="缩小模型" onClick={()=>detailId?setDetailZoom(z=>Math.max(z-.2,.6)):setZoom(z=>Math.max(z-0.2,0.6))}><ZoomOut size={16}/></button>
         <button title="重置视角" aria-label="重置视角" onClick={()=>{closeDetail();setView('orbit');setReset(n=>n+1);setZoom(1);setSpread(0);setIsolate(false)}}><RotateCcw size={16}/></button>
@@ -90,7 +91,7 @@ export function MMHVAEExplorer() {
       </div></div>
       <div className={`mm-scene-wrap${anatomy?' has-anatomy':''}`} ref={sceneWrap}>
         <div className="mm-scene-status"><span className={playing?'mm-live-dot is-playing':'mm-live-dot'}/>{playing?'信号流播放中':'自由探索'}<span>{anatomy?.mathematics?'数学内部 · 数值示例':'2D 网络 / 3D 拓扑'}</span></div>
-        {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={26}/><span>正在构建七层模型空间…</span></div>}><OrbitScene selected={selected} observed={observed} target={target} level={level} isolate={isolate} spread={spread} playing={playing&&inView&&!detailId} stage={stage} temperature={temperature} view={view} reset={reset} zoom={zoom} focus={focus} reducedMotion={reducedMotion} onSelect={select} onNavigate={openDetail} detailId={detailId} detailGraph={anatomy} activePart={activePart} detailMotion={detailMotion&&inView&&!editing} detailZoom={detailZoom} onPart={enterPart} mathProbe={mathProbe} mathProgress={mathProgress} mathFocus={mathFocus}/></Suspense>:<div className="mm-loading">三维模型将在进入视野后加载</div>}
+        {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={26}/><span>正在构建七层模型空间…</span></div>}><OrbitScene labelMode={labelMode} selected={selected} observed={observed} target={target} level={level} isolate={isolate} spread={spread} playing={playing&&inView&&!detailId} stage={stage} temperature={temperature} view={view} reset={reset} zoom={zoom} focus={focus} reducedMotion={reducedMotion} onSelect={select} onNavigate={openDetail} detailId={detailId} detailGraph={anatomy} activePart={activePart} detailMotion={detailMotion&&inView&&!editing} detailZoom={detailZoom} onPart={enterPart} mathProbe={mathProbe} mathProgress={mathProgress} mathFocus={mathFocus}/></Suspense>:<div className="mm-loading">三维模型将在进入视野后加载</div>}
         {anatomy&&<div className="mm-anatomy-overlay">
           <div className="mm-anatomy-nav"><button onClick={back}><RotateCcw size={14}/>返回上一级</button><div aria-label="拆解路径">{detailPath.map((id,i)=><button key={`${id}-${i}`} aria-current={i===detailPath.length-1?'location':undefined} onClick={()=>openDetail(id)}>{i>0&&<ChevronRight size={12}/>}<span>{navName(id,observed)}</span></button>)}</div><button aria-label={detailMotion?'暂停内部数据流':'播放内部数据流'} onClick={()=>setDetailMotion(v=>!v)}>{detailMotion?<Pause size={14}/>:<Play size={14}/>}</button></div>
           <div className="mm-anatomy-hint"><span>{anatomy.mathematics?'点击数学步骤查看推导 · 拖动观察数值结构':'点击组件继续深入 · 拖动观察立体结构'}</span><span>边界外：输入来源 / 输出去向</span></div>

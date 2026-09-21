@@ -16,6 +16,7 @@ function Formula({value}:{value:string}){return value?<div className="mm-math" t
 export default function ResearchExplorer({model,variantControl}:{model:PaperModel;variantControl?:React.ReactNode}){
  const [location,setLocation]=useState('root'),[history,setHistory]=useState<string[]>([]),[search,setSearch]=useState(''),[view,setView]=useState<'orbit'|'front'|'top'>('orbit'),[reset,setReset]=useState(0),[zoom,setZoom]=useState(1)
  const [reduced,setReduced]=useState(()=>matchMedia('(prefers-reduced-motion: reduce)').matches),[playing,setPlaying]=useState(()=>!matchMedia('(prefers-reduced-motion: reduce)').matches),[step,setStep]=useState(0),[focus,setFocus]=useState(false),[probe,setProbe]=useState(.42),[progress,setProgress]=useState(.3)
+ const [labelMode,setLabelMode]=useState<'hover'|'all'|'none'>('hover')
  const [near,setNear]=useState(false),[fullscreen,setFullscreen]=useState(false),[notice,setNotice]=useState('')
  const root=useRef<HTMLDivElement>(null),viewer=useRef<HTMLDivElement>(null),{editing}=useEditableContent()
  const entry=model.entries[location]??model.entries.root,graph=useMemo(()=>graphForEntry(model,entry.id),[model,entry.id]),path=pathFor(model,entry.id)
@@ -35,6 +36,7 @@ export default function ResearchExplorer({model,variantControl}:{model:PaperMode
   <div className="rl-configuration"><EditableText textKey={`lab-${model.id}-config`}>{model.config}</EditableText>{variantControl}<span>{model.sourceMode==='paper'?model.commit:'源码快照 '+model.commit.slice(0,8)}</span></div>
   <div className="rl-viewer mm-viewer" ref={viewer}>
    <div className="mm-view-toolbar"><div aria-label="相机预设">{([['orbit','轨道'],['front','正视'],['top','俯视']] as const).map(([id,title])=><button key={id} onClick={()=>{setView(id);setReset(n=>n+1)}} aria-pressed={view===id}>{title}</button>)}</div><div>
+    <label className="mm-label-mode">标注<select aria-label="文献模型标注" value={labelMode} onChange={e=>setLabelMode(e.target.value as typeof labelMode)}><option value="hover">悬停详解</option><option value="all">全部显示</option><option value="none">全部隐藏</option></select></label>
     <button aria-label={playing?'暂停数据流':'播放数据流'} title={playing?'暂停数据流':'播放数据流'} onClick={()=>setPlaying(v=>!v)}>{playing?<Pause size={16}/>:<Play size={16}/>}</button>
     <button aria-label="放大模型" title="放大" onClick={()=>setZoom(z=>Math.min(2.8,z+.2))}><ZoomIn size={16}/></button><button aria-label="缩小模型" title="缩小" onClick={()=>setZoom(z=>Math.max(.5,z-.2))}><ZoomOut size={16}/></button>
     <button aria-label="重置当前视角" title="重置当前视角" onClick={()=>{setZoom(1);setView('orbit');setFocus(false);setReset(n=>n+1)}}><RotateCcw size={16}/></button>
@@ -42,8 +44,8 @@ export default function ResearchExplorer({model,variantControl}:{model:PaperMode
    </div></div>
    <nav className="rl-breadcrumbs" aria-label="三维模型层级"><button disabled={!history.length&&location==='root'} onClick={back} aria-label="返回上一视图"><ArrowLeft size={15}/></button><button onClick={()=>navigate('root')} aria-label="返回全模型"><Home size={15}/></button><div>{path.map((id,i)=><button key={id} aria-current={i===path.length-1?'location':undefined} onClick={()=>navigate(id)}>{i>0&&<ChevronRight size={12}/>}<span>{model.entries[id].title}</span></button>)}</div></nav>
    <div className="mm-scene-wrap rl-scene-wrap"><div className="mm-scene-status"><span className={`mm-live-dot${playing&&!reduced?' is-playing':''}`}/>{reduced?'减少动态效果':playing?'箭头数据流':'已暂停 · 可手动观察'}<span>{math?'数学内部 · 确定性示例':location==='root'?'全模型 · 点击进入':'纵向主干 · 边界外显示上下游'}</span></div>
-    {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={24}/>正在构建模型空间…</div>}><ResearchScene graph={graph} selected={entry.id} playing={playing&&!editing} reduced={reduced} probe={probe} progress={progress} step={step} focus={focus} view={view} reset={reset} zoom={zoom} onSelect={navigate} onStep={n=>{setStep(n);setFocus(true);setZoom(1)}}/></Suspense>:<div className="mm-loading">模型将在进入视野后加载</div>}
-    <div className="mm-scene-foot"><span>拖动旋转 · 点击逐层展开 · 滚轮缩放</span><span>水平层片：张量 · 外侧端口：来源 / 去向</span></div>
+    {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={24}/>正在构建模型空间…</div>}><ResearchScene labelMode={labelMode} graph={graph} selected={entry.id} playing={playing&&!editing} reduced={reduced} probe={probe} progress={progress} step={step} focus={focus} view={view} reset={reset} zoom={zoom} onSelect={navigate} onStep={n=>{setStep(n);setFocus(true);setZoom(1)}}/></Suspense>:<div className="mm-loading">模型将在进入视野后加载</div>}
+    <div className="mm-scene-foot"><span>拖动旋转 · 点击逐层展开 · 滚轮缩放</span><span>全息层名 · 悬停查看尺寸与公式</span></div>
    </div>
    {math&&<MathControls textKeyBase={`${model.id}-${entry.id}`} spec={math} selected={step} onSelect={n=>{setStep(n);setFocus(true);setZoom(1)}} onOverview={()=>{setFocus(false);setZoom(1)}} probe={probe} onProbe={setProbe} progress={progress} onProgress={v=>{setProgress(v);setPlaying(false)}} playing={playing&&!reduced} onPlaying={()=>setPlaying(v=>!v)} temperature={1} readoutText={mathReadout}/>}
    {notice&&<p role="status" className="mm-fullscreen-notice">{notice}</p>}

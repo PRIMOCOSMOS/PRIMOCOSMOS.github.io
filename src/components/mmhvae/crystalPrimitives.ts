@@ -52,6 +52,8 @@ export function createCrystalTensor(parent: T.Group, count: number, size = .42, 
       }
     }
     body.count = edge.count = visibleCount; lit.count = litEdge.count = activeCount
+    body.visible = edge.visible = visibleCount > 0
+    lit.visible = litEdge.visible = activeCount > 0
     meshes.forEach(mesh => { mesh.instanceMatrix.needsUpdate = true; if (mesh.instanceColor) mesh.instanceColor.needsUpdate = true })
     group.userData.focus = state.focus ?? -1
     group.userData.active = [...active]

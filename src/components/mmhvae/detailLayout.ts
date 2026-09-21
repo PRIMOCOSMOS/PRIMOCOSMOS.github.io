@@ -17,9 +17,21 @@ export function detailLayout(graph:AnatomyGraph,compact=false){
   const spine=new Set<string>();let cursor=[...internal].sort((a,b)=>(downstream.get(b.id)!-downstream.get(a.id)!)||Number(b.id==='input')-Number(a.id==='input'))[0]?.id
   while(cursor&&!spine.has(cursor)){spine.add(cursor);cursor=graph.edges.filter(e=>e.from===cursor&&!e.residual&&ids.has(e.to)).sort((a,b)=>(downstream.get(b.to)??0)-(downstream.get(a.to)??0))[0]?.to}
   const positions=new Map<string,Point3>()
+  // Only homologous sibling tensors share a tier. Different operators/roles
+  // receive their own level even when their dependency depth happens to match.
+  const tiers=new Map<string,number>();let nextTier=0
+  for(const d of [...new Set(depth.values())].sort((a,b)=>a-b)){
+    const kinds=new Map<string,number>()
+    for(const p of internal.filter(v=>depth.get(v.id)===d)){
+      const key=`${p.glyph}:${p.shape}:${p.math?.kind??''}:${p.math?.stage??''}`
+      if(!kinds.has(key))kinds.set(key,nextTier++)
+      tiers.set(p.id,kinds.get(key)!)
+    }
+  }
   for(const p of internal){
-    const d=depth.get(p.id)!,branches=internal.filter(v=>depth.get(v.id)===d&&!spine.has(v.id)),index=branches.indexOf(p),angle=index*Math.PI*.75+Math.PI/4
-    positions.set(p.id,graph.layout==='overview'&&p.position?[...p.position]:p.position?[p.position[0]*1.7,p.position[1]*1.7,p.position[2]*1.7]:spine.has(p.id)?[0,-d*(graph.mathematics?11:4.6),0]:[Math.cos(angle)*7,-d*4.6,Math.sin(angle)*7])
+    const tier=tiers.get(p.id)!,siblings=internal.filter(v=>tiers.get(v.id)===tier),index=siblings.indexOf(p)
+    const x=siblings.length===1?0:spine.has(p.id)?0:(index+1)*7*(index%2?-1:1)
+    positions.set(p.id,graph.layout==='overview'&&p.position?[...p.position]:[x,-tier*(graph.mathematics?12:6),0])
   }
   const values=[...positions.values()]
   const margin=graph.mathematics?[7,5,5]:[3.6,2.6,3.6]
