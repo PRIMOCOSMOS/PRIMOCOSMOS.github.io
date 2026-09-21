@@ -442,3 +442,8 @@ Equations use native `details`/`summary` rows with lime-tinted rails and a rotat
 - **Don't** invent biography, affiliation, achievements, contacts, or additional research projects to fill the personal cover.
 
 Not canonized: retired orbital-cover layouts, exact colossus crops and wordmark coordinates, and small passive home metadata are not reusable global rules. Existing paper kickers remain incumbent research copy and are not a new eyebrow style for future surfaces. Exact teaching-grid sizes, per-family geometry dimensions and interpolation colors remain local implementation details rather than new global tokens.
+
+
+### Functional motion and source compositions
+
+A complete source function owns each animation region. Continuous hit regions include spaces in the trunk. Automatic execution yields to hover-local playback, and in-scene descent removes outside numerical motion. Dense MLP weights remain visible; lazy connection allocation applies to complex attention scenes. Immediate source children form a vertical composition with explicit true branches, and deeper compositions load on demand using the same mathematical visual factories. Source extent frames never imply sampled activation values; small numerical demonstrations remain explicitly identified. Preserve all/hover/none labels, native fullscreen, KaTeX, persistent prose and keyboard-accessible hierarchy navigation.
