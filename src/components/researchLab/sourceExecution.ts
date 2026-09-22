@@ -5,10 +5,8 @@
 import type {Run,Step,Tensor,Term} from '../workstation/engine'
 import {offset,coords} from '../workstation/engine'
 import {sourceWindow} from '../mmhvae/sourceTensor'
-import {mmhvaeModule,paperModule,type SourceModule} from './sourceArchitecture'
-import {NODES,MODALITIES} from '../mmhvae/model'
-import {modelTopology} from '../mmhvae/topology'
-import {glyphFor} from '../mmhvae/anatomy'
+import {paperModule,type SourceModule} from './sourceArchitecture'
+import {MODALITIES} from '../mmhvae/model'
 import {mathSpec,type MathSpec} from '../mmhvae/mathematics'
 import type {PaperModel} from './catalog'
 import {concreteMmhvaePlan} from './mmhvaeExecution'
@@ -30,32 +28,6 @@ export function flattenSource(root:SourceModule):SourcePlan{
   paths[m.id]=m.children.flatMap(c=>paths[c.id]??[]);const end={input,output};ends.set(m.id,end);return end;
  };
  visit(root,[],'');return {leaves,links:[...new Map(links.map(e=>[`${e.from}>${e.to}`,e])).values()],paths,titles};
-}
-export function mmhvaeSourcePlan(observed:string[]):SourcePlan{
- const topology=modelTopology(),used=new Set(topology.positions.keys());
- // Concat is already inside BlockQ; prior's own anatomy contains its head.
- // Expanding both old overview markers would perform these operators twice.
- const nodes=NODES.filter(n=>used.has(n.id)&&n.kind!=='concat'&&(!n.mod||['output','image'].includes(n.kind)||observed.includes(n.mod)));
- const keys=new Set(nodes.map(n=>n.id));
- const roots=nodes.map(n=>mmhvaeModule({id:n.id,child:n.id,title:n.title,glyph:glyphFor(n.kind),shape:n.shape,detail:n.description,sourceName:`${n.file}:${n.line}`},'root',observed,12));
- const links=topology.links.flatMap(e=>{
-  if(e.to.includes('-concat-'))return [{...e,to:e.to.replace('-concat-','-expert-')}];
-  if(e.from.includes('-concat-'))return [];
-  return [e];
- }).filter(e=>keys.has(e.from)&&keys.has(e.to));
- const plan=flattenSource({id:'root',title:'MMHVAE',shape:'',glyph:'network',formula:'',source:'network/mhvae.py',children:roots,edges:links});
- // BlockQ has two named input ports. Route the skip and top-down inputs to
- // their actual consumers, instead of connecting a concatenated tensor twice.
- plan.links=plan.links.filter(e=>{
-  const from=plan.leaves.find(l=>l.module.id===e.from),to=plan.leaves.find(l=>l.module.id===e.to);
-  if(!from||!to)return false;
-  const expert=to.path.find(p=>/-expert-[1-6]$/.test(p));if(!expert||from.path.includes(expert))return true;
-  const condition=/condition$/.test(decodeURIComponent(to.module.id));
-  if(from.path.some(p=>p.startsWith('feature-')))return condition;
-  if(from.path.some(p=>p.includes('-encoder-')))return !condition;
-  return true;
- });
- return plan;
 }
 export const paperSourcePlan=(model:PaperModel)=>flattenSource(paperModule(model,'root',20));
 
@@ -188,5 +160,5 @@ export function compileSource(plan:SourcePlan,page=0):Run{
  const fallback=make('empty','待指定输入',[null]);
  return {tensors,steps,input:steps[0]?.inputs[0]??steps[0]?.output??fallback,output:steps.at(-1)?.output??fallback,parameters:tensors.filter(t=>t.parameter).reduce((n,t)=>n+product(t.shape),0),scalars:tensors.reduce((n,t)=>n+product(t.shape),0),sourceGraph:{paths,warnings}};
 }
-export function makeMmhvaeRun(observed:string[]=MODALITIES.map(m=>m.id),page=0){return compileSource(concreteMmhvaePlan(observed),page)}
+export function makeMmhvaeRun(observed:string[]=MODALITIES.map(m=>m.id),page=0,temperature=.5){return compileSource(concreteMmhvaePlan(observed,temperature),page)}
 export function makePaperRun(model:PaperModel,page=0){return compileSource(paperSourcePlan(model),page)}

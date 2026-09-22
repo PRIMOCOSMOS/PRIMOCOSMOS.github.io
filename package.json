@@ -14,7 +14,8 @@
     "verify:crystals": "node scripts/verify-crystals.mjs",
     "typecheck": "tsc -b --pretty false",
     "verify:regions": "node scripts/verify-module-assembly.mjs",
-    "verify:receptive-field": "node scripts/verify-receptive-field.mjs"
+    "verify:receptive-field": "node scripts/verify-receptive-field.mjs",
+    "verify:source-execution": "node scripts/verify-source-execution.mjs"
   },
   "dependencies": {
     "@fontsource-variable/tektur": "^5.2.8",

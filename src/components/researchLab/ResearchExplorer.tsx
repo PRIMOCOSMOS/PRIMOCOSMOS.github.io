@@ -51,7 +51,7 @@ export default function ResearchExplorer({model,variantControl}:{model:PaperMode
 
    {notice&&<p role="status" className="mm-fullscreen-notice">{notice}</p>}
   </div>
-  <div className="rl-reading-strip"><span><Layers3 size={16}/>层片 · 数据结构</span><span><MoveRight size={18}/>箭头 · 依赖方向</span><span><Folder size={16}/>目录 · 由粗到细</span><EditableText textKey={`lab-${model.id}-scale-note`}>所有基础算子在同一计算图中展开；点击只聚焦镜头。水晶是完整源码张量的连续坐标窗口，窗口编号可切换索引范围。当前未加载训练权重，颜色区分数据与参数，动效表示索引依赖和运算顺序，不代表推理数值。</EditableText></div>
+  <div className="rl-reading-strip"><span><Layers3 size={16}/>层片 · 数据结构</span><span><MoveRight size={18}/>箭头 · 依赖方向</span><span><Folder size={16}/>目录 · 由粗到细</span><EditableText textKey={`lab-${model.id}-scale-note`}>大型网络先呈现轻量架构总览，进入功能块后展开数学计算；块内点击只聚焦镜头。水晶是完整源码张量的连续坐标窗口，窗口编号可切换索引范围。当前未加载训练权重，颜色区分数据与参数，动效表示索引依赖和运算顺序，不代表推理数值。</EditableText></div>
   <section className="rl-browser" aria-label="模型资源管理器">
    <div className="rl-browser-toolbar"><div><button disabled={!entry.parent} onClick={()=>navigate(entry.parent??'root')}><ArrowUp size={15}/>上一级</button><strong>{math?'原子运算':'模块目录'}</strong><span>{path.length-1} 级</span></div><label className="mm-search"><Search size={15}/><input aria-label="搜索模型模块" placeholder="搜索模块名称或尺寸" value={search} onChange={e=>setSearch(e.target.value)}/></label></div>
    <div className="rl-browser-body"><aside aria-label="顶层目录"><button aria-current={location==='root'?'location':undefined} onClick={()=>navigate('root')}><Home size={15}/>完整模型</button>{model.entries.root.children.map(id=><button key={id} aria-current={path.includes(id)?'location':undefined} onClick={()=>navigate(id)}>{model.entries[id].children.length?<Folder size={15}/>:<FileCode2 size={15}/>}<span>{model.entries[id].title}</span></button>)}</aside>

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import {build} from 'esbuild';
 import katex from 'katex';
-await build({stdin:{contents:"export * from './src/components/researchLab/sourceExecution';export * from './src/components/researchLab/sharedPrivateModel';export * from './src/components/researchLab/pnpModel';export * from './src/components/researchLab/ssdiffModel';export * from './src/components/researchLab/metscModel';export * from './src/components/researchLab/pigmentModel';export * from './src/components/workstation/scaffold';export * from './src/components/workstation/sourceScaffold';",resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',packages:'external',outfile:'tmp/source-execution-check.mjs'});
+await build({stdin:{contents:"export * from './src/components/researchLab/sourceExecution';export * from './src/components/researchLab/sourceLod';export * from './src/components/researchLab/sharedPrivateModel';export * from './src/components/researchLab/pnpModel';export * from './src/components/researchLab/ssdiffModel';export * from './src/components/researchLab/metscModel';export * from './src/components/researchLab/pigmentModel';export * from './src/components/workstation/scaffold';export * from './src/components/workstation/sourceScaffold';",resolveDir:process.cwd()},bundle:true,platform:'node',format:'esm',packages:'external',outfile:'tmp/source-execution-check.mjs'});
 const lib=await import('../tmp/source-execution-check.mjs');
 const mm=lib.makeMmhvaeRun(['us','t2']);
 const tensor=(id)=>{const t=mm.tensors.find(t=>t.id===id);assert(t,id);return t};
@@ -27,3 +27,15 @@ for(const [name,run] of [['mmhvae',mm],...['sharedPrivateModel','pnpModel','ssdi
 }
 const ss=lib.makePaperRun(lib.ssdiffModel()),sum=ss.steps.find(s=>s.id==='encoder/block0/attention/softmax::row-sum');assert(sum);assert.equal(sum.output.window.dimensions.at(-1),1);assert.equal(sum.output.window.dimensions[0],16);
 console.log(`Verified ${total} root mathematical stages across six papers.`);
+
+// Every LOD marker must descend to a strict subset and preserve all source
+// steps, including final masks grouped into the modality output interface.
+for(const [model,full] of [[undefined,mm],...['sharedPrivateModel','pnpModel','ssdiffModel','metscModel','pigmentModel'].map(id=>{const model=lib[id]();return [model,lib.makePaperRun(model)]})]){
+ const visit=(run,id='root',depth=0)=>{
+  assert(depth<12,'LOD hierarchy must terminate');if(run.steps.length<=180)return;
+  const overview=lib.overviewRun(run,model,id),covered=new Set();
+  for(const marker of overview.steps){const slice=lib.sourceSlice(run,marker.id);assert(slice.steps.length<run.steps.length,`LOD must make progress: ${model?.id??'mm'}/${id}/${marker.id}`);slice.steps.forEach(s=>covered.add(s.id));visit(slice,marker.id,depth+1)}
+  assert.equal(covered.size,run.steps.length,`No hidden mathematical stages: ${model?.id??'mm'}/${id}`);
+ };visit(full);
+}
+console.log('Verified lossless, terminating functional LOD for all six papers.');

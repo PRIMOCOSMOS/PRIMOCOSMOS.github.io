@@ -90,3 +90,6 @@ The paper tensor renderer no longer falls back to operator icons. Known dimensio
 Only the active functional region receives a holographic title in hover mode. All/none modes remain, and hover text no longer applies block formatting to KaTeX's internal spans. Detail views retain the selected outer context rather than the entire surrounding network. MMHVAE now enables cursor-directed wheel/pinch zoom and pan; plus/minus controls support 0.05–100 zoom instead of the previous 2.4 ceiling. Convolution example views retain all actual weighted dependencies of their displayed numerical calculation, with smooth shared-workstation connection-fabric highlights.
 
 This remains a source-architecture and mathematical teaching viewer, not full-resolution checkpoint inference: a full-source coordinate window is distinct from the independently labeled small numerical operator example. PIGMENT's unavailable implementation details remain unspecified.
+
+
+文献 3D 场景已共用工作站渲染器。大型网络采用性能分层：功能总览 → 完整数学计算，块内点击聚焦；静态张量合批，计算连接按功能区播放。`verify:source-execution` 检查六篇文献的源码坐标、关键 MMHVAE 通道/卷积参数、切片边界及全部公式。文献的符号计算不等于加载预训练权重的数值推理。

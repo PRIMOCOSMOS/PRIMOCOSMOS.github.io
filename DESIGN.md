@@ -450,3 +450,14 @@ A complete source function owns each animation region. Continuous hit regions in
 
 
 2026-09-22 paper-viewer correction: source tensor windows replace icon fallbacks. Equal crystal cells carry actual contiguous source indices; known C/H/W are inherited for MMHVAE's channel-only internal annotations, while symbolic inputs remain explicitly unresolved. Coordinate-window paging is available in fullscreen. Static cells are value-neutral source geometry; actual numerical examples are labeled separately and use signed colors/weighted dependency fabrics. Hover shows one active holographic title, without a duplicate DOM title. Expanded views fade only the relevant outer module. Wheel/pinch zoom is enabled and button zoom no longer stops at 2.4. Preserve existing source topology, formulas, lineage, numerical teaching boundaries, and PIGMENT uncertainty.
+
+
+### 文献计算场景与性能层级（2026-09-22 修订）
+
+文献与工作站共用 `WorkScene`、水晶张量、算子连线、感受野与激活函数曲线。文献入口不再挂载 OrbitScene / ResearchScene。MMHVAE 的推理图直接转录 pinned `MHVAE2D.forward`，不从旧图标拓扑推断运算。均值、log-scale、标准差和噪声分别建图，保留 inverse-scale 融合、WeightNorm、SE、观测子集与四个独立输出解码器。
+
+根据用户最新性能优先的要求，超过 180 个数学步骤的当前范围先显示功能块总览。总览轮廓明确表示功能接口，不能解释为一个张量元素。进入功能块后，完整数学步骤沿纵向主干展开；块内点击只聚焦镜头，悬停接管局部时间线，移开后恢复自动演算。较大的目录可递归分层，不一次分配整个模型的连接网格。
+
+完整源码维度与窗口内元素坐标分开保存。文献场景尚未加载 checkpoint，因此用数据/参数角色着色，动态连接解释源码索引与代数依赖，不显示伪造的激活值；未知输入轴保留符号。工作站原有小规模真实数值计算不变。基础几何合批，只有当前运算建立高亮网格，标签保留悬停、全显、隐藏三种状态。
+
+相机规则：未传相机预设不能触发重新适配。ResizeObserver 通常仅更新画幅；尚未手动调整视角时，全屏切换或画幅宽度改变可重新适配。说明文本高度变化不得触发相机适配。滚轮、缩放按钮、键盘缩放和拖动取消未完成的镜头插值与自动跟随；显式重置、聚焦或跟随才重新移动镜头。后续更改必须检查手动缩放后视角保持。
