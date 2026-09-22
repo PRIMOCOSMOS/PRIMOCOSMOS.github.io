@@ -26,7 +26,7 @@ function rawAnatomy(id: string, observed: string[] = MODALITIES.map(m=>m.id)): A
     parts.push({id:key,title,glyph,shape,detail,sourceName,child});return key
   }
   const link=(from:string,to:string,label?:string,residual=false)=>edges.push({from,to,label,residual})
-  const tensor=(key:string,title:string,channels=c,size=s,after?:string|null)=>add(key,title,'tensor',dims(channels,size),'特征图沿通道堆叠；图中层片数量是示意，实际通道与空间尺寸以上方数字为准。',key,undefined,after)
+  const tensor=(key:string,title:string,channels=c,size=s,after?:string|null)=>add(key,title,'tensor',dims(channels,size),'特征图沿通道堆叠。水晶网格对应连续坐标窗口；完整通道与空间尺寸保留在标注中，可切换窗口检查其他索引范围。',key,undefined,after)
   const norm=(key:string,ch=c)=>add(key,'InstanceNorm','norm',`${ch} ch`,`逐样本、逐通道做空间归一化；eps=1e−5，momentum=${['resnet','output','discriminator'].includes(node.kind)?'0.1':'0.05'}。默认 affine=False、track_running_stats=False。`,key)
   const act=(key:string,name='SiLU')=>add(key,name,'activation','逐元素 · 尺寸不变',name==='SiLU'?'SiLU / Swish: x·sigmoid(x)。':name==='LeakyReLU'?'负半轴斜率 0.2。':name==='Tanh'?'将输出限制到 [−1,1]。':'逐元素非线性变换。',key)
   const conv=(key:string,cin:number,cout:number,k=3,stride=1,padding=(k-1)/2)=>add(key,`Conv ${k}×${k}`,'conv',`${cin} → ${cout} ch`, `nn.Conv2d(${cin}, ${cout}, kernel_size=${k}, stride=${stride}, padding=${padding})；${node.kind==='output'&&k===7?"padding_mode='reflect'；":''}${key==='last_conv'?'WeightNorm，bias=False':'bias=True'}。`,key)

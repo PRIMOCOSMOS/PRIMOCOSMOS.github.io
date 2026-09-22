@@ -1,3 +1,4 @@
+import {forwardSceneWheel} from './sceneWheel'
 import { useEffect, useRef, useState } from 'react'
 import * as T from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js'
@@ -11,11 +12,12 @@ import { modelTopology, levelY } from './topology'
 import { makeMathVisual, type MathVisual } from './mathVisuals'
 import { createArrowStream } from './crystalPrimitives'
 import {holographicLabel,sizeHolographicLabel} from './holographicLabel'
-import {sourceTensor} from './sourceTensor'
+import {sourceTensor,sourceWindow} from './sourceTensor'
 import {moduleAssembly} from '../researchLab/ModuleAssembly'
 import {mmhvaeModule} from '../researchLab/sourceArchitecture'
 
 export interface SceneProps {
+  windowPage:number;
   labelMode:'hover'|'all'|'none';selected:string; observed:string[]; target:string; level:number; isolate:boolean; spread:number
   playing:boolean; stage:number; temperature:number; view:'orbit'|'front'|'top'; reset:number; zoom:number; focus:number
   reducedMotion:boolean; onNavigate:(id:string)=>void; onSelect:(id:string)=>void
@@ -38,10 +40,10 @@ export default function OrbitScene(props:SceneProps){
   const scene=new T.Scene(),overview=new T.Group();scene.add(overview)
   scene.add(new T.AmbientLight('#c5e0ec',1.6));const sun=new T.DirectionalLight('#e4f6ff',2.4);sun.position.set(-20,70,50);scene.add(sun)
   const rim=new T.DirectionalLight('#75accc',1.3);rim.position.set(20,20,-40);scene.add(rim)
-  const camera=new T.PerspectiveCamera(42,1,.1,600),controls=new OrbitControls(camera,renderer.domElement)
-  controls.enableDamping=true;controls.enableZoom=false;controls.dampingFactor=.09;controls.minPolarAngle=.18;controls.maxPolarAngle=1.5
+  const camera=new T.PerspectiveCamera(42,1,.01,5000),controls=new OrbitControls(camera,renderer.domElement)
+  controls.enableDamping=true;controls.enableZoom=true;controls.zoomToCursor=true;controls.zoomSpeed=.85;controls.minDistance=.25;controls.maxDistance=1800;controls.screenSpacePanning=true;controls.dampingFactor=.09;controls.minPolarAngle=.18;controls.maxPolarAngle=1.5
   const topology=modelTopology(),visuals=new Map<string,Visual>(),overviewFlows:Flow[]=[],decorations:T.Object3D[]=[]
-  const labelLayer=document.createElement('div');labelLayer.className='mm-scene-labels';container.appendChild(labelLayer)
+  const labelLayer=document.createElement('div');labelLayer.className='mm-scene-labels';container.appendChild(labelLayer);forwardSceneWheel(labelLayer,renderer.domElement)
   const labels=new Map<T.Sprite,HTMLSpanElement>()
   const label=(value:string,color:string,_height=.7,_width=6,math=false)=>{
    const element=document.createElement('span');element.className='mm-scene-label';element.style.color=color;element.innerHTML=labelHTML(value,math);element.style.visibility='hidden';labelLayer.appendChild(element)
@@ -58,7 +60,7 @@ export default function OrbitScene(props:SceneProps){
    return {from,to,curve,line,arrow,stream,label:tag}
   }
   for(const [id,point] of topology.positions){
-   const node=NODE_MAP.get(id)!,color=colorFor(node),group=new T.Group(),assembly=moduleAssembly(mmhvaeModule({id,child:id,title:node.title,glyph:glyphFor(node.kind),shape:node.shape,detail:node.description,sourceName:id},id,MODALITIES.map(m=>m.id),1),color),glyph=assembly.group,large=['encoder','output','input','image'].includes(node.kind)
+   const node=NODE_MAP.get(id)!,color=colorFor(node),group=new T.Group(),assembly=moduleAssembly(mmhvaeModule({id,child:id,title:node.title,glyph:glyphFor(node.kind),shape:node.shape,detail:node.description,sourceName:id},id,MODALITIES.map(m=>m.id),1),color,true,latest.current.windowPage),glyph=assembly.group,large=['encoder','output','input','image'].includes(node.kind)
    glyph.scale.setScalar((large?3.4:2)/assembly.height);glyph.position.y=(assembly.height/2-5)*glyph.scale.y;group.position.copy(vector(point));group.add(glyph)
    const tag=label(['input','image'].includes(node.kind)?`${node.kind==='input'?'INPUT':'OUTPUT'} / ${MODALITIES.find(m=>m.id===node.mod)!.label}`:moduleName(node),color,large?.9:.68,large?6:4.5);tag.position.set(large?2.6:1.65,.25,.4);tag.userData.id=id;group.add(tag)
    const materials=new Map<T.Material,number>();group.traverse(o=>{const m=o as T.Mesh;if(m.material)(Array.isArray(m.material)?m.material:[m.material]).forEach(mat=>materials.set(mat,mat.opacity))})
@@ -96,7 +98,7 @@ export default function OrbitScene(props:SceneProps){
    for(const p of graph.parts){
     const dest=vector(layout.positions.get(p.id)!)
     const color=MODALITIES.find(m=>m.id===p.mod)?.color??(p.role==='input'?'#91ddf5':p.role==='output'?'#dcff91':p.glyph==='poe'?'#eaddb5':'#9dc9dd')
-    const group=new T.Group(),mathematics=p.math?makeMathVisual(p.math):undefined,assembly=!p.math&&!p.role?moduleAssembly(mmhvaeModule(p,id,latest.current.observed,1),color):undefined,glyph=mathematics?.group??assembly?.group??sourceTensor(p.glyph,p.shape,color);glyph.scale.setScalar(mathematics?1:assembly?(graph.layout==='overview'?3.4:5)/assembly.height:1.7);if(assembly)glyph.position.y=(assembly.height/2-5)*glyph.scale.y;group.add(glyph)
+    const group=new T.Group(),mathematics=p.math?makeMathVisual(p.math):undefined,assembly=!p.math&&!p.role?moduleAssembly(mmhvaeModule(p,id,latest.current.observed,1),color,true,latest.current.windowPage):undefined,glyph=mathematics?.group??assembly?.group??sourceTensor(p.glyph,p.shape,color,latest.current.windowPage);glyph.scale.setScalar(mathematics?1:assembly?(graph.layout==='overview'?3.4:5)/assembly.height:1.7);if(assembly)glyph.position.y=(assembly.height/2-5)*glyph.scale.y;group.add(glyph)
     mathematics?.update({phase:latest.current.mathProgress,probe:latest.current.mathProbe,temperature:latest.current.temperature})
     const holo=holographicLabel(partName(p),p.math?'可核算数值示例':p.shape,p.math?6:4.5);holo.position.set(p.math?4.3:2.5,.9,0);group.add(holo)
     const caption=p.role?`${p.role==='input'?'来自':'流向'} · ${partName(p)}`:partName(p)
@@ -139,9 +141,9 @@ export default function OrbitScene(props:SceneProps){
    return ray.intersectObjects(detail?parts.flatMap(p=>[p.hit,...p.label.visible&&p.label.userData.labelShown?[p.label]:[]]):[...visuals.values()].filter(v=>v.group.visible).map(v=>v.hit).concat(decorations.filter(d=>d.visible&&d.userData.route&&d.userData.labelShown) as T.Mesh[]))[0]?.object.userData}
   const pointerdown=(e:PointerEvent)=>{down=[e.clientX,e.clientY]}
   const pointerup=(e:PointerEvent)=>{if(Math.hypot(e.clientX-down[0],e.clientY-down[1])<5){const hit=pick(e);if(hit?.module)latest.current.onNavigate(hit.module);else if(hit?.part)latest.current.onPart(hit.part);else if(hit?.route)latest.current.onNavigate(hit.route);else if(hit?.id)latest.current.onSelect(hit.id)}}
-  const move=(e:PointerEvent)=>{if(e.buttons)return;const hit=pick(e);if(hoverPart!==(hit?.part??'')||hoverNode!==(hit?.id??'')||hoverModule!==(hit?.module??'')){hoverClock=0}hoverPart=hit?.part??'';hoverNode=hit?.id??'';hoverModule=hit?.module??'';setHover(hit?.part?partName(parts.find(p=>p.part.id===hit.part)!.part):hit?.id?moduleName(NODE_MAP.get(hit.id)!):hit?.route?[...labels.keys()].find(v=>v.userData.route===hit.route)?.userData.caption??'':'');renderer.domElement.style.cursor=hit?'pointer':'grab';dirty=true}
+  const move=(e:PointerEvent)=>{if(e.buttons)return;const hit=pick(e);if(hoverPart!==(hit?.part??'')||hoverNode!==(hit?.id??'')||hoverModule!==(hit?.module??'')){hoverClock=0}hoverPart=hit?.part??'';hoverNode=hit?.id??'';hoverModule=hit?.module??'';setHover(hit?.part?partName(parts.find(p=>p.part.id===hit.part)!.part):hit?.id?`${moduleName(NODE_MAP.get(hit.id)!)} · ${sourceWindow(NODE_MAP.get(hit.id)!.shape,glyphFor(NODE_MAP.get(hit.id)!.kind),latest.current.windowPage).label}`:hit?.route?[...labels.keys()].find(v=>v.userData.route===hit.route)?.userData.caption??'':'');renderer.domElement.style.cursor=hit?'pointer':'grab';dirty=true}
   const leave=()=>{hoverPart='';hoverNode='';hoverModule='';setHover('');dirty=true}
-  const key=(e:KeyboardEvent)=>{const offset=camera.position.clone().sub(controls.target),s=new T.Spherical().setFromVector3(offset);if(e.key==='ArrowLeft')s.theta-=.12;else if(e.key==='ArrowRight')s.theta+=.12;else if(e.key==='ArrowUp')s.phi=Math.max(.2,s.phi-.1);else if(e.key==='ArrowDown')s.phi=Math.min(1.5,s.phi+.1);else if(['+','='].includes(e.key))camera.zoom=Math.min(3,camera.zoom*1.1);else if(e.key==='-')camera.zoom=Math.max(.5,camera.zoom/1.1);else return;e.preventDefault();camera.position.copy(controls.target).add(new T.Vector3().setFromSpherical(s));camera.updateProjectionMatrix();dirty=true}
+  const key=(e:KeyboardEvent)=>{const offset=camera.position.clone().sub(controls.target),s=new T.Spherical().setFromVector3(offset);if(e.key==='ArrowLeft')s.theta-=.12;else if(e.key==='ArrowRight')s.theta+=.12;else if(e.key==='ArrowUp')s.phi=Math.max(.2,s.phi-.1);else if(e.key==='ArrowDown')s.phi=Math.min(1.5,s.phi+.1);else if(['+','='].includes(e.key))camera.zoom=Math.min(100,camera.zoom*1.15);else if(e.key==='-')camera.zoom=Math.max(.05,camera.zoom/1.15);else return;e.preventDefault();camera.position.copy(controls.target).add(new T.Vector3().setFromSpherical(s));camera.updateProjectionMatrix();dirty=true}
   for(const [name,fn] of [['pointerdown',pointerdown],['pointerup',pointerup],['pointermove',move],['pointerleave',leave],['keydown',key]] as const)renderer.domElement.addEventListener(name,fn as EventListener)
   const lost=(e:Event)=>{e.preventDefault();setError(true)};renderer.domElement.addEventListener('webglcontextlost',lost)
   const animate=(now:number)=>{
@@ -163,16 +165,16 @@ export default function OrbitScene(props:SceneProps){
    if(sig!==signature||dirty){signature=sig;dirty=true
     for(const v of visuals.values()){
      const observed=!v.node.mod||p.observed.includes(v.node.mod)||['output','image'].includes(v.node.kind),local=v.node.l===p.level
-     v.group.visible=!!detail||!p.isolate||local||['input','image','output'].includes(v.node.kind)
+     v.group.visible=detail?v.node.id===p.detailId?.split('/')[0]:!p.isolate||local||['input','image','output'].includes(v.node.kind)
      for(const [mat,base] of v.materials)mat.opacity=base*(detail?.025:observed?1:.19)
-     if(v.label)v.label.visible=p.labelMode!=='none'&&!detail&&(p.labelMode==='all'||p.isolate&&local||['input','image'].includes(v.node.kind))
+     if(v.label)v.label.visible=p.labelMode!=='none'&&!detail&&(p.labelMode==='all'||v.node.id===hoverNode||['input','image'].includes(v.node.kind))
      if(v.node.mod)v.group.position.x=v.origin.x*(1+p.spread*.12)
     }
-    decorations.forEach(d=>d.visible=!detail&&!p.isolate&&(p.labelMode!=='none'||d instanceof T.GridHelper))
+    decorations.forEach(d=>d.visible=!detail&&!p.isolate&&(d instanceof T.GridHelper||p.labelMode==='all'||p.labelMode==='hover'&&!!d.userData.route&&!d.userData.holographicLabel))
     for(const f of overviewFlows){const active=(!f.mod||p.observed.includes(f.mod)||f.to.includes('output')||f.to.includes('image'))&&(!p.isolate||f.l===p.level||f.l===0),focused=f.l===p.level
      f.line.visible=!detail&&active&&p.spread===0;(f.line.material as T.LineBasicMaterial).opacity=focused?.65:.12;f.arrow.visible=f.line.visible&&(focused||!f.mod);f.stream.group.visible=f.line.visible&&(focused||p.stage===0&&f.mod!==undefined)
     }
-    for(const v of parts){const active=v.part.id===(hoverPart||p.activePart);v.holo.visible=p.labelMode==='hover';v.label.visible=p.labelMode==='all'||p.labelMode==='hover'&&v.part.id===hoverPart;v.dim.visible=v.label.visible&&!v.part.math;v.group.scale.setScalar(1);if(v.readout)v.readout.visible=p.labelMode!=='none'&&active;v.axes?.forEach(a=>a.visible=p.labelMode!=='none'&&active&&p.mathFocus)}
+    for(const v of parts){const active=v.part.id===(hoverPart||p.activePart);v.holo.visible=p.labelMode==='hover'&&active;v.label.visible=p.labelMode==='all';v.dim.visible=v.label.visible&&!v.part.math;v.group.scale.setScalar(1);if(v.readout)v.readout.visible=p.labelMode!=='none'&&active;v.axes?.forEach(a=>a.visible=p.labelMode!=='none'&&active&&p.mathFocus)}
     for(const f of [...detailFlows,...connectors]){const active=!p.activePart||f.from===p.activePart||f.to===p.activePart;(f.line.material as T.LineBasicMaterial).opacity=active?.67:.16;f.arrow.visible=true;f.stream.group.visible=active;if(f.label)f.label.visible=p.labelMode==='all'||p.labelMode==='hover'&&!!hoverPart&&[f.from,f.to].includes(hoverPart)}
    }
    if(detail){const t=p.reducedMotion?1:Math.min((now-detailStart)/900,1),k=1-(1-t)**3
@@ -182,7 +184,8 @@ export default function OrbitScene(props:SceneProps){
    if((detail?p.detailMotion:p.playing)&&!p.reducedMotion&&(hoverPart||hoverNode))hoverClock+=dt/3.6;
    const assemblyOwners=detail?parts.filter(v=>v.assembly).map(v=>({id:v.part.id,assembly:v.assembly!})): [...visuals.values()].filter(v=>v.group.visible&&(!v.node.mod||p.observed.includes(v.node.mod)||['output','image'].includes(v.node.kind))).map(v=>({id:v.node.id,assembly:v.assembly}));
    const functions=assemblyOwners.flatMap(v=>v.assembly.cells.map(c=>({owner:v.id,cell:c.module.id}))),cursor=elapsed/3.6,automatic=functions[Math.floor(cursor)%Math.max(1,functions.length)],owner=detail?(hoverPart||p.activePart||automatic?.owner):(hoverNode||(!p.playing?p.selected:automatic?.owner));
-   if(dirty)for(const v of assemblyOwners){if(v.id===owner){const selected=hoverModule||((hoverPart||hoverNode)?v.assembly.cells[Math.floor(hoverClock)%v.assembly.cells.length]?.module.id:v.assembly.cells.find(c=>c.module.id===automatic?.cell)?.module.id)||v.assembly.cells[0]?.module.id;v.assembly.setActive(selected,{phase:hoverPart||hoverNode?hoverClock%1:cursor%1,probe:p.mathProbe,temperature:p.temperature});renderer.domElement.dataset.activeFunction=selected;renderer.domElement.dataset.activeRegion=owner??''}else v.assembly.clear()}
+   if(dirty&&p.labelMode==='hover'){for(const v of parts)v.holo.visible=v.part.id===(hoverPart||p.activePart||owner);if(!detail)for(const v of visuals.values())if(v.label&&v.node.id===owner)v.label.visible=true}
+   if(dirty)for(const v of assemblyOwners){if(v.id===owner){const selected=hoverModule||((hoverPart||hoverNode)?v.assembly.cells[Math.floor(hoverClock)%v.assembly.cells.length]?.module.id:v.assembly.cells.find(c=>c.module.id===automatic?.cell)?.module.id)||v.assembly.cells[0]?.module.id;v.assembly.setActive(selected,{phase:hoverPart||hoverNode?hoverClock%1:cursor%1,probe:p.mathProbe,temperature:p.temperature});renderer.domElement.dataset.activeFunction=selected;renderer.domElement.dataset.localPhase=(hoverPart||hoverNode?hoverClock%1:cursor%1).toFixed(4);renderer.domElement.dataset.activeRegion=owner??''}else v.assembly.clear()}
    if(dirty)for(const [i,f] of (detail?[...detailFlows,...connectors]:overviewFlows).entries()){const local=f.from===owner||f.to===owner;f.stream.group.visible=f.line.visible&&local;f.arrow.visible=f.line.visible&&local;if(local&&f.line.visible)f.stream.update(f.curve,((hoverPart||hoverNode?hoverClock:elapsed*.36)+i*.17)%1)}
    if(detailKey?.mathematics){
     if(lastProgress!==p.mathProgress||lastMath!==p.detailId){mathClock=p.mathProgress;lastProgress=p.mathProgress;lastMath=p.detailId??'';dirty=true}
@@ -209,9 +212,9 @@ export default function OrbitScene(props:SceneProps){
      tag.scale.set(width/unit,height/unit,1);tag.userData.labelShown=placed
     }
     renderer.domElement.dataset.parts=JSON.stringify(parts.map(v=>{const q=v.group.getWorldPosition(new T.Vector3()).project(camera);return {id:v.part.id,child:v.part.child,role:v.part.role,x:(q.x+1)*w/2,y:(1-q.y)*h/2,label:v.label.visible}}))
-renderer.domElement.dataset.camera=JSON.stringify([...camera.position.toArray(),...controls.target.toArray(),camera.zoom]);renderer.render(scene,camera);dirty=false}
+renderer.domElement.dataset.detailId=p.detailId??'';renderer.domElement.dataset.holograms=String(parts.filter(v=>v.holo.visible).length);renderer.domElement.dataset.nodes=JSON.stringify([...visuals.values()].map(v=>{const q=v.group.getWorldPosition(new T.Vector3()).project(camera);return {id:v.node.id,x:(q.x+1)*w/2,y:(1-q.y)*h/2}}));renderer.domElement.dataset.windowPage=String(p.windowPage);renderer.domElement.dataset.camera=JSON.stringify([...camera.position.toArray(),...controls.target.toArray(),camera.zoom]);renderer.render(scene,camera);dirty=false}
   };frame=requestAnimationFrame(animate)
   return()=>{cancelAnimationFrame(frame);ro.disconnect();io.disconnect();controls.dispose();disposeGroup(scene);renderer.dispose();renderer.domElement.remove();labelLayer.remove();labels.clear()}
- },[])
+ },[props.windowPage])
  return <div className="mm-orbit-host" ref={host}>{error&&<div className="mm-webgl-fallback"><h4>当前浏览器无法显示三维场景</h4><p>下方模块目录与内部算子序列仍可查看完整结构、来源、去向和公式。</p><a href="#mm-module-directory">打开模块目录</a></div>}{hover&&!error&&<div className="mm-hover-label"><MathLabel value={hover}/><span>{props.detailGraph?.mathematics?'数学步骤 · 已选中后可调参数或恢复完整演算':props.detailGraph?'点击进入组件 · 边界外节点跳转到来源 / 去向':'点击原位拆解 · 镜头将移入模块'}</span></div>}</div>
 }
