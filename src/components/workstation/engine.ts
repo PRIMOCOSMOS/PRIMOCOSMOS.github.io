@@ -1,8 +1,9 @@
 /** Explicit eager tensor arithmetic. Every stored scalar has an address and traceable operands. */
-export interface Tensor {id:string;name:string;shape:number[];values:number[];parameter?:boolean;constant?:boolean}
+export interface TensorWindow {shapeLabel:string;dimensions:(number|null)[];coordinates:number[][];positions:[number,number,number][];label:string;symbolic:true}
+export interface Tensor {window?:TensorWindow;id:string;name:string;shape:number[];values:number[];parameter?:boolean;constant?:boolean}
 export interface Term {tensor:string;index:number;value:number;factor?:number;label?:string;factorTensor?:string;factorIndex?:number}
 export interface Step {id:string;group:string;title:string;kind:string;inputs:Tensor[];output:Tensor;formula:string;detail:string;source:string;trace:(index:number)=>Term[];settings:Record<string,unknown>}
-export interface Run {tensors:Tensor[];steps:Step[];output:Tensor;input:Tensor;parameters:number;scalars:number}
+export interface Run {sourceGraph?:{paths:Record<string,string[]>;warnings:string[]};tensors:Tensor[];steps:Step[];output:Tensor;input:Tensor;parameters:number;scalars:number}
 export const size=(shape:number[])=>shape.reduce((a,b)=>a*b,1)
 export function coords(index:number,shape:number[]){const result=shape.map(()=>0);for(let i=shape.length-1;i>=0;i--){result[i]=index%shape[i];index=Math.floor(index/shape[i])}return result}
 export const offset=(c:number[],shape:number[])=>c.reduce((n,x,i)=>n*shape[i]+x,0)

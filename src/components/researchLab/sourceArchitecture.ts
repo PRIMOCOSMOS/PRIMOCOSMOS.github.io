@@ -7,14 +7,17 @@ import {sourceWindow} from '../mmhvae/sourceTensor'
 import type {PaperModel} from './catalog'
 
 export interface SourceModule {
- id:string;title:string;shape:string;glyph:Glyph;formula:string;source:string;
+ id:string;title:string;shape:string;glyph:Glyph;formula:string;source:string;dimensions?:(number|null)[];settings?:Record<string,unknown>;
  operator?:MathSpec;children:SourceModule[];edges:AnatomyEdge[];expand?:()=>SourceModule;
 }
 /** The tree is compiled from source-audited entries. Repeated source blocks stay
  * separate instances; parameter sharing remains in the source edges/notes. */
 export function paperModule(model:PaperModel,id:string,depth=2):SourceModule{
- const e=model.entries[id];
- return {id:e.id,title:e.title,shape:e.shape,glyph:e.glyph,formula:e.formula,source:`${e.file}:${e.line} · ${e.symbol}`,operator:e.math,children:depth>0?e.children.map(id=>paperModule(model,id,depth-1)):[],edges:e.edges,expand:depth===0&&e.children.length?()=>paperModule(model,id,1):undefined};
+ const e=model.entries[id];let shape=e.shape,ancestor=e.parent?model.entries[e.parent]:undefined;
+ while(ancestor){const match=ancestor.shape.match(/B\s*×\s*(\d+)\s*×\s*N\s*×\s*(\d+)/);if(match){shape=shape.replace(/heads/g,match[1]).replace(/head_dim/g,match[2]);break}ancestor=ancestor.parent?model.entries[ancestor.parent]:undefined}
+ const dimensionTokens=shape.split(/→|⇒/).at(-1)!.trim().split(/\s*×\s*/);const direct=dimensionTokens.length>1&&dimensionTokens.every(t=>/^(?:\d+|[A-Za-z]\w*|\([^)]*\))$/.test(t));
+ const dimensions=direct?dimensionTokens.filter(t=>t!=='B').map(t=>/^\d+$/.test(t)?Number(t):null):undefined;
+ return {id:e.id,title:e.title,shape,dimensions,glyph:e.glyph,formula:e.formula,source:`${e.file}:${e.line} · ${e.symbol}`,operator:e.math,children:depth>0?e.children.map(id=>paperModule(model,id,depth-1)):[],edges:e.edges,expand:depth===0&&e.children.length?()=>paperModule(model,id,1):undefined};
 }
 export function mmhvaeModule(part:AnatomyPart,parent:string,observed:string[],depth=2):SourceModule{
  const id=part.child??atomId(parent,part.id),module:SourceModule={id,title:partName(part),shape:part.shape,glyph:part.glyph,formula:'',source:part.sourceName,children:[],edges:[]};

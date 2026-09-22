@@ -5,9 +5,9 @@ export interface FunctionalRegion {id:string;title:string;group:string;steps:str
 /** Source-level functions own regions; arithmetic microsteps never create regions. */
 export function functionalRegions(run:Run,selected:Step[]=run.steps):FunctionalRegion[]{
  const groups=[...new Set(selected.map(s=>s.group))];
- if(groups.length>1)return groups.map(group=>({id:`group:${group}`,title:group,group,steps:selected.filter(s=>s.group===group).map(s=>s.id)}));
+ if(groups.length>1)return groups.map(group=>({id:`group:${group}`,title:String(selected.find(s=>s.group===group)?.settings.groupTitle??group),group,steps:selected.filter(s=>s.group===group).map(s=>s.id)}));
  const scores=selected.findIndex(s=>s.settings.transposeB===true),values=selected.findIndex((s,i)=>i>scores&&s.settings.transposeB===false);
- if(scores<0||values<0)return groups.map(group=>({id:`group:${group}`,title:group,group,steps:selected.map(s=>s.id)}));
+ if(scores<0||values<0)return groups.map(group=>({id:`group:${group}`,title:String(selected.find(s=>s.group===group)?.settings.groupTitle??group),group,steps:selected.map(s=>s.id)}));
  const group=groups[0];
  return [[0,scores,'查询、键与值投影'],[scores,values,'相似度与注意力归一化'],[values,selected.length,'上下文汇聚与输出投影']].map(([start,end,title],i)=>({id:`region:${encodeURIComponent(group)}:${i}`,title:String(title),group,steps:selected.slice(Number(start),Number(end)).map(s=>s.id)}));
 }

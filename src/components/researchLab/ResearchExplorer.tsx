@@ -9,7 +9,7 @@ import {MathControls} from '../mmhvae/MathControls'
 import {MathLabel} from '../mmhvae/MathLabel'
 import {graphForEntry,pathFor,sourceLink,type PaperModel} from './catalog'
 import {scientificExample} from './operators'
-const ResearchScene=lazy(()=>import('./ResearchScene'))
+const PaperWorkScene=lazy(()=>import('./PaperWorkScene'))
 const R=String.raw
 function Formula({value}:{value:string}){return value?<div className="mm-math" tabIndex={0} aria-label="数学公式，可横向滚动" dangerouslySetInnerHTML={{__html:katex.renderToString(value,{displayMode:true,throwOnError:false,trust:false,output:'htmlAndMathml'})}}/>:null}
 
@@ -44,14 +44,14 @@ export default function ResearchExplorer({model,variantControl}:{model:PaperMode
     <button aria-label={fullscreen?'退出全屏':'全屏观看'} title={fullscreen?'退出全屏':'全屏观看'} aria-pressed={fullscreen} onClick={toggleFullscreen}>{fullscreen?<Minimize2 size={16}/>:<Maximize2 size={16}/>}</button>
    </div></div>
    <nav className="rl-breadcrumbs" aria-label="三维模型层级"><button disabled={!history.length&&location==='root'} onClick={back} aria-label="返回上一视图"><ArrowLeft size={15}/></button><button onClick={()=>navigate('root')} aria-label="返回全模型"><Home size={15}/></button><div>{path.map((id,i)=><button key={id} aria-current={i===path.length-1?'location':undefined} onClick={()=>navigate(id)}>{i>0&&<ChevronRight size={12}/>}<span>{model.entries[id].title}</span></button>)}</div></nav>
-   <div className="mm-scene-wrap rl-scene-wrap"><div className="mm-scene-status"><span className={`mm-live-dot${playing&&!reduced?' is-playing':''}`}/>{reduced?'减少动态效果':playing?'功能区逐次演算':'已暂停 · 可手动观察'}<span>{math?'数学内部 · 确定性示例':location==='root'?'全模型 · 点击进入':'纵向主干 · 边界外显示上下游'}</span></div>
-    {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={24}/>正在构建模型空间…</div>}><ResearchScene windowPage={windowPage} model={model} labelMode={labelMode} graph={graph} selected={entry.id} playing={playing&&!editing} reduced={reduced} probe={probe} progress={progress} step={step} focus={focus} view={view} reset={reset} zoom={zoom} onSelect={navigate} onStep={n=>{setStep(n);setFocus(true);setZoom(1)}}/></Suspense>:<div className="mm-loading">模型将在进入视野后加载</div>}
-    <div className="mm-scene-foot"><span>悬停锁定演算 · 点击逐层展开 · 滚轮缩放</span><span>全息层名 · 悬停查看尺寸与公式</span></div>
+   <div className="mm-scene-wrap rl-scene-wrap"><div className="mm-scene-status"><span className={`mm-live-dot${playing&&!reduced?' is-playing':''}`}/>{reduced?'减少动态效果':playing?'功能区逐次演算':'已暂停 · 可手动观察'}<span>{math?'数学内部 · 确定性示例':location==='root'?'完整计算图 · 点击聚焦':'纵向主干 · 边界外显示上下游'}</span></div>
+    {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={24}/>正在构建模型空间…</div>}><PaperWorkScene windowPage={windowPage} model={model} labelMode={labelMode} selected={entry.id} playing={playing&&!editing&&!reduced} view={view} reset={reset} zoom={zoom} onSelect={navigate}/></Suspense>:<div className="mm-loading">模型将在进入视野后加载</div>}
+    <div className="mm-scene-foot"><span>自动逐次演算 · 点击聚焦 · 滚轮缩放</span><span>全息层名 · 悬停查看尺寸与公式</span></div>
    </div>
-   {math&&<MathControls textKeyBase={`${model.id}-${entry.id}`} spec={math} selected={step} onSelect={n=>{setStep(n);setFocus(true);setZoom(1)}} onOverview={()=>{setFocus(false);setZoom(1)}} probe={probe} onProbe={setProbe} progress={progress} onProgress={v=>{setProgress(v);setPlaying(false)}} playing={playing&&!reduced} onPlaying={()=>setPlaying(v=>!v)} temperature={1} readoutText={mathReadout}/>}
+
    {notice&&<p role="status" className="mm-fullscreen-notice">{notice}</p>}
   </div>
-  <div className="rl-reading-strip"><span><Layers3 size={16}/>层片 · 数据结构</span><span><MoveRight size={18}/>箭头 · 依赖方向</span><span><Folder size={16}/>目录 · 由粗到细</span><EditableText textKey={`lab-${model.id}-scale-note`}>静态水晶表示完整张量中的连续坐标窗口，窗口编号可切换真实索引范围；单元不代表缩小后的张量。完整尺寸以标注为准。当前功能的数值动效使用已标明的小型算例，不是预训练权重推理。</EditableText></div>
+  <div className="rl-reading-strip"><span><Layers3 size={16}/>层片 · 数据结构</span><span><MoveRight size={18}/>箭头 · 依赖方向</span><span><Folder size={16}/>目录 · 由粗到细</span><EditableText textKey={`lab-${model.id}-scale-note`}>所有基础算子在同一计算图中展开；点击只聚焦镜头。水晶是完整源码张量的连续坐标窗口，窗口编号可切换索引范围。当前未加载训练权重，颜色区分数据与参数，动效表示索引依赖和运算顺序，不代表推理数值。</EditableText></div>
   <section className="rl-browser" aria-label="模型资源管理器">
    <div className="rl-browser-toolbar"><div><button disabled={!entry.parent} onClick={()=>navigate(entry.parent??'root')}><ArrowUp size={15}/>上一级</button><strong>{math?'原子运算':'模块目录'}</strong><span>{path.length-1} 级</span></div><label className="mm-search"><Search size={15}/><input aria-label="搜索模型模块" placeholder="搜索模块名称或尺寸" value={search} onChange={e=>setSearch(e.target.value)}/></label></div>
    <div className="rl-browser-body"><aside aria-label="顶层目录"><button aria-current={location==='root'?'location':undefined} onClick={()=>navigate('root')}><Home size={15}/>完整模型</button>{model.entries.root.children.map(id=><button key={id} aria-current={path.includes(id)?'location':undefined} onClick={()=>navigate(id)}>{model.entries[id].children.length?<Folder size={15}/>:<FileCode2 size={15}/>}<span>{model.entries[id].title}</span></button>)}</aside>

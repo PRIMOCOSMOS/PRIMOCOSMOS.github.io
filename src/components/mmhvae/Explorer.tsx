@@ -8,7 +8,7 @@ import './mmhvae.css'
 import HierarchyBrowser from './HierarchyBrowser'
 import { atomId, canonicalPath, graphFor, navName } from './navigation'
 import { MathControls } from './MathControls'
-const OrbitScene=lazy(()=>import('./OrbitScene'))
+const PaperWorkScene=lazy(()=>import('../researchLab/PaperWorkScene'))
 function ShapeLegend(){
   return <div className="mm-shape-legend" aria-label="三维形态图例">
     <span><svg viewBox="0 0 28 24" aria-hidden="true"><path d="M3 7h16v13H3zM7 4h16v13M11 1h16v13"/></svg>层片 · 特征张量</span>
@@ -47,7 +47,7 @@ export function MMHVAEExplorer() {
   const detailId=anatomy?location:undefined
   const [mathStep,setMathStep]=useState(0),[mathFocus,setMathFocus]=useState(false),[mathProbe,setMathProbe]=useState(.42),[mathProgress,setMathProgress]=useState(.35)
   const activePart=anatomy?.mathematics?`math-${mathStep}`:null
-  const openDetail=(id:string)=>{setLocation(id);setDetailZoom(1);setMathStep(0);setMathFocus(false);setMathProgress(.35);setPlaying(false);const n=NODE_MAP.get(id.split('/')[0]);if(n){setSelected(n.id);setLevel(n.l)}}
+  const openDetail=(id:string)=>{setLocation(id);setDetailZoom(1);setMathStep(0);setMathFocus(false);setMathProgress(.35);const n=NODE_MAP.get(id.split('/')[0]);if(n){setSelected(n.id);setLevel(n.l)}}
   const closeDetail=()=>{setLocation('root')}
   const enterPart=(id:string)=>{const p=anatomy?.parts.find(part=>part.id===id);if(!p)return;if(p.math){setMathStep(p.math.stage);setMathFocus(true)}else if(p.child)openDetail(p.child);else if(!location.startsWith('atom:'))openDetail(atomId(location,id))}
   const back=()=>{const path=canonicalPath(location);openDetail(path.at(-2)??'root')}
@@ -76,7 +76,7 @@ export function MMHVAEExplorer() {
   const gaussianPath=(t:number)=>Array.from({length:121},(_,i)=>{const x=i/120*6-3;return`${i===0?'M':'L'}${12+i*1.9},${100-78*Math.exp(-x*x/(2*t*t))}`}).join(' ')
   const showInspector=()=>root.current?.querySelector('.mm-browser')?.scrollIntoView({behavior:reducedMotion?'instant':'smooth',block:'start'})
   return <div ref={root} className={`architecture-console mm-lab${expanded?' mm-lab--expanded':''}`} id="mmhvae-orbit-lab">
-    <header className="mm-lab-heading"><div><h3>MMHVAE <span>轨道架构实验台</span></h3><EditableText textKey="mm-copy-c9410968f3">四个观测世界，一套层次生成空间。沿信号进入模型的每一个模块。</EditableText></div><a href={source('network/mhvae.py',18)} target="_blank" rel="noreferrer"><Code2 size={15}/> MHVAE2D <ArrowUpRight size={14}/></a></header>
+    <header className="mm-lab-heading"><div><h3>MMHVAE <span>源码计算实验台</span></h3><EditableText textKey="mm-copy-c9410968f3">四个观测世界，一套层次生成空间。沿信号进入模型的每一个模块。</EditableText></div><a href={source('network/mhvae.py',18)} target="_blank" rel="noreferrer"><Code2 size={15}/> MHVAE2D <ArrowUpRight size={14}/></a></header>
     <NoteEditToolbar compact />
     <div className="mm-config">
       <fieldset><legend>观测输入 <span>至少保留一个模态</span></legend><div className="mm-modality-buttons">{MODALITIES.map(m=>{const active=observed.includes(m.id);return <button type="button" key={m.id} aria-pressed={active} aria-label={`${active?'移除':'添加'} ${m.label} 观测`} disabled={active&&observed.length===1} onClick={()=>toggle(m.id)} style={{'--modality':m.color} as CSSProperties}>{active?<Eye size={14}/>:<EyeOff size={14}/>}<span>{m.label}</span><i/></button>})}</div></fieldset>
@@ -86,20 +86,20 @@ export function MMHVAEExplorer() {
     <div className="mm-workbench"><div className="mm-scene-column">
       <div ref={viewer} className="mm-viewer"><div className="mm-view-toolbar"><div role="group" aria-label="相机预设">{([['orbit','轨道'],['front','正视'],['top','俯视']] as const).map(([v,label])=><button key={v} aria-pressed={view===v} onClick={()=>{closeDetail();setView(v);setReset(n=>n+1);setZoom(1)}}>{label}</button>)}</div><div><label className="mm-label-mode">张量窗口<input aria-label="张量坐标窗口" type="number" min="0" max="1000000" value={windowPage} onChange={e=>setWindowPage(Math.max(0,Math.min(1000000,Number(e.target.value)||0)))}/></label><label className="mm-label-mode">标注<select aria-label="文献模型标注" value={labelMode} onChange={e=>setLabelMode(e.target.value as typeof labelMode)}><option value="hover">悬停详解</option><option value="all">全部显示</option><option value="none">全部隐藏</option></select></label>
         <button title="聚焦所选模块" aria-label="聚焦所选模块" onClick={()=>{openDetail(selected)}}><Focus size={16}/></button>
-        <button title="放大" aria-label="放大模型" onClick={()=>detailId?setDetailZoom(z=>Math.min(z*1.25,100)):setZoom(z=>Math.min(z*1.25,100))}><ZoomIn size={16}/></button><button title="缩小" aria-label="缩小模型" onClick={()=>detailId?setDetailZoom(z=>Math.max(z/1.25,.05)):setZoom(z=>Math.max(z/1.25,.05))}><ZoomOut size={16}/></button>
+        <button title="放大" aria-label="放大模型" onClick={()=>setZoom(z=>Math.min(z*1.25,100))}><ZoomIn size={16}/></button><button title="缩小" aria-label="缩小模型" onClick={()=>setZoom(z=>Math.max(z/1.25,.05))}><ZoomOut size={16}/></button>
         <button title="重置视角" aria-label="重置视角" onClick={()=>{closeDetail();setView('orbit');setReset(n=>n+1);setZoom(1);setSpread(0);setIsolate(false)}}><RotateCcw size={16}/></button>
         <button title={expanded?'退出全屏':'全屏观看'} aria-label={expanded?'退出全屏':'全屏观看'} aria-pressed={expanded} onClick={fullscreen}>{expanded?<Minimize2 size={16}/>:<Maximize2 size={16}/>}</button>
       </div></div>
       <div className={`mm-scene-wrap${anatomy?' has-anatomy':''}`} ref={sceneWrap}>
         <div className="mm-scene-status"><span className={playing?'mm-live-dot is-playing':'mm-live-dot'}/>{playing?'信号流播放中':'自由探索'}<span>{anatomy?.mathematics?'数学内部 · 数值示例':'2D 网络 / 3D 拓扑'}</span></div>
-        {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={26}/><span>正在构建七层模型空间…</span></div>}><OrbitScene windowPage={windowPage} labelMode={labelMode} selected={selected} observed={observed} target={target} level={level} isolate={isolate} spread={spread} playing={playing&&inView&&!detailId} stage={stage} temperature={temperature} view={view} reset={reset} zoom={zoom} focus={focus} reducedMotion={reducedMotion} onSelect={select} onNavigate={openDetail} detailId={detailId} detailGraph={anatomy} activePart={activePart} detailMotion={detailMotion&&inView&&!editing} detailZoom={detailZoom} onPart={enterPart} mathProbe={mathProbe} mathProgress={mathProgress} mathFocus={mathFocus}/></Suspense>:<div className="mm-loading">三维模型将在进入视野后加载</div>}
+        {near?<Suspense fallback={<div className="mm-loading"><Layers3 size={26}/><span>正在构建七层模型空间…</span></div>}><PaperWorkScene windowPage={windowPage} labelMode={labelMode} observed={observed} selected={location} playing={playing&&inView&&!editing&&!reducedMotion} view={view} reset={reset} zoom={zoom} onSelect={openDetail}/></Suspense>:<div className="mm-loading">三维模型将在进入视野后加载</div>}
         {anatomy&&<div className="mm-anatomy-overlay">
           <div className="mm-anatomy-nav"><button onClick={back}><RotateCcw size={14}/>返回上一级</button><div aria-label="拆解路径">{detailPath.map((id,i)=><button key={`${id}-${i}`} aria-current={i===detailPath.length-1?'location':undefined} onClick={()=>openDetail(id)}>{i>0&&<ChevronRight size={12}/>}<span>{navName(id,observed)}</span></button>)}</div><button aria-label={detailMotion?'暂停内部数据流':'播放内部数据流'} onClick={()=>setDetailMotion(v=>!v)}>{detailMotion?<Pause size={14}/>:<Play size={14}/>}</button></div>
           <div className="mm-anatomy-hint"><span>{anatomy.mathematics?'点击数学步骤查看推导 · 拖动观察数值结构':'点击组件继续深入 · 拖动观察立体结构'}</span><span>边界外：输入来源 / 输出去向</span></div>
         </div>}
         <div className="mm-scene-foot"><span>拖动旋转 · 点击模块 · 双指平移</span><span>Encoder ↑ <i/> 生成路径 ↓</span></div>
       </div>
-      {anatomy?.mathematics&&<MathControls textKeyBase={location} spec={anatomy.mathematics} selected={mathStep} onSelect={n=>{setMathStep(n);setMathFocus(true)}} onOverview={()=>setMathFocus(false)} probe={mathProbe} onProbe={setMathProbe} progress={mathProgress} onProgress={v=>{setMathProgress(v);setDetailMotion(false)}} playing={detailMotion&&!reducedMotion} onPlaying={()=>setDetailMotion(v=>!v)} temperature={temperature}/>}
+
       {fullscreenNotice&&<p role="status" className="mm-fullscreen-notice">{fullscreenNotice}</p>}
       </div>
       <HierarchyBrowser id={location} observed={observed} onNavigate={openDetail} mathStep={mathStep} onMathStep={n=>{setMathStep(n);setMathFocus(true)}}/>

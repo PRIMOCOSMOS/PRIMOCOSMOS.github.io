@@ -99,7 +99,7 @@ export function executionBlock(source:Step):ExecutionBlock {
 
 export const activationKinds=new Set(['ReLU','ReLU6','LeakyReLU','Sigmoid','Tanh','SiLU','GELU','Hardswish','Hardsigmoid','Softplus'])
 export function executionGraph(run:Run,selected=run.steps,neuralLayers=false){
- const blocks=selected.map(s=>neuralLayers&&(s.kind==='Linear'||activationKinds.has(s.kind))?{source:s,steps:[{...s,settings:{...s.settings,owner:s.id}}],select:(_index:number)=>{},streamed:false}:executionBlock(s)),steps=blocks.flatMap(b=>b.steps),tensors=[...new Map([...run.tensors,...steps.flatMap(s=>[...s.inputs,s.output])].map(t=>[t.id,t])).values()]
+ const blocks=selected.map(s=>s.settings.symbolic||neuralLayers&&(s.kind==='Linear'||activationKinds.has(s.kind))?{source:s,steps:[{...s,settings:{...s.settings,owner:s.id}}],select:(_index:number)=>{},streamed:false}:executionBlock(s)),steps=blocks.flatMap(b=>b.steps),tensors=[...new Map([...run.tensors,...steps.flatMap(s=>[...s.inputs,s.output])].map(t=>[t.id,t])).values()]
  return {run:{...run,steps,tensors},blocks}
 }
 

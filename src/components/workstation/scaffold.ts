@@ -5,6 +5,8 @@ import type {Position3} from '../mmhvae/crystalPrimitives'
 // layers. Unlike its uniform sequential spacing, this layout uses the real DAG.
 // No numerical tensor is sampled, resized, or replaced by an operator marker.
 export function tensorLayout(t:Tensor){
+ if(t.window){const positions=t.window.positions, xs=positions.map(p=>p[0]),ys=positions.map(p=>p[1]),zs=positions.map(p=>p[2]);const width=Math.max(.6,Math.max(...xs)-Math.min(...xs)+.57),depth=Math.max(.6,Math.max(...zs)-Math.min(...zs)+.57),height=Math.max(.6,Math.max(...ys)-Math.min(...ys)+.57);return {positions,centers:[[0,0,0] as Position3],width,depth,height,planeWidth:width,planeDepth:depth,wrapped:false,volume:t.window.dimensions.length>=4};}
+
  if(t.shape.length===5){
   const [outer,channels,d,h,w]=t.shape,pitch=.57,slicePitch=.82,count=outer*channels,[rows,columns]=exactRectangle(count),gap=1.6;
   const width=columns*(w*pitch+gap)-gap,depth=rows*(h*pitch+gap)-gap,height=(d-1)*slicePitch+pitch;
