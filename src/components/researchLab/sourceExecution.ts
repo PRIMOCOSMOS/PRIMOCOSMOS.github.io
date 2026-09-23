@@ -40,7 +40,7 @@ function tensor(id:string,name:string,dims:(number|null)[],label:string,page:num
  const axes=dims.length?dims:[null],shape=axes.map(d=>d??1),str=axes.map((d,i)=>d??`d${i}`).join(' × '),w=sourceWindow(str,'tensor',page);
  const positions=w.positions.length?w.positions:[[0,0,0] as [number,number,number]],coordinates=w.coordinates.length?w.coordinates:[axes.map(()=>0)];
  const y=(Math.max(...positions.map(p=>p[1]))+Math.min(...positions.map(p=>p[1])))/2;
- return {id,name,shape,values:positions.map(()=>0),parameter,window:{shapeLabel:label||str,dimensions:axes,coordinates,positions:positions.map(p=>[p[0],p[1]-y,p[2]]),label:parameter?w.label.replace('C ','O ').replace('D ','I ').replace('行 ','O ').replace('列 ','I '):w.label,symbolic:true}};
+ return {id,name,shape,values:positions.map(()=>NaN),parameter,window:{shapeLabel:label||str,dimensions:axes,coordinates,positions:positions.map(p=>[p[0],p[1]-y,p[2]]),label:parameter?w.label.replace('C ','O ').replace('D ','I ').replace('行 ','O ').replace('列 ','I '):w.label,symbolic:true}};
 }
 function dimsFor(m:SourceModule,inputs:Tensor[]):(number|null)[]{
  if(m.dimensions)return [...m.dimensions];
@@ -59,7 +59,7 @@ export function compileSource(plan:SourcePlan,page=0):Run{
  while(pending.length){const ready=pending.filter(l=>plan.links.filter(e=>e.to===l.module.id).every(e=>done.has(e.from)||!all.has(e.from)));if(!ready.length){warnings.push('源码索引存在循环依赖：'+pending.map(l=>l.module.id).join(', '));break}for(const l of ready){pending.splice(pending.indexOf(l),1);done.add(l.module.id);ordered.push(l)}}
  const lookup=new WeakMap<Tensor,Map<string,number>>();
  const at=(t:Tensor,c:number[])=>{let map=lookup.get(t);if(!map){map=new Map(t.window!.coordinates.map((c,i)=>[key(c),i]));lookup.set(t,map)}return map.get(key(c))??-1};
- const term=(t:Tensor,c:number[],label?:string,factor?:number):Term=>({tensor:t.id,index:at(t,c),value:NaN,label:label??`${t.name}[${c.join(',')}]`,factor});
+ const term=(t:Tensor,c:number[],label?:string,factor?:number):Term=>({tensor:t.id,index:at(t,c),value:t.values[at(t,c)]??NaN,label:label??`${t.name}[${c.join(',')}]`,factor});
  const aligned=(t:Tensor,c:number[])=>{const delta=c.length-t.shape.length;return t.shape.map((d,i)=>d===1?0:c[i+delta]??0)};
  const make=(id:string,name:string,dims:(number|null)[],label='',param=false)=>{const t=tensor(id,name,dims,label,page,param);tensors.push(t);return t};
  const add=(leaf:Leaf,suffix:string,title:string,inputs:Tensor[],output:Tensor,formula:string,trace:Step['trace'],kind='Source',extra:Record<string,unknown>={})=>{
@@ -139,6 +139,7 @@ export function compileSource(plan:SourcePlan,page=0):Run{
     return ins.flatMap(t=>t.window!.coordinates.filter(c=>/fft|ifft/.test(op)||c.slice(0,-2).every((v,j)=>v===co(i)[j])).map(c=>term(t,c)))
    }, 'Source');
   }else if(kind==='tensor'&& !op.startsWith('lab:')&&!op.startsWith('core:')){
+   if(op==='zeros'||op==='ones'){out.constant=true;out.values.fill(op==='ones'?1:0)}
    add(leaf,'data',m.title,ins,out,m.formula,i=>ins.map(t=>term(t,aligned(t,co(i)))));
   }else{
    // Explicit algebra stages are on the root scaffold, never hidden in a popup.

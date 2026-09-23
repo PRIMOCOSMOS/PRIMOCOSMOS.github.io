@@ -15,7 +15,8 @@
     "typecheck": "tsc -b --pretty false",
     "verify:regions": "node scripts/verify-module-assembly.mjs",
     "verify:receptive-field": "node scripts/verify-receptive-field.mjs",
-    "verify:source-execution": "node scripts/verify-source-execution.mjs"
+    "verify:source-execution": "node scripts/verify-source-execution.mjs",
+    "verify:paper-colors": "node scripts/verify-paper-colors.mjs"
   },
   "dependencies": {
     "@fontsource-variable/tektur": "^5.2.8",
